@@ -1,6 +1,7 @@
        DEF  STACK,WS
 *
        DEF  OLDR12,COUNT,COLOR,RETPT
+       DEF  screen_copy
 *
        DEF  LBR0,LBR1,LBR2,LBR3,LBR4
        DEF  LBR5,LBR6,LBR7,LBR8,LBR9
@@ -10,30 +11,12 @@
 *
 * Variables
 *
-       AORG >8300
-*
-WS     BSS  >20
-       BSS  >10
-STACK
-*
-* Previously read time from CRU timer
-*
-*PRVTIM BSS  2
-*
-* Next Display position
-*DSPPOS BSS  2
-* Current Interrupt
-*CURINT BSS  2
-*
-* Space for converting value to decimal number string
-*
-*DECNUM BSS  5
-       EVEN
-OLDR12 DATA 0                  Temporary buffer for caller's R12
-COUNT  DATA 0
-COLOR  DATA >1717
-RETPT  DATA 0                  The return point
-
+WS     EQU  >8300
+STACK  EQU  >8320+>10
+OLDR12 EQU  >8330
+COUNT  EQU  >8332
+COLOR  EQU  >8334
+RETPT  EQU  >8336
 
 *
 * Avoid letting the above grow past >8370 which is reserved for GPL status
@@ -106,3 +89,7 @@ LBR12  EQU  WS+25
 LBR13  EQU  WS+27
 LBR14  EQU  WS+29
 LBR15  EQU  WS+31
+
+       AORG >A000
+screen_copy:
+       BSS  24*32

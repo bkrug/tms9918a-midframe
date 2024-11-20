@@ -42,7 +42,8 @@ temp_files = [
     "GROM",
     "MAIN",
     "VAR",
-    "VDP"
+    "VDP",
+    "DISABLEVDP"
 ]
 link_main_files("MIDFRAME.bin", temp_files)
 
