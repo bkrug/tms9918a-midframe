@@ -2,6 +2,7 @@
 *
        REF  STACK,WS                        Ref from VAR
        REF  OLDR12,COUNT,COLOR,RETPT
+       REF  GPLRT
        REF  GROMCR                          Ref from GROM
        REF  DSPINT,NUMASC                   Ref from DISPLAY
        REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
@@ -27,6 +28,9 @@ vdp_interrupt_bit_high:
        BYTE 0
 no_vdp_interrupt:
        TEXT 'No VDP interrupt for 1/3 sec.'
+       BYTE 0
+isr_unexpectedly_reached:
+       TEXT 'ISR reached unexpectedly.'
        BYTE 0
 
 *
@@ -58,6 +62,9 @@ FRSTLP CB   @VINTTM,R0
        BL   @block_vdp_interrupt
 *
        BL   @check_vdp_interrupt_bit
+* Specify user defined interrupt routine
+       LI   R0,report_unexpected_vdp
+       MOV  R0,@USRISR
 * Wait for about 1/3 second
        BL   @init_timer
        MOVB @VINTTM,R9
@@ -74,8 +81,25 @@ while_timer_not_elapsed:
 unexpected_vinttm_change:
        LI   R0,interrupt_occurred
        BL   @scroll_and_print
+* Specify user defined interrupt routine
+       CLR  @USRISR
 *
 COMPLETE JMP COMPLETE
+
+*
+*
+*
+report_unexpected_vdp:
+       MOV  R11,@GPLRT
+       LI   R10,WS
+       AI   R10,2*10
+       MOV  *R10,R10
+*
+       LI   R0,isr_unexpectedly_reached
+       BL   @scroll_and_print
+*
+       MOV  @GPLRT,R11
+       RT
 
 *
 * Check if VDP interrupt bit is high or low
