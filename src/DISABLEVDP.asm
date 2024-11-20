@@ -17,13 +17,13 @@ waiting_for_vdp:
        TEXT 'Waiting for VDP interrupt.'
        BYTE 0
 interrupt_occurred:
-       TEXT 'Interrupt occurred.'
+       TEXT 'VDP interrupt occurred.'
        BYTE 0
 vdp_interrupt_bit_low:
-       TEXT 'Interrupt bit low.'
+       TEXT 'VDP interrupt bit low.'
        BYTE 0
 vdp_interrupt_bit_high:
-       TEXT 'Interrupt bit high.'
+       TEXT 'VDP interrupt bit high.'
        BYTE 0
 no_vdp_interrupt:
        TEXT 'No VDP interrupt for 1/3 sec.'
@@ -58,6 +58,22 @@ FRSTLP CB   @VINTTM,R0
        BL   @block_vdp_interrupt
 *
        BL   @check_vdp_interrupt_bit
+* Wait for about 1/3 second
+       BL   @init_timer
+       MOVB @VINTTM,R9
+while_timer_not_elapsed:
+       BL   @get_timer_value
+       CI   R2,>80
+       JHE  while_timer_not_elapsed
+* Did a VDP interrupt occur?
+       CB   R9,@VINTTM
+       JNE  unexpected_vinttm_change
+       LI   R0,no_vdp_interrupt
+       BL   @scroll_and_print
+       JMP  COMPLETE
+unexpected_vinttm_change:
+       LI   R0,interrupt_occurred
+       BL   @scroll_and_print
 *
 COMPLETE JMP COMPLETE
 
@@ -109,7 +125,7 @@ get_timer_value:
        SBZ  0
 * Ignore left-most and right-most bits, while maintaining sign
        SLA  R2,1
-       SRA  R2,2
+       SRL  R2,2
        RT
 
 *
