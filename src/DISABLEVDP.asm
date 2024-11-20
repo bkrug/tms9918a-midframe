@@ -53,8 +53,34 @@ FRSTLP CB   @VINTTM,R0
        LI   R0,interrupt_occurred
        BL   @scroll_and_print
 *
+       BL   @check_vdp_interrupt_bit
+*
+       BL   @block_vdp_interrupt
+*
+       BL   @check_vdp_interrupt_bit
+*
 COMPLETE JMP COMPLETE
 
+*
+* Check if VDP interrupt bit is high or low
+* Log the result
+*
+check_vdp_interrupt_bit:
+       DECT R10
+       MOV  R11,*R10
+* Is the VDP interrupt high or low?
+       CLR  R12
+       TB   2
+       JNE  bit_low
+       LI   R0,vdp_interrupt_bit_high
+       BL   @scroll_and_print
+       JMP  vdp_check_done
+bit_low:
+       LI   R0,vdp_interrupt_bit_low
+       BL   @scroll_and_print
+vdp_check_done:
+       MOV  *R10+,R11
+       RT
 
 *
 * Private Method:
