@@ -28,10 +28,29 @@ BEGIN
 FRSTLP CB   @VINTTM,R0
        JEQ  FRSTLP
        LIMI 0
+* Set pattern that can flash.
+       LI   R0,>0900
+       BL   @VDPADR
+       LI   R1,>5522
+       MOVB R1,@VDPWD
+       SWPB R1
+       MOVB R1,@VDPWD
+       SWPB R1
+       MOVB R1,@VDPWD
+       SWPB R1
+       MOVB R1,@VDPWD
+       SWPB R1
+       MOVB R1,@VDPWD
+       SWPB R1
+       MOVB R1,@VDPWD
+       SWPB R1
+       MOVB R1,@VDPWD
+       SWPB R1
+       MOVB R1,@VDPWD
 *
        LI   R0,60
        MOV  R0,@COUNT
-       LI   R0,>1711
+       LI   R0,>1771
        MOV  R0,@COLOR
 *
 * Game Loop
@@ -53,7 +72,7 @@ MIDLP  JMP  MIDLP
 * Interrupt happened. Screen color was changed by OURISR
 IRET   LIMI 0                  Disable interrupts (Our ISR returns here)
        BL   @TIMOFF            Stops the timer. Restores VDP interrupt.
-*
+* Swap colors every second
        DEC  @COUNT
        JNE  CURSOR
        LI   R0,>0384
