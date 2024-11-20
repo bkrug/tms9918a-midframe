@@ -1,7 +1,7 @@
        DEF  BEGIN
 *
        REF  STACK,WS                        Ref from VAR
-       REF  DECNUM,PRVTIM,DSPPOS,CURINT     "
+       REF  OLDR12,COUNT,COLOR,RETPT
        REF  GROMCR                          Ref from GROM
        REF  DSPINT,NUMASC                   Ref from DISPLAY
        REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
@@ -29,28 +29,45 @@ FRSTLP CB   @VINTTM,R0
        JEQ  FRSTLP
        LIMI 0
 *
+       LI   R0,60
+       MOV  R0,@COUNT
+       LI   R0,>1711
+       MOV  R0,@COLOR
+*
 * Game Loop
 *
 GAMELP
 * Initialize Timer
-       BL   @INTTIM 
+       LI   R0,frame_wait      Middle of screen
+       LI   R1,OURISR          That's our hook
+       BL   @TIMEON            Start the timer
 * Set background color at top of screen
        LI   R0,>07FD
        BL   @VDPREG
-* Wait for midscreen timer
-MIDLP  BL   @GETTIM
-       CI   R2,-frame_wait
-       JGT  MIDLP
-* Set background color at bottom of screen
-       LI   R0,>07F4
-       BL   @VDPREG
-* Turn on VDP interrupts
+* Initialize midframe interrupt
+       LI   R11,IRET           Desired ISR return point
+       MOV  R11,@RETPT         From now on, timer interrupts will return at IRET
+* Wait for midframe interrupt
+       LIMI 2                  Enable interrupts
+MIDLP  JMP  MIDLP
+* Interrupt happened. Screen color was changed by OURISR
+IRET   LIMI 0                  Disable interrupts (Our ISR returns here)
+       BL   @TIMOFF            Stops the timer. Restores VDP interrupt.
+*
+       DEC  @COUNT
+       JNE  CURSOR
+       LI   R0,>0384
+       BL   @VDPADR
+       SWPB @COLOR
+       MOVB @COLOR,@VDPWD
+       LI   R0,60
+       MOV  R0,@COUNT
+CURSOR
+* Wait for VDP interrupt signalling end of frame
        LIMI 2
-* Wait for VDP interrupt
        MOVB @VINTTM,R0
 TOPLP  CB   @VINTTM,R0
        JEQ  TOPLP
-* Turn off interrupts so we can write to VDP
        LIMI 0
 * Continue Game Loop
        JMP  GAMELP
@@ -83,3 +100,46 @@ GETTIM CLR  R12
        SLA  R2,1
        SRA  R2,2
        RT
+
+* This routine hooks the timer interrupts
+* It expects a delay value in R0
+* and a branch vector in R1 (or >0000 to use a forever loop)
+TIMEON SOCB @H20,@>83FD        Set timer interrupt flag bit
+       MOV  R12,@OLDR12        Preserve caller's R12 
+       CLR  R12                CRU base address >0000 
+       SBZ  1                  Disable peripheral interrupts 
+       SBZ  2                  Disable VDP interrupts 
+       SBO  3                  Enable timer interrupts
+       MOV  R1,@>83E2          Zero if we want to wait in a forever loop 
+       JEQ  EVERLP      
+       SETO @>83E2             Flad: we intend to branch elsewhere 
+       MOV  R1,@>83EC          Set address where to go
+EVERLP SLA  R0,1               Make room for clock bit
+       INC  R0                 Set the clock bit to put TMS9901 in clock mode 
+       LDCR R0,15              Load the clock bit + the delay 
+       SBZ  0                  Back to normal mode: start timer
+       MOV  @OLDR12,R12        Restore caller's R12
+       B    *R11
+
+* This routines "unhooks" the timer interrupt
+TIMOFF SZCB @H20,@>83FD        Clear timer interrupt flag bit 
+       MOV  R12,@OLDR12        Preserve caller's R12    
+       CLR  R12                CRU base address >0000 
+       SBO  1                  Enables peripheral interrupts 
+       SBO  2                  Enables VDP interrupts 
+       SBZ  3                  Disables timer interrupts
+       MOV  @OLDR12,R12        Restore caller's R12
+       B    *R11
+
+H20    BYTE >20
+       EVEN
+
+* This is our ISR. All it does is to count the number of times it is called.
+OURISR
+* Set background color at bottom of screen
+       LI   R0,>07F4
+       BL   @VDPREG
+*
+       LWPI >83C0              Back to interrupt workspace (R13, R15 unchanged) 
+       MOV  @RETPT,R14         Get the return point (as R14 contains OURISR) 
+       RTWP                    Return to IRET

@@ -1,6 +1,6 @@
        DEF  STACK,WS
 *
-       DEF  PRVTIM,DECNUM,DSPPOS,CURINT
+       DEF  OLDR12,COUNT,COLOR,RETPT
 *
        DEF  LBR0,LBR1,LBR2,LBR3,LBR4
        DEF  LBR5,LBR6,LBR7,LBR8,LBR9
@@ -18,17 +18,22 @@ STACK
 *
 * Previously read time from CRU timer
 *
-PRVTIM BSS  2
+*PRVTIM BSS  2
 *
 * Next Display position
-DSPPOS BSS  2
+*DSPPOS BSS  2
 * Current Interrupt
-CURINT BSS  2
+*CURINT BSS  2
 *
 * Space for converting value to decimal number string
 *
-DECNUM BSS  5
+*DECNUM BSS  5
        EVEN
+OLDR12 DATA 0                  Temporary buffer for caller's R12
+COUNT  DATA 0
+COLOR  DATA >1717
+RETPT  DATA 0                  The return point
+
 
 *
 * Avoid letting the above grow past >8370 which is reserved for GPL status
