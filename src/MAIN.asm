@@ -16,6 +16,7 @@
 * Runable code
 *
 BEGIN
+*
        LWPI WS
        LI   R10,STACK
 *
@@ -162,3 +163,30 @@ OURISR
        LWPI >83C0              Back to interrupt workspace (R13, R15 unchanged) 
        MOV  @RETPT,R14         Get the return point (as R14 contains OURISR) 
        RTWP                    Return to IRET
+
+*
+* Wait for the VDP interrupt, but don't clear it.
+* Or some such giberish.
+*
+config_interrupt:
+* Munge the GPLWS.
+       LWPI >83E0
+       CLR  R14               * Disable cassette interrupt and protect >8379.
+       LI   R15,>877B         * Disable VDPST reading and protect >837B.   (>FC00 + >877B = >837B, so this results in moving >837B to itself)
+* Munge the INTWS.
+       LWPI >83C0
+       SETO R1                * Disable all VDP interrupt processing.
+       LI   R2,OURISR         * Set our interrupt vector.
+       SETO R11               * Disable screen timeouts.
+       CLR  R12               * Set to 9901 CRU base.
+*
+* Synchronize with the next VDP interrupt.
+SYNC   TB   2                 * Check for VDP interrupt.
+       JEQ  SYNC
+* Configure the 9901 for interrupts.
+       SBO  1                 * Enable external interrupt prioritization.
+       SBZ  2                 * Disable VDP interrupt prioritization.
+       SBZ  3                 * Disable Timer interrupt prioritization.
+* Done
+       LWPI WS
+       RT
