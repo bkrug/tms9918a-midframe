@@ -40,6 +40,9 @@ timer_isr_1_reached:
 timer_isr_2_reached:
        TEXT 'Timer ISR routine 2 reached'
        BYTE 0
+timer_isr_3_reached:
+       TEXT 'Timer ISR routine 3 reached'
+       BYTE 0
 *
        EVEN
 
@@ -91,20 +94,24 @@ while_timer_not_elapsed:
 unexpected_vinttm_change:
        LI   R0,interrupt_occurred
        BL   @scroll_and_print
-timer_interrupt_test:
 * Specify user defined interrupt routine
+timer_interrupt_test:
        LI   R0,report_timer_isr_1_hit
        MOV  R0,@USRISR
-       LI   R0,report_timer_isr_2_hit
-       BL   @set_timer_interrupt
-*       LI   R0,>3FFF
-*       LI   R1,report_timer_isr_2_hit
-*       BL   @set_2nd_timer_interrupt
+*       LI   R0,report_timer_isr_2_hit
+*       BL   @set_timer_interrupt
+       LI   R0,>3FFF
+       LI   R1,report_timer_isr_3_hit
+       BL   @set_2nd_timer_interrupt
 *
        BL   @init_timer
-       LIMI 2
 *
-COMPLETE JMP COMPLETE
+       CLR  R5
+increment_loop:
+       LIMI 2
+       INC  R5
+       JMP  increment_loop
+*
 
 *
 *
@@ -144,19 +151,31 @@ report_timer_isr_1_hit:
 *
 *
 report_timer_isr_2_hit:
-       JMP  report_timer_isr_2_hit
        LIMI 0
-       MOV  R11,@GPLRT
-       LI   R10,WS
-       AI   R10,2*10
-       MOV  *R10,R10
+       LWPI WS
 *
        LI   R0,timer_isr_2_reached
        BL   @scroll_and_print
 *
        LIMI 2
-       MOV  @GPLRT,R11
+       JMP  increment_loop
+
+*
+*
+*
+report_timer_isr_3_hit:
+       DECT R10
+       MOV  R11,*R10
+*
+       LIMI 0
+*
+       LI   R0,timer_isr_3_reached
+       BL   @scroll_and_print
+*
+       MOV  *R10+,R11
+       LIMI 2
        RT
+isr3_end JMP isr3_end
 
 *
 * Check if VDP interrupt bit is high or low
