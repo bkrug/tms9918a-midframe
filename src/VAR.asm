@@ -9,7 +9,7 @@
        DEF  LBR13,LBR14,LBR15
 
 *
-* Variables
+* Variables as >8300
 *
 WS     EQU  >8300
 STACK  EQU  >8320+>10
@@ -21,21 +21,15 @@ RETPT  EQU  >8336
 *
 * Avoid letting the above grow past >8370 which is reserved for GPL status
 *
-       .ifgt  $, >8370
-       .error 'Some variables occupy space reserved for GPL status block.'
-       .endif
+
 *
-       AORG >8380
+* Variables at >8380
+* 
 
 *
 * Avoid letting the above grow past >83C4 or so, which is reserved for
 * some other routines' workspaces.
 *
-       .ifgt  $, >83C4
-       .error 'Some variables occupy space reserved for Interpretter WS.'
-       .endif
-*
-       RORG
 
 *
 * Scratch PAD usage outside programmer control.
@@ -90,6 +84,6 @@ LBR13  EQU  WS+27
 LBR14  EQU  WS+29
 LBR15  EQU  WS+31
 
-       AORG >A000
+* (768 bytes)
 screen_copy:
-       BSS  24*32
+       EQU  >A000
