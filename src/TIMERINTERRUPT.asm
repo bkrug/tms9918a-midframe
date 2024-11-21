@@ -11,7 +11,7 @@
 *
 * STATUS:
 * Currently we have an interrupt that can maintain the return address.
-* BUT the interrupt is trigger much more often than it should be.
+* And the interrupt is only triggered 3 times per second, when the timer hits zero.
 *
 * Courious: If we stop calling "set_2nd_timer_interrupt", this breaks.
 * More clear: If we use H20 to set the flag, this breaks.
@@ -144,6 +144,12 @@ report_unexpected_vdp:
 *
 report_timer_isr_1_hit:
        LIMI 0
+* Clear timer interrupt
+       CLR  R12
+       SBZ  1
+       SBZ  2
+       SBO  3
+*
        MOV  R11,@GPLRT
        MOV  @>8300+(2*10),R10
 *
