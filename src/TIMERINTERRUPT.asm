@@ -43,9 +43,6 @@ isr_unexpectedly_reached:
 timer_isr_1_reached:
        TEXT 'Timer ISR routine 1 reached'
        BYTE 0
-timer_isr_2_reached:
-       TEXT 'Timer ISR routine 2 reached'
-       BYTE 0
 timer_isr_3_reached:
        TEXT 'Timer ISR routine 3 reached'
        BYTE 0
@@ -104,8 +101,6 @@ unexpected_vinttm_change:
 timer_interrupt_test:
        LI   R0,report_timer_isr_1_hit
        MOV  R0,@USRISR
-*       LI   R0,report_timer_isr_2_hit
-*       BL   @set_timer_interrupt
 *       LI   R0,>3FFF
 *       LI   R1,report_timer_isr_3_hit
 *       BL   @set_2nd_timer_interrupt
@@ -144,62 +139,53 @@ report_unexpected_vdp:
        RT
 
 *
-*
+* This is a traditional User-Defined interrupt.
+* It would be triggered by the VDP interrupt,
+* if we had not blocked those.
 *
 report_timer_isr_1_hit:
        LIMI 0
 * Clear timer interrupt
        CLR  R12
-       SBZ  1
-       SBZ  2
        SBO  3
-*
-       MOV  R11,@GPLRT
-       MOV  @>8300+(2*10),R10
-*
+* For some reason we need to re-confirm that we don't want VDP interrupts
+       SBZ  2
+* Get stack pointer
+       LI   R10,WS
+       AI   R10,2*10
+       MOV  *R10,R10
+* Save Return address
+       DECT R10
+       MOV  R11,*R10
+* Log message that the routine was triggered
        LI   R0,timer_isr_1_reached
-       BL   @scroll_and_print
-* Turn off interrupts in other WS
-* >83C0 will become the WS later
-       MOV   @>83DE,R0
-       ANDI  R0,>FFF0
-       MOV   R0,@>83DE
-*
-       MOV  @GPLRT,R11
-       RT
-* Dead code
-       LWPI >83C0
-       RTWP
-
-*
-*
-*
-report_timer_isr_2_hit:
-       LIMI 0
-       LWPI WS
-*
-       LI   R0,timer_isr_2_reached
        BL   @scroll_and_print
 *
        LIMI 2
-       JMP  increment_loop
+*
+       MOV  *R10+,R11
+       RT
 
 *
-*
+* This interrupt routine is meant to be called by "set_2nd_timer_interrupt"
 *
 report_timer_isr_3_hit:
        DECT R10
        MOV  R11,*R10
 *
        LIMI 0
+* Clear timer interrupt
+       CLR  R12
+       SBO  3
+       SBZ  2
 *
        LI   R0,timer_isr_3_reached
        BL   @scroll_and_print
 *
-       MOV  *R10+,R11
        LIMI 2
+*
+       MOV  *R10+,R11
        RT
-isr3_end JMP isr3_end
 
 *
 * Check if VDP interrupt bit is high or low
@@ -278,23 +264,12 @@ SYNC   TB   2                 * Check for VDP interrupt.
        LWPI WS
        RT
 
-*
-* Set timer interrupt
-*
-* Input:
-*   R0 - address of routine
-set_timer_interrupt:
-       LWPI >83C0
-       MOV  @WS,R2         * Set our interrupt vector.
-* Turn on timer interrupt
-       LWPI WS
-       CLR  R12
-       SBO  3
-       SBZ  0
-       RT
 
 *
-* Set timer interrupt
+* This is the non-hacky way to set a timer-interrupt.
+* Copied directly from: http://www.unige.ch/medecine/nouspikel/ti99/tms9901.htm
+* Thierry Nouspikel explains that the problem with this approach
+* is that we loose the return address.
 *
 * Input:
 *   R0 - delay
@@ -304,7 +279,7 @@ set_2nd_timer_interrupt:
        MOV  R12,@OLDR12        Preserve caller's R12 
        CLR  R12                CRU base address >0000 
        SBZ  1                  Disable peripheral interrupts 
-*       SBZ  2                  Disable VDP interrupts 
+       SBZ  2                  Disable VDP interrupts 
        SBO  3                  Enable timer interrupts
        MOV  R1,@>83E2          Zero if we want to wait in a forever loop 
        JEQ  EVERLP      
