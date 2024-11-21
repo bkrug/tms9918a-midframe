@@ -14,6 +14,8 @@
        COPY 'EQUCPUADR.asm'
        COPY 'EQU.asm'
 
+H20    BYTE >20
+
 waiting_for_vdp:
        TEXT 'Waiting for VDP interrupt.'
        BYTE 0
@@ -32,6 +34,14 @@ no_vdp_interrupt:
 isr_unexpectedly_reached:
        TEXT 'ISR reached unexpectedly.'
        BYTE 0
+timer_isr_1_reached:
+       TEXT 'Timer ISR routine 1 reached'
+       BYTE 0
+timer_isr_2_reached:
+       TEXT 'Timer ISR routine 2 reached'
+       BYTE 0
+*
+       EVEN
 
 *
 * Runable code
@@ -77,12 +87,22 @@ while_timer_not_elapsed:
        JNE  unexpected_vinttm_change
        LI   R0,no_vdp_interrupt
        BL   @scroll_and_print
-       JMP  COMPLETE
+       JMP  timer_interrupt_test
 unexpected_vinttm_change:
        LI   R0,interrupt_occurred
        BL   @scroll_and_print
+timer_interrupt_test:
 * Specify user defined interrupt routine
-       CLR  @USRISR
+       LI   R0,report_timer_isr_1_hit
+       MOV  R0,@USRISR
+       LI   R0,report_timer_isr_2_hit
+       BL   @set_timer_interrupt
+*       LI   R0,>3FFF
+*       LI   R1,report_timer_isr_2_hit
+*       BL   @set_2nd_timer_interrupt
+*
+       BL   @init_timer
+       LIMI 2
 *
 COMPLETE JMP COMPLETE
 
@@ -90,6 +110,7 @@ COMPLETE JMP COMPLETE
 *
 *
 report_unexpected_vdp:
+       LIMI 0
        MOV  R11,@GPLRT
        LI   R10,WS
        AI   R10,2*10
@@ -98,6 +119,42 @@ report_unexpected_vdp:
        LI   R0,isr_unexpectedly_reached
        BL   @scroll_and_print
 *
+       LIMI 2
+       MOV  @GPLRT,R11
+       RT
+
+*
+*
+*
+report_timer_isr_1_hit:
+       LIMI 0
+       MOV  R11,@GPLRT
+       LI   R10,WS
+       AI   R10,2*10
+       MOV  *R10,R10
+*
+       LI   R0,timer_isr_1_reached
+       BL   @scroll_and_print
+*
+       LIMI 2
+       MOV  @GPLRT,R11
+       RT
+
+*
+*
+*
+report_timer_isr_2_hit:
+       JMP  report_timer_isr_2_hit
+       LIMI 0
+       MOV  R11,@GPLRT
+       LI   R10,WS
+       AI   R10,2*10
+       MOV  *R10,R10
+*
+       LI   R0,timer_isr_2_reached
+       BL   @scroll_and_print
+*
+       LIMI 2
        MOV  @GPLRT,R11
        RT
 
@@ -171,9 +228,48 @@ block_vdp_interrupt:
 SYNC   TB   2                 * Check for VDP interrupt.
        JEQ  SYNC
 * Configure the 9901 for interrupts.
-       SBO  1                 * Enable external interrupt prioritization.
+       SBZ  1                 * Enable external interrupt prioritization.
        SBZ  2                 * Disable VDP interrupt prioritization.
        SBZ  3                 * Disable Timer interrupt prioritization.
 * Done
        LWPI WS
        RT
+
+*
+* Set timer interrupt
+*
+* Input:
+*   R0 - address of routine
+set_timer_interrupt:
+       LWPI >83C0
+       MOV  @WS,R2         * Set our interrupt vector.
+* Turn on timer interrupt
+       LWPI WS
+       CLR  R12
+       SBO  3
+       SBZ  0
+       RT
+
+*
+* Set timer interrupt
+*
+* Input:
+*   R0 - delay
+*   R1 - a branch vector in R1 (or >0000 to use a forever loop)
+set_2nd_timer_interrupt:
+       SOCB @H20,@>83FD        Set timer interrupt flag bit
+       MOV  R12,@OLDR12        Preserve caller's R12 
+       CLR  R12                CRU base address >0000 
+       SBZ  1                  Disable peripheral interrupts 
+       SBZ  2                  Disable VDP interrupts 
+       SBO  3                  Enable timer interrupts
+       MOV  R1,@>83E2          Zero if we want to wait in a forever loop 
+       JEQ  EVERLP      
+       SETO @>83E2             Flad: we intend to branch elsewhere 
+       MOV  R1,@>83EC          Set address where to go
+EVERLP SLA  R0,1               Make room for clock bit
+       INC  R0                 Set the clock bit to put TMS9901 in clock mode 
+       LDCR R0,15              Load the clock bit + the delay 
+       SBZ  0                  Back to normal mode: start timer
+       MOV  @OLDR12,R12        Restore caller's R12
+       B    *R11
