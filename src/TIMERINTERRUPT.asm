@@ -2,7 +2,6 @@
 *
        REF  STACK,WS                        Ref from VAR
        REF  OLDR12,COUNT,COLOR,RETPT
-       REF  GPLRT
        REF  GROMCR                          Ref from GROM
        REF  DSPINT,NUMASC                   Ref from DISPLAY
        REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
@@ -122,20 +121,25 @@ increment_loop:
 *
 
 *
-*
+* This ISR is configured to be called
+* after VDP interrupts were already supposed to be disabled
 *
 report_unexpected_vdp:
        LIMI 0
-       MOV  R11,@GPLRT
+*
        LI   R10,WS
        AI   R10,2*10
        MOV  *R10,R10
+*
+       DECT *R10
+       MOV  R11,*R10
 *
        LI   R0,isr_unexpectedly_reached
        BL   @scroll_and_print
 *
        LIMI 2
-       MOV  @GPLRT,R11
+*
+       MOV  *R10+,R11
        RT
 
 *
