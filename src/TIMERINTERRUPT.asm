@@ -246,7 +246,9 @@ get_timer_value:
 
 *
 * Wait for the VDP interrupt, but don't clear it.
-* Or some such giberish.
+* Any future interrupts will be interpreted by ROMs as VDP interrupts.
+* We can no longer listen for VDP interrupts,
+* but we can listen for timer interrupts.
 *
 block_vdp_interrupt:
 * Munge the GPLWS.
@@ -263,7 +265,7 @@ block_vdp_interrupt:
 SYNC   TB   2                 * Check for VDP interrupt.
        JEQ  SYNC
 * Configure the 9901 for interrupts.
-       SBZ  1                 * Enable external interrupt prioritization.
+       SBZ  1                 * Disable external interrupt prioritization.
        SBZ  2                 * Disable VDP interrupt prioritization.
        SBZ  3                 * Disable Timer interrupt prioritization.
 * Done

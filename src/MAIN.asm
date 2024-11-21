@@ -53,6 +53,9 @@ FRSTLP CB   @VINTTM,R0
        MOV  R0,@COUNT
        LI   R0,>1771
        MOV  R0,@COLOR
+* Block thread until then end of a frame
+* Fool TI-99/4a into thinking that later interrupts are VDP interrupts.
+       BL   @block_vdp_interrupt
 *
 * Game Loop
 *
@@ -83,12 +86,9 @@ IRET   LIMI 0                  Disable interrupts (Our ISR returns here)
        LI   R0,60
        MOV  R0,@COUNT
 CURSOR
-* Wait for VDP interrupt signalling end of frame
-       LIMI 2
-       MOVB @VINTTM,R0
-TOPLP  CB   @VINTTM,R0
-       JEQ  TOPLP
-       LIMI 0
+* Block thread until then end of a frame
+* Fool TI-99/4a into thinking that later interrupts are VDP interrupts.
+       BL   @block_vdp_interrupt
 * Continue Game Loop
        JMP  GAMELP
 
@@ -166,9 +166,12 @@ OURISR
 
 *
 * Wait for the VDP interrupt, but don't clear it.
-* Or some such giberish.
+* Any future interrupts will be interpreted by ROMs as VDP interrupts.
+* We can no longer listen for VDP interrupts,
+* but we can listen for timer interrupts.
 *
-config_interrupt:
+* TODO: These should be BLWP methods
+block_vdp_interrupt:
 * Munge the GPLWS.
        LWPI >83E0
        CLR  R14               * Disable cassette interrupt and protect >8379.
@@ -176,16 +179,40 @@ config_interrupt:
 * Munge the INTWS.
        LWPI >83C0
        SETO R1                * Disable all VDP interrupt processing.
-       LI   R2,OURISR         * Set our interrupt vector.
        SETO R11               * Disable screen timeouts.
        CLR  R12               * Set to 9901 CRU base.
+* Wait for one frame to finish
+       SBO  2
+       MOVB @>8802,R8
 *
 * Synchronize with the next VDP interrupt.
 SYNC   TB   2                 * Check for VDP interrupt.
        JEQ  SYNC
 * Configure the 9901 for interrupts.
-       SBO  1                 * Enable external interrupt prioritization.
+       SBZ  1                 * Disable external interrupt prioritization.
        SBZ  2                 * Disable VDP interrupt prioritization.
+       SBZ  3                 * Disable Timer interrupt prioritization.
+* Done
+       LWPI WS
+       RT
+
+*
+* Re-enable VDP interrupt
+*
+* TODO: These should be BLWP methods
+enable_vdp_interrupt:
+* Munge the GPLWS.
+       LWPI >83E0
+       LI   R14,>0108         * Enable cassette interrupt.
+       LI   R15,>8C02         * Enable VDPST.   (>FC00 + >8C02 = >8802 which holds the VDP status)
+* Munge the INTWS.
+       LWPI >83C0
+       CLR  R1                * Enable all VDP interrupt processing.
+       CLR  R11               * Reset screen timeouts.
+       LI   R12,>70           * Set to 9901 CRU base.
+* Configure the 9901 for interrupts.
+       SBZ  1                 * Disable external interrupt prioritization.
+       SBO  2                 * Enable VDP interrupt prioritization.
        SBZ  3                 * Disable Timer interrupt prioritization.
 * Done
        LWPI WS
