@@ -9,6 +9,15 @@
        REF  scroll_and_print                "
 
 *
+* STATUS:
+* Currently we have an interrupt that can maintain the return address.
+* BUT the interrupt is trigger much more often than it should be.
+*
+* Courious: If we stop calling "set_2nd_timer_interrupt", this breaks.
+* More clear: If we use H20 to set the flag, this breaks.
+*
+
+*
 * Addresses
 *
        COPY 'EQUCPUADR.asm'
@@ -140,10 +149,15 @@ report_timer_isr_1_hit:
 *
        LI   R0,timer_isr_1_reached
        BL   @scroll_and_print
-*
+* Turn off interrupts in other WS
+* >83C0 will become the WS later
        MOV   @>83DE,R0
        ANDI  R0,>FFF0
        MOV   R0,@>83DE
+*
+       MOV  @GPLRT,R11
+       RT
+* Dead code
        LWPI >83C0
        RTWP
 
