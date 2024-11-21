@@ -40,11 +40,11 @@ no_vdp_interrupt:
 isr_unexpectedly_reached:
        TEXT 'ISR reached unexpectedly.'
        BYTE 0
-timer_isr_1_reached:
-       TEXT 'Timer ISR routine 1 reached'
+user_isr_reached:
+       TEXT 'User Defined ISR reached'
        BYTE 0
-timer_isr_3_reached:
-       TEXT 'Timer ISR routine 3 reached'
+cassette_isr_reached:
+       TEXT 'Timer/Cassette ISR reached'
        BYTE 0
 *
        EVEN
@@ -99,11 +99,11 @@ unexpected_vinttm_change:
        BL   @scroll_and_print
 * Specify user defined interrupt routine
 timer_interrupt_test:
-       LI   R0,report_timer_isr_1_hit
+       LI   R0,report_user_isr_hit
        MOV  R0,@USRISR
 *       LI   R0,>3FFF
-*       LI   R1,report_timer_isr_3_hit
-*       BL   @set_2nd_timer_interrupt
+*       LI   R1,report_cassette_isr_hit
+*       BL   @set_timer_interrupt
 *
 * Enable timer interrupts
        CLR  R12                CRU base address >0000 
@@ -143,7 +143,7 @@ report_unexpected_vdp:
 * It would be triggered by the VDP interrupt,
 * if we had not blocked those.
 *
-report_timer_isr_1_hit:
+report_user_isr_hit:
        LIMI 0
 * Clear timer interrupt
        CLR  R12
@@ -158,7 +158,7 @@ report_timer_isr_1_hit:
        DECT R10
        MOV  R11,*R10
 * Log message that the routine was triggered
-       LI   R0,timer_isr_1_reached
+       LI   R0,user_isr_reached
        BL   @scroll_and_print
 *
        LIMI 2
@@ -167,9 +167,9 @@ report_timer_isr_1_hit:
        RT
 
 *
-* This interrupt routine is meant to be called by "set_2nd_timer_interrupt"
+* This interrupt routine is meant to be called by "set_timer_interrupt"
 *
-report_timer_isr_3_hit:
+report_cassette_isr_hit:
        DECT R10
        MOV  R11,*R10
 *
@@ -179,7 +179,7 @@ report_timer_isr_3_hit:
        SBO  3
        SBZ  2
 *
-       LI   R0,timer_isr_3_reached
+       LI   R0,cassette_isr_reached
        BL   @scroll_and_print
 *
        LIMI 2
@@ -274,7 +274,7 @@ SYNC   TB   2                 * Check for VDP interrupt.
 * Input:
 *   R0 - delay
 *   R1 - a branch vector in R1 (or >0000 to use a forever loop)
-set_2nd_timer_interrupt:
+set_timer_interrupt:
        SOCB @H20,@>83FD        Set timer interrupt flag bit
        MOV  R12,@OLDR12        Preserve caller's R12 
        CLR  R12                CRU base address >0000 
