@@ -136,16 +136,19 @@ report_unexpected_vdp:
 report_timer_isr_1_hit:
        LIMI 0
        MOV  R11,@GPLRT
-       LI   R10,WS
-       AI   R10,2*10
-       MOV  *R10,R10
+       MOV  @>8300+(2*10),R10
 *
        LI   R0,timer_isr_1_reached
        BL   @scroll_and_print
 *
-       LIMI 2
-       MOV  @GPLRT,R11
-       RT
+*       LI   R13,WS
+*       MOV  @>83DC,R14
+       MOV   @>83DE,R0
+       ANDI  R0,>FFF0
+       MOV   R0,@>83DE
+       LWPI >83C0
+*       LIMI 2
+       RTWP
 
 *
 *
@@ -276,11 +279,11 @@ set_timer_interrupt:
 *   R0 - delay
 *   R1 - a branch vector in R1 (or >0000 to use a forever loop)
 set_2nd_timer_interrupt:
-       SOCB @H20,@>83FD        Set timer interrupt flag bit
+*       SOCB @H20,@>83FD        Set timer interrupt flag bit
        MOV  R12,@OLDR12        Preserve caller's R12 
        CLR  R12                CRU base address >0000 
        SBZ  1                  Disable peripheral interrupts 
-       SBZ  2                  Disable VDP interrupts 
+*       SBZ  2                  Disable VDP interrupts 
        SBO  3                  Enable timer interrupts
        MOV  R1,@>83E2          Zero if we want to wait in a forever loop 
        JEQ  EVERLP      
