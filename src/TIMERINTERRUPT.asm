@@ -96,14 +96,16 @@ while_timer_not_elapsed:
 unexpected_vinttm_change:
        LI   R0,interrupt_occurred
        BL   @scroll_and_print
-* Specify user defined interrupt routine
+*
 timer_interrupt_test:
-       LI   R0,report_user_isr_hit
-       MOV  R0,@USRISR
+* Configure traditional timer/cassette interrupt
 *       LI   R0,>3FFF
 *       LI   R1,report_cassette_isr_hit
 *       BL   @set_timer_interrupt
 *
+* Specify user defined interrupt routine
+       LI   R0,report_user_isr_hit
+       MOV  R0,@USRISR
 * Enable timer interrupts
        CLR  R12                CRU base address >0000 
        SBO  3                  Enable timer interrupts
