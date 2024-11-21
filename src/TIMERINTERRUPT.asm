@@ -141,13 +141,10 @@ report_timer_isr_1_hit:
        LI   R0,timer_isr_1_reached
        BL   @scroll_and_print
 *
-*       LI   R13,WS
-*       MOV  @>83DC,R14
        MOV   @>83DE,R0
        ANDI  R0,>FFF0
        MOV   R0,@>83DE
        LWPI >83C0
-*       LIMI 2
        RTWP
 
 *
