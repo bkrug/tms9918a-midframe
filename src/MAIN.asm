@@ -195,25 +195,3 @@ SYNC   TB   2                 * Check for VDP interrupt.
 * Done
        LWPI WS
        RT
-
-*
-* Re-enable VDP interrupt
-*
-* TODO: These should be BLWP methods
-enable_vdp_interrupt:
-* Munge the GPLWS.
-       LWPI >83E0
-       LI   R14,>0108         * Enable cassette interrupt.
-       LI   R15,>8C02         * Enable VDPST.   (>FC00 + >8C02 = >8802 which holds the VDP status)
-* Munge the INTWS.
-       LWPI >83C0
-       CLR  R1                * Enable all VDP interrupt processing.
-       CLR  R11               * Reset screen timeouts.
-       LI   R12,>70           * Set to 9901 CRU base.
-* Configure the 9901 for interrupts.
-       SBZ  1                 * Disable external interrupt prioritization.
-       SBO  2                 * Enable VDP interrupt prioritization.
-       SBZ  3                 * Disable Timer interrupt prioritization.
-* Done
-       LWPI WS
-       RT
