@@ -13,9 +13,6 @@
 * Currently we have an interrupt that can maintain the return address.
 * And the interrupt is only triggered 3 times per second, when the timer hits zero.
 *
-* Courious: If we stop calling "set_2nd_timer_interrupt", this breaks.
-* More clear: If we use H20 to set the flag, this breaks.
-*
 
 *
 * Addresses
@@ -109,12 +106,19 @@ timer_interrupt_test:
        MOV  R0,@USRISR
 *       LI   R0,report_timer_isr_2_hit
 *       BL   @set_timer_interrupt
-       LI   R0,>3FFF
-       LI   R1,report_timer_isr_3_hit
-       BL   @set_2nd_timer_interrupt
+*       LI   R0,>3FFF
+*       LI   R1,report_timer_isr_3_hit
+*       BL   @set_2nd_timer_interrupt
 *
+* Enable timer interrupts
+       CLR  R12                CRU base address >0000 
+       SBO  3                  Enable timer interrupts
        BL   @init_timer
-*
+* Demonstrate that interrupts are not seeing a left-over return address
+       CLR  R11
+       CLR  R14
+* Increment R5 regularly so that we can see in the debugger
+* that work is happening in between interrupts.
        CLR  R5
 increment_loop:
        LIMI 2
@@ -296,7 +300,7 @@ set_timer_interrupt:
 *   R0 - delay
 *   R1 - a branch vector in R1 (or >0000 to use a forever loop)
 set_2nd_timer_interrupt:
-*       SOCB @H20,@>83FD        Set timer interrupt flag bit
+       SOCB @H20,@>83FD        Set timer interrupt flag bit
        MOV  R12,@OLDR12        Preserve caller's R12 
        CLR  R12                CRU base address >0000 
        SBZ  1                  Disable peripheral interrupts 
