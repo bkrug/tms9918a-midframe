@@ -2,6 +2,7 @@
 *
        REF  STACK,WS                        Ref from VAR
        REF  OLDR12,COUNT,COLOR,RETPT
+       REF  interrupt_count
        REF  GROMCR                          Ref from GROM
        REF  DSPINT,NUMASC                   Ref from DISPLAY
        REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
@@ -53,53 +54,53 @@ FRSTLP CB   @VINTTM,R0
        MOV  R0,@COUNT
        LI   R0,>1771
        MOV  R0,@COLOR
-* Block thread until then end of a frame
-* Fool TI-99/4a into thinking that later interrupts are VDP interrupts.
-       BL   @block_vdp_interrupt
 *
 * Game Loop
 *
-GAMELP
-* Initialize Timer
-       LI   R0,frame_wait      Middle of screen
-       LI   R1,OURISR          That's our hook
-       BL   @TIMEON            Start the timer
+game_loop:
+* Block thread until then end of a frame
+* Fool TI-99/4a into thinking that later interrupts are VDP interrupts.
+       BL   @block_vdp_interrupt
+* Start clock for timer interrupt
+       LI   R1,frame_wait
+       BL   @set_timer
 * Set background color at top of screen
        LI   R0,>07FD
        BL   @VDPREG
-* Initialize midframe interrupt
-       LI   R11,IRET           Desired ISR return point
-       MOV  R11,@RETPT         From now on, timer interrupts will return at IRET
-* Wait for midframe interrupt
-       LIMI 2                  Enable interrupts
-MIDLP  JMP  MIDLP
-* Interrupt happened. Screen color was changed by OURISR
-IRET   LIMI 0                  Disable interrupts (Our ISR returns here)
-       BL   @TIMOFF            Stops the timer. Restores VDP interrupt.
+* Set timer-interrupt routine
+       LI   R1,OURISR
+       MOV  R1,@USRISR
+       CLR  @interrupt_count
+* Enable Timer interrupt prioritization
+       CLR  R12
+       SBO  3
+       LIMI 2
 * Swap colors every second
        DEC  @COUNT
-       JNE  CURSOR
+       JNE  flash
        LI   R0,>0384
        BL   @VDPADR
        SWPB @COLOR
        MOVB @COLOR,@VDPWD
        LI   R0,60
        MOV  R0,@COUNT
-CURSOR
-* Block thread until then end of a frame
-* Fool TI-99/4a into thinking that later interrupts are VDP interrupts.
-       BL   @block_vdp_interrupt
+flash
+* TODO: Don't end game loop until the timer-interrupt has triggered
 * Continue Game Loop
-       JMP  GAMELP
+while_waiting_for_interrupt:
+       MOV  @interrupt_count,R0
+       JEQ  while_waiting_for_interrupt
+       JMP  game_loop
 
 *
 * Private Method:
 * Initialize Timer
 *
-INTTIM 
+* Input
+*   R1 - time before trigger (least significant 14-bits)
+set_timer:
        CLR  R12         CRU base of the TMS9901 
        SBO  0           Enter timer mode
-       LI   R1,>3FFF    Maximum value
        INCT R12         Address of bit 1 
        LDCR R1,14       Load value 
        DECT R12         There is a faster way (see http://www.nouspikel.com/ti99/titechpages.htm) 
@@ -107,62 +108,34 @@ INTTIM
        RT
 
 *
-* Private Method:
-* Get Time from CRU
-* Output: R2
-*   - Status bits compared to 0
+* This is a traditional User-Defined interrupt.
+* It would be triggered by the VDP interrupt,
+* if we had not blocked those.
 *
-GETTIM CLR  R12 
-       SBO  0           Enter timer mode 
-       STCR R2,15       Read current value (plus mode bit)
-       SBZ  0
-* Ignore left-most and right-most bits, while maintaining sign
-       SLA  R2,1
-       SRA  R2,2
-       RT
-
-* This routine hooks the timer interrupts
-* It expects a delay value in R0
-* and a branch vector in R1 (or >0000 to use a forever loop)
-TIMEON SOCB @H20,@>83FD        Set timer interrupt flag bit
-       MOV  R12,@OLDR12        Preserve caller's R12 
-       CLR  R12                CRU base address >0000 
-       SBZ  1                  Disable peripheral interrupts 
-       SBZ  2                  Disable VDP interrupts 
-       SBO  3                  Enable timer interrupts
-       MOV  R1,@>83E2          Zero if we want to wait in a forever loop 
-       JEQ  EVERLP      
-       SETO @>83E2             Flad: we intend to branch elsewhere 
-       MOV  R1,@>83EC          Set address where to go
-EVERLP SLA  R0,1               Make room for clock bit
-       INC  R0                 Set the clock bit to put TMS9901 in clock mode 
-       LDCR R0,15              Load the clock bit + the delay 
-       SBZ  0                  Back to normal mode: start timer
-       MOV  @OLDR12,R12        Restore caller's R12
-       B    *R11
-
-* This routines "unhooks" the timer interrupt
-TIMOFF SZCB @H20,@>83FD        Clear timer interrupt flag bit 
-       MOV  R12,@OLDR12        Preserve caller's R12    
-       CLR  R12                CRU base address >0000 
-       SBO  1                  Enables peripheral interrupts 
-       SBO  2                  Enables VDP interrupts 
-       SBZ  3                  Disables timer interrupts
-       MOV  @OLDR12,R12        Restore caller's R12
-       B    *R11
-
-H20    BYTE >20
-       EVEN
-
-* This is our ISR. All it does is to count the number of times it is called.
 OURISR
+       LIMI 0
+* Turn off timer-interrupt
+       CLR  R12
+       SBZ  3
+* For some reason we need to re-confirm that we don't want VDP interrupts
+       SBZ  2
+* Let main code know if the interrupt was hit or not
+       INC  @interrupt_count
+* Get stack pointer
+       LI   R10,WS
+       AI   R10,2*10
+       MOV  *R10,R10
+* Save Return address
+       DECT R10
+       MOV  R11,*R10
 * Set background color at bottom of screen
        LI   R0,>07F4
        BL   @VDPREG
 *
-       LWPI >83C0              Back to interrupt workspace (R13, R15 unchanged) 
-       MOV  @RETPT,R14         Get the return point (as R14 contains OURISR) 
-       RTWP                    Return to IRET
+       LIMI 2
+*
+       MOV  *R10+,R11
+       RT
 
 *
 * Wait for the VDP interrupt, but don't clear it.
@@ -191,7 +164,6 @@ SYNC   TB   2                 * Check for VDP interrupt.
 * Configure the 9901 for interrupts.
        SBZ  1                 * Disable external interrupt prioritization.
        SBZ  2                 * Disable VDP interrupt prioritization.
-       SBZ  3                 * Disable Timer interrupt prioritization.
 * Done
        LWPI WS
        RT

@@ -1,6 +1,8 @@
        DEF  STACK,WS
 *
        DEF  OLDR12,COUNT,COLOR,RETPT
+       DEF  interrupt_count
+*
        DEF  screen_copy
 *
        DEF  LBR0,LBR1,LBR2,LBR3,LBR4
@@ -17,6 +19,7 @@ OLDR12 EQU  >8330
 COUNT  EQU  >8332
 COLOR  EQU  >8334
 RETPT  EQU  >8336
+interrupt_count    EQU  >8338
 
 *
 * Avoid letting the above grow past >8370 which is reserved for GPL status
