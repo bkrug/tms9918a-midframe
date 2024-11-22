@@ -251,6 +251,7 @@ get_timer_value:
 * but we can listen for timer interrupts.
 *
 block_vdp_interrupt:
+       LIMI 0
 * Munge the GPLWS.
        LWPI >83E0
        CLR  R14               * Disable cassette interrupt and protect >8379.

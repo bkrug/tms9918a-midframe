@@ -74,7 +74,6 @@ game_loop:
 * Enable Timer interrupt prioritization
        CLR  R12
        SBO  3
-       LIMI 2
 * Swap colors every second
        DEC  @COUNT
        JNE  flash
@@ -85,6 +84,8 @@ game_loop:
        LI   R0,60
        MOV  R0,@COUNT
 flash
+* Enable interrupts
+       LIMI 2
 * TODO: Don't end game loop until the timer-interrupt has triggered
 * Continue Game Loop
 while_waiting_for_interrupt:
@@ -145,6 +146,7 @@ OURISR
 *
 * TODO: These should be BLWP methods
 block_vdp_interrupt:
+       LIMI 0
 * Munge the GPLWS.
        LWPI >83E0
        CLR  R14               * Disable cassette interrupt and protect >8379.
