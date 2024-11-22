@@ -1,4 +1,4 @@
-       REF  BEGIN,disable_vdp
+       REF  BEGIN,disable_vdp,tiles
 
 ********@*****@*********************@**************************
 *--------------------------------------------------------------
@@ -8,8 +8,14 @@
 * it is important to include '-a ">6000"' in the xas99.py
 * command when linking files into a cartridge.
        BYTE  >AA,1,1,0,0,0
-       DATA  PROG2
+       DATA  PROG3
        BYTE  0,0,0,0,0,0,0,0
+*
+PROG3  DATA  PROG2
+       DATA  tiles
+       BYTE  P3MSGE-P3MSG
+P3MSG  TEXT  'TILES'
+P3MSGE
 *
 PROG2  DATA  PROG1
        DATA  disable_vdp
