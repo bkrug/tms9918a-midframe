@@ -6,7 +6,7 @@
        REF  all_lines_scanned
        REF  isr_table_address
        REF  isr_element_address
-       REF  interrupt_element_count
+       REF  isr_end_address
 
 *
 * Addresses
@@ -106,6 +106,9 @@ restart_timer_loop
        MOV  R0,@isr_element_address
        BL   @set_timer
 *
+       LI   R0,timer_interrupts+(2*4)
+       MOV  R0,@isr_end_address
+*
        CLR  @all_lines_scanned
 * Enable Timer interrupt prioritization
        CLR  R12
@@ -160,6 +163,13 @@ timer_isr
        SBZ  2
 * Run child interrupt
        BL   *R9
+* did we run out of ISR elements?
+       C    @isr_element_address,@isr_end_address
+       JL   not_end_of_isr_list
+* Yes, let main code know that it can proceed with the next game loop
+* and thus can test for the next end-of-frame
+       SETO @all_lines_scanned
+not_end_of_isr_list
 *
        LIMI 2
 *
@@ -181,8 +191,6 @@ yellow_color_isr
 blue_color_isr
        DECT R10
        MOV  R11,*R10
-* Let main code know if the interrupt was hit or not
-       SETO @all_lines_scanned
 * Set background color
        LI   R0,>0704
        BL   @VDPREG

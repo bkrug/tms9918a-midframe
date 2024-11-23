@@ -1,11 +1,11 @@
        DEF  STACK,WS
 *
        DEF  OLDR12,COUNT,COLOR,RETPT
-       DEF  isr_count
+       DEF  isr_hit_count
        DEF  all_lines_scanned
        DEF  isr_table_address
        DEF  isr_element_address
-       DEF  interrupt_element_count
+       DEF  isr_end_address
 *
        DEF  screen_copy
 *
@@ -23,11 +23,11 @@ OLDR12 EQU  >8330
 COUNT  EQU  >8332
 COLOR  EQU  >8334
 RETPT  EQU  >8336
-isr_count           EQU  >8338
+isr_hit_count             EQU  >8338
 all_lines_scanned         EQU  >833A
-isr_table_address   EQU  >833C
-isr_element_address EQU  >833E
-interrupt_element_count   EQU  >8340
+isr_table_address         EQU  >833C
+isr_element_address       EQU  >833E
+isr_end_address           EQU  >8340
 
 *
 * Avoid letting the above grow past >8370 which is reserved for GPL status
