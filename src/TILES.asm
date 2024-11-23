@@ -76,34 +76,45 @@ while_tiles_to_write
        DEC  R0
        JNE  while_tiles_to_write
 *
+       LI   R1,timer_isr
+       MOV  R1,@USRISR
+*
 game_loop
        BL   @block_vdp_interrupt
-*
-       LI   R1,275
-       BL   @set_timer
+* Set timer-interrupt routine
+       BL   @restart_timer_loop
 * Set background color
        LI   R0,>0706
        BL   @VDPREG
-* Set timer-interrupt routine
-       LI   R1,timer_interrupts
-       MOV  R1,@isr_element_address
-       MOV  *R1,R1
-       BL   @set_timer
-*
-       LI   R1,timer_isr
-       MOV  R1,@USRISR
-       CLR  @all_lines_scanned
-* Enable Timer interrupt prioritization
-       CLR  R12
-       SBO  3
-* Enable interrupts
-       LIMI 2
 * Don't end game loop until the timer-interrupt has triggered
 while_waiting_for_interrupt
        MOV  @all_lines_scanned,R0
        JEQ  while_waiting_for_interrupt
 *
        JMP  game_loop
+
+*
+* Point back to the initial isr_element
+*
+restart_timer_loop
+       DECT R10
+       MOV  R11,*R10
+* Reset timer
+* Initialize "isr_element_address"
+       LI   R0,timer_interrupts
+       MOV  *R0+,R1
+       MOV  R0,@isr_element_address
+       BL   @set_timer
+*
+       CLR  @all_lines_scanned
+* Enable Timer interrupt prioritization
+       CLR  R12
+       SBO  3
+* Enable interrupts
+       LIMI 2
+*
+       MOV  *R10+,R11
+       RT
 
 *
 * Private Method:
@@ -120,6 +131,10 @@ set_timer
        SBZ  0           Exit clock mode, start decrementer 
        RT
 
+*
+* Parent ISR
+* keeps track of the next child isr
+*
 timer_isr
        LIMI 0
 * Get stack pointer
@@ -130,15 +145,13 @@ timer_isr
        DECT R10
        MOV  R11,*R10
 * Let R9 = address of child interrupt
-* Let R8 = next timer value
+* Let R1 = next timer value
 * Update interrupt element address
-       MOV  @isr_element_address,R1
-       INCT R1
-       MOV  *R1+,R9
-       MOV  R1,@isr_element_address
-       MOV  *R1,R8
+       MOV  @isr_element_address,R0
+       MOV  *R0+,R9
+       MOV  *R0+,R1
+       MOV  R0,@isr_element_address
 * Configure next interrupt's timer
-       MOV  R8,R1
        BL   @set_timer
 * Clear timer-interrupt
        CLR  R12
