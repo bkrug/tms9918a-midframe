@@ -87,7 +87,7 @@ game_loop
 * Don't end game loop until the timer-interrupt has triggered
 while_waiting_for_interrupt
        MOV  @interrupt_count,R0
-       CI   R0,1
+       CI   R0,2
        JL   while_waiting_for_interrupt
 *
        JMP  game_loop
@@ -111,13 +111,6 @@ set_timer
 
 yellow_color_isr
        LIMI 0
-* Turn off timer-interrupt
-       CLR  R12
-       SBZ  3
-* For some reason we need to re-confirm that we don't want VDP interrupts
-       SBZ  2
-* Let main code know if the interrupt was hit or not
-       INC  @interrupt_count
 * Get stack pointer
        LI   R10,WS
        AI   R10,2*10
@@ -125,6 +118,18 @@ yellow_color_isr
 * Save Return address
        DECT R10
        MOV  R11,*R10
+* Configure next interrupt
+       LI   R1,175
+       BL   @set_timer
+       LI   R1,blue_color_isr
+       MOV  R1,@USRISR
+* Clear timer-interrupt
+       CLR  R12
+       SBO  3
+* For some reason we need to re-confirm that we don't want VDP interrupts
+       SBZ  2
+* Let main code know if the interrupt was hit or not
+       INC  @interrupt_count
 * Set background color
        LI   R0,>070A
        BL   @VDPREG
@@ -135,6 +140,29 @@ yellow_color_isr
        RT
 
 blue_color_isr
+       LIMI 0
+* Get stack pointer
+       LI   R10,WS
+       AI   R10,2*10
+       MOV  *R10,R10
+* Save Return address
+       DECT R10
+       MOV  R11,*R10
+* Turn off timer-interrupt
+       CLR  R12
+       SBZ  3
+* For some reason we need to re-confirm that we don't want VDP interrupts
+       SBZ  2
+* Let main code know if the interrupt was hit or not
+       INC  @interrupt_count
+* Set background color
+       LI   R0,>0704
+       BL   @VDPREG
+*
+       LIMI 2
+*
+       MOV  *R10+,R11
+       RT
 
 purple_color_isr
 
