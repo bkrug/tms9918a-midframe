@@ -86,8 +86,7 @@ game_loop:
 flash
 * Enable interrupts
        LIMI 2
-* TODO: Don't end game loop until the timer-interrupt has triggered
-* Continue Game Loop
+* Don't end game loop until the timer-interrupt has triggered
 while_waiting_for_interrupt:
        MOV  @interrupt_count,R0
        JEQ  while_waiting_for_interrupt
