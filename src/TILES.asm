@@ -39,6 +39,7 @@ scan_line_interrupts
        DATA 8*8+4,blue_color_isr
        DATA 12*8+0,yellow_color_isr
        DATA 16*8+4,blue_color_isr
+scan_line_interrups_end
        DATA vdp_mock,purple_color_isr
 * timer of first scan line
 top_scan_time        DATA 187
@@ -51,7 +52,7 @@ tiles
        BL   @init_graphics
 * Specify the location of the table of timer ISRs
        LI   R0,scan_line_interrupts
-       LI   R1,5
+       LI   R1,scan_line_interrups_end
        BL   @init_timer_loop
 *
 game_loop
@@ -80,16 +81,14 @@ while_waiting_for_interrupt
 *
 * Input:
 *   R0 - address of scan-line-ISR-table
-*   R1 - number of elements
+*   R1 - end of scan-line-ISR-table
 init_timer_loop
        DECT R10
        MOV  R11,*R10
 * Let R8 = table start address
 * Let R9 = table end address
        MOV  R0,R8
-       SLA  R1,2
-       A    R1,R0
-       MOV  R0,R9
+       MOV  R1,R9
 * Let R7 = destination address
        LI   R7,timer_interrupts
 while_isr_records_remain
