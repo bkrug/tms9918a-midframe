@@ -2,6 +2,10 @@
 *
        DEF  OLDR12,COUNT,COLOR,RETPT
        DEF  interrupt_count
+       DEF  all_lines_scanned
+       DEF  interrupt_table_address
+       DEF  interrupt_element_address
+       DEF  interrupt_element_count
 *
        DEF  screen_copy
 *
@@ -19,7 +23,11 @@ OLDR12 EQU  >8330
 COUNT  EQU  >8332
 COLOR  EQU  >8334
 RETPT  EQU  >8336
-interrupt_count    EQU  >8338
+interrupt_count           EQU  >8338
+all_lines_scanned         EQU  >833A
+interrupt_table_address   EQU  >833C
+interrupt_element_address EQU  >833E
+interrupt_element_count   EQU  >8340
 
 *
 * Avoid letting the above grow past >8370 which is reserved for GPL status

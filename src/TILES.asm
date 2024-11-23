@@ -2,8 +2,11 @@
 *
        REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
        REF  STACK                           Ref from VAR
-       REF  interrupt_count
        REF  WS
+       REF  all_lines_scanned
+       REF  interrupt_table_address
+       REF  interrupt_element_address
+       REF  interrupt_element_count
 
 *
 * Addresses
@@ -17,6 +20,11 @@ coinc_sprite_pattern
        DATA >0800,>0000,>0000,>0000
 color  BYTE >10
        EVEN
+timer_interrupts
+*       DATA 275,red_color_isr
+       DATA 275,yellow_color_isr
+       DATA 175,blue_color_isr
+*       DATA vdp_mock,purple_color_isr
 scan_line_interrupts
 *       DATA -8,red_color_isr
        DATA 9*8+0,yellow_color_isr
@@ -78,7 +86,7 @@ game_loop
 * Set timer-interrupt routine
        LI   R1,yellow_color_isr
        MOV  R1,@USRISR
-       CLR  @interrupt_count
+       CLR  @all_lines_scanned
 * Enable Timer interrupt prioritization
        CLR  R12
        SBO  3
@@ -86,9 +94,8 @@ game_loop
        LIMI 2
 * Don't end game loop until the timer-interrupt has triggered
 while_waiting_for_interrupt
-       MOV  @interrupt_count,R0
-       CI   R0,2
-       JL   while_waiting_for_interrupt
+       MOV  @all_lines_scanned,R0
+       JEQ  while_waiting_for_interrupt
 *
        JMP  game_loop
 
@@ -128,8 +135,6 @@ yellow_color_isr
        SBO  3
 * For some reason we need to re-confirm that we don't want VDP interrupts
        SBZ  2
-* Let main code know if the interrupt was hit or not
-       INC  @interrupt_count
 * Set background color
        LI   R0,>070A
        BL   @VDPREG
@@ -154,7 +159,7 @@ blue_color_isr
 * For some reason we need to re-confirm that we don't want VDP interrupts
        SBZ  2
 * Let main code know if the interrupt was hit or not
-       INC  @interrupt_count
+       SETO @all_lines_scanned
 * Set background color
        LI   R0,>0704
        BL   @VDPREG
