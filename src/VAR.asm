@@ -8,6 +8,7 @@
        DEF  isr_end_address
 *
        DEF  screen_copy
+       DEF  timer_interrupts
 *
        DEF  LBR0,LBR1,LBR2,LBR3,LBR4
        DEF  LBR5,LBR6,LBR7,LBR8,LBR9
@@ -95,6 +96,8 @@ LBR13  EQU  WS+27
 LBR14  EQU  WS+29
 LBR15  EQU  WS+31
 
-* (768 bytes)
+
 screen_copy:
-       EQU  >A000
+       EQU  >A000      * >300 bytes
+timer_interrupts:
+       EQU  >A300      * >40 bytes
