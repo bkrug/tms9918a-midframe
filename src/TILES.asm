@@ -34,10 +34,11 @@ sprite_attributes
        DATA >3F00,0
 scan_line_interrupts
 *       DATA -8,red_color_isr
-       DATA 3*8+7,yellow_color_isr
-       DATA 10*8+4,blue_color_isr
-       DATA 14*8+3,yellow_color_isr
-       DATA 21*8+0,blue_color_isr
+       DATA 0,blue_color_isr
+       DATA 4*8+0,yellow_color_isr
+       DATA 8*8+4,blue_color_isr
+       DATA 12*8+0,yellow_color_isr
+       DATA 16*8+4,blue_color_isr
        DATA vdp_mock,purple_color_isr
 * timer of first scan line
 top_scan_time        DATA 187
@@ -50,7 +51,7 @@ tiles
        BL   @init_graphics
 * Specify the location of the table of timer ISRs
        LI   R0,scan_line_interrupts
-       LI   R1,4
+       LI   R1,5
        BL   @init_timer_loop
 *
 game_loop
@@ -300,7 +301,7 @@ timer_isr
        MOV  R0,@isr_element_address
 * Subtract 12 CRU ticks from timer value.
 * There is a delay between triggering the ISR, and resetting the timer
-       AI   R1,-12
+       AI   R1,-11
 * Configure next interrupt's timer
        BL   @set_timer
 * Clear timer-interrupt
