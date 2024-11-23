@@ -23,6 +23,6 @@ and one of our routines will calculate the timer-value for us.
 + Psuedo-parallax scrolling. Choose different pattern tables at different scan lines, to create the appearance of scrolling by different amounts.
 + If the picture on screen displays sky and ground, then the background border can match the sky color and ground color at different parts of the screen.
 + Give a text-mode screen a header section and body section that are of different colors.
-+ Turn text-mode into a bitmap mode by giving each quarter of the screen its own pattern table.
++ Turn text-mode into a bitmap mode by giving each quarter of the screen its own pattern table, perhaps for WYSIWYG text.
 + Exceed 32 sprite limitation.
 + One sprite with more than one color.

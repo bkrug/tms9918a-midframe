@@ -36,62 +36,51 @@ tiles
        LWPI WS
        LI   R10,STACK
        LIMI 0
-* Sprites should be 8x8, and VDP interrupts are enabled
-       LI   R0,>01E0
-       BL   @VDPREG
-* Screen Image table
-       LI   R0,>0200
-       BL   @VDPREG
-* Color table
-       LI   R0,>030E
-       BL   @VDPREG
-* Tile pattern table
-       LI   R0,>0401
-       BL   @VDPREG
-* Sprite attribute list
-       LI   R0,>0506
-       BL   @VDPREG
-* Sprite pattern table (occupies same space as tile pattern table)
-       LI   R0,>0601
-       BL   @VDPREG
-* Write patterns
-* >00 = tile pattern forming dotted lines
-* >01 = our sprite
-       LI   R0,>800
-       BL   @VDPADR
-       LI   R0,char_pattern
-       LI   R1,2*8
-       BL   @VDPWRT
-* Write color code
-       LI   R0,>380
-       BL   @VDPADR
-       MOVB @COLOR,@VDPWD
-* Write tiles
-       CLR  R0
-       BL   @VDPADR
-       LI   R0,24*32
-       CLR  R1
-while_tiles_to_write
-       MOVB R1,@VDPWD
-       DEC  R0
-       JNE  while_tiles_to_write
-*
-       LI   R1,timer_isr
-       MOV  R1,@USRISR
+* Initialize graphics
+       BL   @init_graphics
+* Specify the location of the table of timer ISRs
+       LI   R0,timer_interrupts
+       LI   R1,2
+       BL   @init_timer_loop
 *
 game_loop
+* Disable interrupts
+       LIMI 0
+*
        BL   @block_vdp_interrupt
 * Set timer-interrupt routine
        BL   @restart_timer_loop
 * Set background color
        LI   R0,>0706
        BL   @VDPREG
+* Enable interrupts
+       LIMI 2
 * Don't end game loop until the timer-interrupt has triggered
+*
 while_waiting_for_interrupt
        MOV  @all_lines_scanned,R0
        JEQ  while_waiting_for_interrupt
 *
        JMP  game_loop
+
+*
+* Initialize the timer loop.
+* Tell the system where the isr_table is located.
+*
+* Input:
+*   R0 - isr_table_address
+*   R1 - number of elements
+init_timer_loop
+* Set start/end addresses
+       MOV  R0,@isr_table_address
+       SLA  R1,2
+       A    R1,R0
+       MOV  R0,@isr_end_address
+* Specify parent ISR address, which will call the child ISRs.
+       LI   R1,timer_isr
+       MOV  R1,@USRISR
+*
+       RT
 
 *
 * Point back to the initial isr_element
@@ -101,20 +90,15 @@ restart_timer_loop
        MOV  R11,*R10
 * Reset timer
 * Initialize "isr_element_address"
-       LI   R0,timer_interrupts
+       MOV  @isr_table_address,R0
        MOV  *R0+,R1
        MOV  R0,@isr_element_address
        BL   @set_timer
-*
-       LI   R0,timer_interrupts+(2*4)
-       MOV  R0,@isr_end_address
 *
        CLR  @all_lines_scanned
 * Enable Timer interrupt prioritization
        CLR  R12
        SBO  3
-* Enable interrupts
-       LIMI 2
 *
        MOV  *R10+,R11
        RT
@@ -208,7 +192,6 @@ purple_color_isr
 *
 * TODO: These should be BLWP methods
 block_vdp_interrupt
-       LIMI 0
 * Munge the GPLWS.
        LWPI >83E0
        CLR  R14               * Disable cassette interrupt and protect >8379.
@@ -230,4 +213,55 @@ SYNC   TB   2                 * Check for VDP interrupt.
        SBZ  2                 * Disable VDP interrupt prioritization.
 * Done
        LWPI WS
+       RT
+
+*
+* Set VDP registers.
+* Draw a series of dotted lines across the screen.
+* Set up sprite character appearance (a single pixel).
+*
+init_graphics
+       DECT R10
+       MOV  R11,*R10
+* Sprites should be 8x8, and VDP interrupts are enabled
+       LI   R0,>01E0
+       BL   @VDPREG
+* Screen Image table
+       LI   R0,>0200
+       BL   @VDPREG
+* Color table
+       LI   R0,>030E
+       BL   @VDPREG
+* Tile pattern table
+       LI   R0,>0401
+       BL   @VDPREG
+* Sprite attribute list
+       LI   R0,>0506
+       BL   @VDPREG
+* Sprite pattern table (occupies same space as tile pattern table)
+       LI   R0,>0601
+       BL   @VDPREG
+* Write patterns
+* >00 = tile pattern forming dotted lines
+* >01 = our sprite
+       LI   R0,>800
+       BL   @VDPADR
+       LI   R0,char_pattern
+       LI   R1,2*8
+       BL   @VDPWRT
+* Write color code
+       LI   R0,>380
+       BL   @VDPADR
+       MOVB @COLOR,@VDPWD
+* Write tiles
+       CLR  R0
+       BL   @VDPADR
+       LI   R0,24*32
+       CLR  R1
+while_tiles_to_write
+       MOVB R1,@VDPWD
+       DEC  R0
+       JNE  while_tiles_to_write
+*
+       MOV  *R10+,R11
        RT
