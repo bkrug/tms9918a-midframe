@@ -2,7 +2,7 @@
 *
        REF  STACK,WS                        Ref from VAR
        REF  OLDR12,COUNT,COLOR,RETPT
-       REF  interrupt_count
+       REF  isr_count
        REF  GROMCR                          Ref from GROM
        REF  DSPINT,NUMASC                   Ref from DISPLAY
        REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
@@ -70,7 +70,7 @@ game_loop:
 * Set timer-interrupt routine
        LI   R1,OURISR
        MOV  R1,@USRISR
-       CLR  @interrupt_count
+       CLR  @isr_count
 * Enable Timer interrupt prioritization
        CLR  R12
        SBO  3
@@ -88,7 +88,7 @@ flash
        LIMI 2
 * Don't end game loop until the timer-interrupt has triggered
 while_waiting_for_interrupt:
-       MOV  @interrupt_count,R0
+       MOV  @isr_count,R0
        JEQ  while_waiting_for_interrupt
        JMP  game_loop
 
@@ -120,7 +120,7 @@ OURISR
 * For some reason we need to re-confirm that we don't want VDP interrupts
        SBZ  2
 * Let main code know if the interrupt was hit or not
-       INC  @interrupt_count
+       INC  @isr_count
 * Get stack pointer
        LI   R10,WS
        AI   R10,2*10

@@ -4,8 +4,8 @@
        REF  STACK                           Ref from VAR
        REF  WS
        REF  all_lines_scanned
-       REF  interrupt_table_address
-       REF  interrupt_element_address
+       REF  isr_table_address
+       REF  isr_element_address
        REF  interrupt_element_count
 
 *
@@ -25,6 +25,7 @@ timer_interrupts
        DATA 275,yellow_color_isr
        DATA 175,blue_color_isr
 *       DATA vdp_mock,purple_color_isr
+       DATA >3F00,0
 scan_line_interrupts
 *       DATA -8,red_color_isr
        DATA 9*8+0,yellow_color_isr
@@ -84,7 +85,12 @@ game_loop
        LI   R0,>0706
        BL   @VDPREG
 * Set timer-interrupt routine
-       LI   R1,yellow_color_isr
+       LI   R1,timer_interrupts
+       MOV  R1,@isr_element_address
+       MOV  *R1,R1
+       BL   @set_timer
+*
+       LI   R1,timer_isr
        MOV  R1,@USRISR
        CLR  @all_lines_scanned
 * Enable Timer interrupt prioritization
@@ -114,9 +120,7 @@ set_timer
        SBZ  0           Exit clock mode, start decrementer 
        RT
 
-*red_color_isr
-
-yellow_color_isr
+timer_isr
        LIMI 0
 * Get stack pointer
        LI   R10,WS
@@ -125,46 +129,50 @@ yellow_color_isr
 * Save Return address
        DECT R10
        MOV  R11,*R10
-* Configure next interrupt
-       LI   R1,175
+* Let R9 = address of child interrupt
+* Let R8 = next timer value
+* Update interrupt element address
+       MOV  @isr_element_address,R1
+       INCT R1
+       MOV  *R1+,R9
+       MOV  R1,@isr_element_address
+       MOV  *R1,R8
+* Configure next interrupt's timer
+       MOV  R8,R1
        BL   @set_timer
-       LI   R1,blue_color_isr
-       MOV  R1,@USRISR
 * Clear timer-interrupt
        CLR  R12
        SBO  3
 * For some reason we need to re-confirm that we don't want VDP interrupts
        SBZ  2
-* Set background color
-       LI   R0,>070A
-       BL   @VDPREG
+* Run child interrupt
+       BL   *R9
 *
        LIMI 2
 *
        MOV  *R10+,R11
        RT
 
-blue_color_isr
-       LIMI 0
-* Get stack pointer
-       LI   R10,WS
-       AI   R10,2*10
-       MOV  *R10,R10
-* Save Return address
+*red_color_isr
+
+yellow_color_isr
        DECT R10
        MOV  R11,*R10
-* Turn off timer-interrupt
-       CLR  R12
-       SBZ  3
-* For some reason we need to re-confirm that we don't want VDP interrupts
-       SBZ  2
+* Set background color
+       LI   R0,>070A
+       BL   @VDPREG
+*
+       MOV  *R10+,R11
+       RT
+
+blue_color_isr
+       DECT R10
+       MOV  R11,*R10
 * Let main code know if the interrupt was hit or not
        SETO @all_lines_scanned
 * Set background color
        LI   R0,>0704
        BL   @VDPREG
-*
-       LIMI 2
 *
        MOV  *R10+,R11
        RT
