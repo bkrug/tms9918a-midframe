@@ -24,14 +24,6 @@ color  BYTE >10
 sprite_attributes
        BYTE >FF,>01,>06
        EVEN
-*timer_interrupts
-*       DATA 275,red_color_isr
-       DATA 275,yellow_color_isr
-       DATA 175,blue_color_isr
-       DATA 109,yellow_color_isr
-       DATA 84,blue_color_isr
-*       DATA vdp_mock,purple_color_isr
-       DATA >3F00,0
 scan_line_interrupts
        DATA 0,blue_color_isr
        DATA 4*8+0,yellow_color_isr
