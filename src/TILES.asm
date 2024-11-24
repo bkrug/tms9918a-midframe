@@ -49,7 +49,8 @@ tiles
 game_loop
 * Disable interrupts
        LIMI 0
-*
+* Block thread until then end of a frame
+* Fool TI-99/4a into thinking that later interrupts are VDP interrupts.
        BL   @block_vdp_interrupt
 * Tell timer_isr to look at the begging of the table again
        BL   @restart_timer_loop

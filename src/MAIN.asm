@@ -58,6 +58,8 @@ FRSTLP CB   @VINTTM,R0
 * Game Loop
 *
 game_loop:
+* Disable interrupts
+       LIMI 0
 * Block thread until then end of a frame
 * Fool TI-99/4a into thinking that later interrupts are VDP interrupts.
        BL   @block_vdp_interrupt
@@ -145,7 +147,6 @@ OURISR
 *
 * TODO: These should be BLWP methods
 block_vdp_interrupt:
-       LIMI 0
 * Munge the GPLWS.
        LWPI >83E0
        CLR  R14               * Disable cassette interrupt and protect >8379.
