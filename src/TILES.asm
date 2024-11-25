@@ -27,11 +27,14 @@ sprite_attributes
        BYTE >FF,>01,>06
        EVEN
 scan_line_interrupts
+*       DATA -8,red_color_isr
        DATA 0,blue_color_isr
        DATA 4*8+0,yellow_color_isr
        DATA 8*8+0,blue_color_isr
        DATA 12*8+0,yellow_color_isr
        DATA 16*8+0,blue_color_isr
+       DATA 20*8+0,yellow_color_isr
+       DATA 23*8+0,blue_color_isr
 scan_line_interrups_end
        DATA vdp_mock,purple_color_isr
 * timer of first scan line
@@ -319,7 +322,15 @@ not_end_of_isr_list
        MOV  *R10+,R11
        RT
 
-*red_color_isr
+red_color_isr
+       DECT R10
+       MOV  R11,*R10
+* Set background color
+       LI   R0,>0706
+       BL   @VDPREG
+*
+       MOV  *R10+,R11
+       RT
 
 yellow_color_isr
        DECT R10
