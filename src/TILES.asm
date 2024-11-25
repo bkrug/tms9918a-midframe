@@ -33,7 +33,9 @@ scan_line_interrupts
 scan_line_interrups_end
        DATA vdp_mock,purple_color_isr
 * timer of first scan line
-top_scan_time        DATA 187
+top_scan_time           DATA 186
+cru_scan_ratio_top      DATA 95
+cru_scan_ratio_bottom   DATA 32
 
 tiles
        LWPI WS
@@ -86,11 +88,11 @@ init_timer_loop
 while_isr_records_remain
 * Let R2 = desired pixel row
        MOV  *R8+,R1
-       LI   R0,3
-       MPY  R0,R1
-       A    @top_scan_time,R2
+       MPY  @cru_scan_ratio_top,R1
+       DIV  @cru_scan_ratio_bottom,R1
+       A    @top_scan_time,R1
 * Update destination table
-       MOV  R2,*R7+
+       MOV  R1,*R7+
        MOV  *R8+,*R7+
 * Did we reach the end of the source table?
        C    R8,R9
