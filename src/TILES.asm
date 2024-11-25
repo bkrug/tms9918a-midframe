@@ -17,9 +17,11 @@
 
 char_pattern
        DATA >F000,>0000,>C000,>0000
+       DATA >F000,>0000,>C000,>0001
 coinc_sprite_pattern
        DATA >8080,>8080,>8080,>8080
 color  BYTE >10
+ONE    BYTE >1
 * except for the Y-position, these are the sprite-attributes for the COINC sprits
 sprite_attributes
        BYTE >FF,>01,>06
@@ -421,21 +423,28 @@ init_graphics
        LI   R0,>800
        BL   @VDPADR
        LI   R0,char_pattern
-       LI   R1,2*8
+       LI   R1,3*8
        BL   @VDPWRT
 * Write color code
        LI   R0,>380
        BL   @VDPADR
        MOVB @COLOR,@VDPWD
-* Write tiles
+* Write all tiles except bottom row
        CLR  R0
        BL   @VDPADR
-       LI   R0,24*32
+       LI   R0,23*32
        CLR  R1
 while_tiles_to_write
        MOVB R1,@VDPWD
        DEC  R0
        JNE  while_tiles_to_write
+* Write bottom row of tiles
+       LI   R0,32
+       AB   @ONE,R1
+while_bottom_tile
+       MOVB R1,@VDPWD
+       DEC  R0
+       JNE  while_bottom_tile
 *
        MOV  *R10+,R11
        RT
