@@ -61,9 +61,6 @@ game_loop
        BL   @block_vdp_interrupt
 * Tell timer_isr to look at the begging of the table again
        BL   @restart_timer_loop
-* Set background color
-       LI   R0,>0706
-       BL   @VDPREG
 * Enable interrupts
        LIMI 2
 * Don't end game loop until all timer-interrupts have been triggered
@@ -237,6 +234,8 @@ restart_timer_loop
        MOV  *R0+,R1
        MOV  R0,@isr_element_address
        BL   @set_timer
+* TODO: call some interrupt that is meant to match the VDP interrupt
+       BL   @red_color_isr
 *
        CLR  @all_lines_scanned
 * Enable Timer interrupt prioritization
