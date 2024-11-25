@@ -5,7 +5,6 @@
        REF  GROMCR                          Ref from GROM
        REF  DSPINT,NUMASC                   Ref from DISPLAY
        REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
-       REF  prepare_scroll                  "
        REF  scroll_and_print                "
 
 *
@@ -61,7 +60,6 @@ disable_vdp:
 *
        BL   @GROMCR              Copy pattern definitions from GROM to VRAM
 *
-       BL   @prepare_scroll
        LI   R0,waiting_for_vdp
        BL   @scroll_and_print
 * Skip first VDP interrupt; it's too late to measure the full time.

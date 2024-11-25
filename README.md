@@ -1,7 +1,6 @@
 # tms9918a-midframe
 Attempt to change some VDP registers strategically mid-frame
 
-
 ## Timer-interrupts
 
 Years ago T.N. and Jeff Brown told us that it is possible to configure CRU-timer interrupts so long as you are willing to loose the ability to trigger VDP interrupts.

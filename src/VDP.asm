@@ -2,7 +2,6 @@
        DEF  write_string
        DEF  set_vdp_read_address
        DEF  read_multiple_vdp_bytes
-       DEF  prepare_scroll
        DEF  scroll_and_print
 *
        REF  LBR0                               "
@@ -149,20 +148,6 @@ VRD1   MOVB @VDPRD,*R0+
 VRD2   RT
 
 *
-*
-*
-prepare_scroll
-       LI   R0,screen_copy
-       MOV  R0,R1
-       AI   R1,>300
-prepare_loop
-       MOVB @SPACE,*R0+
-       C    R0,R1
-       JL   prepare_loop
-*
-       RT       
-
-*
 * Scroll screen and print up to 32 characters of text.
 *
 * Input:
@@ -177,42 +162,22 @@ scroll_and_print:
        DECT R10
        MOV  R0,*R10
 * Read current screen to scroll
-*       LI   R0,>0020
-*       BL   @set_vdp_read_address
-*       LI   R0,screen_copy
-*       LI   R1,23*32
-*       BL   @read_multiple_vdp_bytes
-* The previous code is commented out because
-* it somehow isn't working on my physical TI-99
+       LI   R0,>0020
+       BL   @set_vdp_read_address
        LI   R0,screen_copy
-       LI   R1,screen_copy
-       AI   R1,>20
-       MOV  R0,R2
-       AI   R2,>300
-scroll_loop
-       MOVB *R1+,*R0+
-       C    R1,R2
-       JL   scroll_loop
-* Write line to screen_copy
-       MOV  *R10,R1
-line_loop
-       MOVB *R1+,*R0+
-       JEQ  line_done
-       C    R0,R2
-       JL   line_loop
-line_done
+       LI   R1,23*32
+       BL   @read_multiple_vdp_bytes
 * Write screen one line higher
        CLR  R0
        BL   @VDPADR
        LI   R0,screen_copy
-*       LI   R1,23*32
-       LI   R1,24*32
+       LI   R1,23*32
        BL   @VDPWRT
 * Write one line
-*       LI   R0,23*32
-*       BL   @VDPADR
-*       MOV  *R10,R0
-*       BL   @write_string
+       LI   R0,23*32
+       BL   @VDPADR
+       MOV  *R10,R0
+       BL   @write_string
 * Write enough spaces to overwrite old text
        S    *R10+,R0
        NEG  R0
