@@ -51,7 +51,7 @@ tiles
 * Specify the location of the table of timer ISRs
        LI   R0,scan_line_interrupts
        LI   R1,scan_line_interrups_end
-       BL   @init_timer_loop
+       BL   @init_timer_from_coinc
 *
 game_loop
 * Disable interrupts
@@ -129,16 +129,14 @@ timer_difference_end
 *
 * Input:
 *   R0 - address of scan-line-ISR-table
-*   R1 - number of elements
+*   R1 - end of address table
 init_timer_from_coinc
        DECT R10
        MOV  R11,*R10
 * Let R8 = table start address
 * Let R9 = table end address
        MOV  R0,R8
-       SLA  R1,2
-       A    R1,R0
-       MOV  R0,R9
+       MOV  R1,R9
 * Let R7 = destination address
        LI   R7,timer_interrupts
 while_isr_records_remain_coinc
@@ -146,22 +144,21 @@ while_isr_records_remain_coinc
        MOV  *R8+,R1
        DEC  R1
        SLA  R1,8
-* Draw one sprite which does not overlap another
-       LI   R3,1
+* Draw zero sprites
+       LI   R3,0
        BL   @write_test_sprites
 * Clear COINC flag, and wait till end of video frame
-       BL   @unblock_vdp_interrupt
-       LIMI 2
-clear_vdp_status
        MOVB @VDPSTA,R2
-       ANDI R2,>2000
-       JNE  clear_vdp_status
+       LIMI 2
+       MOVB @VINTTM,R0
+       AI   R0,>0200
+clear_coinc
+       CB   @VINTTM,R0
+       JNE  clear_coinc
        LIMI 0
 * Draw two overlapping sprites
        LI   R3,2
        BL   @write_test_sprites
-* Clear COINC flag, and wait till end of video frame
-       BL   @block_vdp_interrupt
 * Reset timer
        LI   R1,>3FFF
        BL   @set_timer
@@ -185,9 +182,25 @@ while_coinc_not_triggered
        LI   R0,timer_interrupts
        MOV  R0,@isr_table_address
        MOV  R7,@isr_end_address
+*
+* The "timer interrupts" table now contains values
+* that measure time between the end of a frame and a desired pixel row.
+* Those values need to be replaced with the time between
+* one pixel row and the next pixel row.
+*
+timer_difference_loop_coinic
+       AI   R7,-4
+       C    R7,R0
+       JLE  timer_difference_end_coinic
+       S    @-4(R7),*R7
+       JMP  timer_difference_loop_coinic
+timer_difference_end_coinic
 * Specify parent ISR address, which will call the child ISRs.
        LI   R1,timer_isr
        MOV  R1,@USRISR
+* Draw zero sprites
+       LI   R3,0
+       BL   @write_test_sprites
 *
        MOV  *R10+,R11
        RT
@@ -203,6 +216,9 @@ write_test_sprites
 * Set VDP address to sprite attribute list
        LI   R0,>300
        BL   @VDPADR
+*
+       MOV  R3,R3
+       JEQ  end_sprite_list
 write_one_sprite
 * Set Y-Position
        MOVB R1,@VDPWD
@@ -216,6 +232,7 @@ while_more_attr_to_write
        DEC  R3
        JNE  write_one_sprite
 * End sprite list
+end_sprite_list
        LI   R2,>D000
        MOVB R2,@VDPWD
 *
