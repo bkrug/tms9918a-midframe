@@ -129,7 +129,7 @@ timer_difference_end
 *
 * Input:
 *   R0 - address of scan-line-ISR-table
-*   R1 - end of address table
+*   R1 - end of scan-line-ISR-table
 init_timer_from_coinc
        DECT R10
        MOV  R11,*R10
@@ -140,8 +140,55 @@ init_timer_from_coinc
 * Let R7 = destination address
        LI   R7,timer_interrupts
 while_isr_records_remain_coinc
-* Let R1 = Y-Position minus 1 (for TMS9918a reasons)
+* Let R1 (16-bits) = index of a pixel row
        MOV  *R8+,R1
+* Let R2 = time between VDP interrupt and a pixel-row
+       BL   @measure_time_to_reach_pixle_row
+* Update destination table
+       MOV  R2,*R7+
+       MOV  *R8+,*R7+
+* Did we reach the end of the source table?
+       C    R8,R9
+       JL   while_isr_records_remain_coinc
+* Yes, set start/end addresses
+       LI   R0,timer_interrupts
+       MOV  R0,@isr_table_address
+       MOV  R7,@isr_end_address
+*
+* The "timer interrupts" table now contains values
+* that measure time between the end of a frame and a desired pixel row.
+* Those values need to be replaced with the time between
+* one pixel row and the next pixel row.
+*
+timer_difference_loop_coinic
+       AI   R7,-4
+       C    R7,R0
+       JLE  timer_difference_end_coinic
+       S    @-4(R7),*R7
+       JMP  timer_difference_loop_coinic
+timer_difference_end_coinic
+* Specify parent ISR address, which will call the child ISRs.
+       LI   R1,timer_isr
+       MOV  R1,@USRISR
+* Draw zero sprites
+       CLR  R3
+       BL   @write_test_sprites
+*
+       MOV  *R10+,R11
+       RT
+
+*
+* Measure the time it takes to get from
+* the end of one frame to a particular pixel-row
+*
+* Input:
+*   R1: index of pixel row
+* Output:
+*   R2: number of CRU ticks
+measure_time_to_reach_pixle_row
+       DECT R10
+       MOV  R11,*R10
+* Let R1 = Y-Position minus 1 (for TMS9918a reasons)
        DEC  R1
        SLA  R1,8
 * Draw zero sprites
@@ -173,35 +220,6 @@ while_coinc_not_triggered
 * Suspect: Adding 9 here, subtracting 11 elsewhere
        NEG  R2
        AI   R2,>3FFF+9
-* Update destination table
-       MOV  R2,*R7+
-       MOV  *R8+,*R7+
-* Did we reach the end of the source table?
-       C    R8,R9
-       JL   while_isr_records_remain_coinc
-* Yes, set start/end addresses
-       LI   R0,timer_interrupts
-       MOV  R0,@isr_table_address
-       MOV  R7,@isr_end_address
-*
-* The "timer interrupts" table now contains values
-* that measure time between the end of a frame and a desired pixel row.
-* Those values need to be replaced with the time between
-* one pixel row and the next pixel row.
-*
-timer_difference_loop_coinic
-       AI   R7,-4
-       C    R7,R0
-       JLE  timer_difference_end_coinic
-       S    @-4(R7),*R7
-       JMP  timer_difference_loop_coinic
-timer_difference_end_coinic
-* Specify parent ISR address, which will call the child ISRs.
-       LI   R1,timer_isr
-       MOV  R1,@USRISR
-* Draw zero sprites
-       CLR  R3
-       BL   @write_test_sprites
 *
        MOV  *R10+,R11
        RT
