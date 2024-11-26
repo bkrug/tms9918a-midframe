@@ -9,6 +9,7 @@
 *
        DEF  screen_copy
        DEF  timer_interrupts
+       DEF  limit_timer_interrupts
 *
        DEF  LBR0,LBR1,LBR2,LBR3,LBR4
        DEF  LBR5,LBR6,LBR7,LBR8,LBR9
@@ -100,4 +101,8 @@ LBR15  EQU  WS+31
 screen_copy:
        EQU  >A000      * >300 bytes
 timer_interrupts:
-       EQU  >A300      * >40 bytes
+       EQU  >A300      * >40 bytes - the timer-ISR-table
+limit_timer_interrupts:
+       EQU  >A33C      * We never want to fill the last 4 bytes with a user-defined ISR.
+*                        The last 4 bytes in the timer-ISR-table should always
+*                        point to the end-of-frame interrupt that replaces the VDP interrupt.

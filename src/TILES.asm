@@ -8,6 +8,7 @@
        REF  isr_element_address
        REF  isr_end_address
        REF  timer_interrupts
+       REF  limit_timer_interrupts
 
 *
 * Addresses
@@ -79,6 +80,7 @@ while_waiting_for_interrupt
 * Input:
 *   R0 - address of scan-line-ISR-table
 *   R1 - end of scan-line-ISR-table
+* TODO: R2 - end-of-frame interrupt routine
 init_timer_loop
        DECT R10
        MOV  R11,*R10
@@ -101,6 +103,7 @@ while_isr_records_remain
        C    R8,R9
        JL   while_isr_records_remain
 * Yes, set start/end addresses
+* TODO: jump to the COINC version of this routine
        LI   R0,timer_interrupts
        MOV  R0,@isr_table_address
        MOV  R7,@isr_end_address
@@ -132,6 +135,7 @@ timer_difference_end
 * Input:
 *   R0 - address of scan-line-ISR-table
 *   R1 - end of scan-line-ISR-table
+* TODO: R2 - end-of-frame interrupt routine
 init_timer_from_coinc
        DECT R10
        MOV  R11,*R10
@@ -149,13 +153,26 @@ while_isr_records_remain_coinc
 * Update destination table
        MOV  R2,*R7+
        MOV  *R8+,*R7+
-* Did we reach the end of the source table?
+* Have we run out of space in the destination table?
+       CI   R7,limit_timer_interrupts
+       JHE  assign_timer_table_addresses
+* No, did we reach the end of the source table?
        C    R8,R9
        JL   while_isr_records_remain_coinc
 * Yes, set start/end addresses
+assign_timer_table_addresses
        LI   R0,timer_interrupts
        MOV  R0,@isr_table_address
        MOV  R7,@isr_end_address
+* TODO: add an entry for the end of the frame.
+* If will be "outside" the table, but if the game loop drops a frame,
+* It will try to compensate by resetting the loop.
+* Let R2 = length of a video frame
+       BL   @measure_length_of_frame
+* Update destination table
+       MOV  R2,*R7+
+       LI   R8,end_of_frame_ISR
+       MOV  R8,*R7+
 *
 * The "timer interrupts" table now contains values
 * that measure time between the end of a frame and a desired pixel row.
@@ -166,7 +183,7 @@ while_isr_records_remain_coinc
 *
 timer_difference_loop_coinic
        AI   R7,-4
-       C    R7,R0
+       CI   R7,timer_interrupts
        JLE  timer_difference_end_coinic
        S    @-4(R7),*R7
        JMP  timer_difference_loop_coinic
@@ -242,7 +259,7 @@ write_test_sprites
 * Set VDP address to sprite attribute list
        LI   R0,>300
        BL   @VDPADR
-* If R3 = 0, just write the end-of-sprite-attribute-list symbol
+* If R2 = 0, just write the end-of-sprite-attribute-list symbol
        MOV  R2,R2
        JEQ  end_sprite_list
 write_one_sprite
@@ -266,6 +283,35 @@ end_sprite_list
        RT
 
 *
+* Measure the CRU ticks between the beginning and end of a frame
+*
+* Output:
+*   R2
+measure_length_of_frame
+       DECT R10
+       MOV  R11,*R10
+* Skip the current frame
+       LIMI 2
+       MOVB @VINTTM,R0
+skip_first_frame
+       CB   @VINTTM,R0
+       JEQ  skip_first_frame
+* Set timer for the next frame
+       LI   R1,>3FFF
+       BL   @set_timer
+* Wait for end of second frame
+       MOVB @VINTTM,R0
+while_second_frame_continues
+       CB   @VINTTM,R0
+       JEQ  while_second_frame_continues
+       LIMI 0
+* Let R2 = new timer value
+       BL   @get_timer_value
+*
+       MOV  *R10+,R11
+       RT
+
+*
 * Point back to the initial isr_element
 *
 restart_timer_loop
@@ -277,7 +323,9 @@ restart_timer_loop
        MOV  *R0+,R1
        MOV  R0,@isr_element_address
        BL   @set_timer
-* TODO: call some interrupt that is meant to match the VDP interrupt
+* Do stuff that would normally be done by the VDP interrupt
+       BL   @end_of_frame_ISR
+* TODO: call this method from within @end_of_fram_ISR
        BL   @red_color_isr
 *
        CLR  @all_lines_scanned
@@ -362,6 +410,14 @@ not_end_of_isr_list
        LIMI 2
 *
        MOV  *R10+,R11
+       RT
+
+*
+* Do stuff that would normally be triggered by VDP interrupts
+* 
+end_of_frame_ISR
+       AB   @ONE,@VINTTM
+* TODO: scan for QUIT key
        RT
 
 red_color_isr
