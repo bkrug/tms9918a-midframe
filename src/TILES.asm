@@ -145,7 +145,7 @@ while_isr_records_remain_coinc
        DEC  R1
        SLA  R1,8
 * Draw zero sprites
-       LI   R3,0
+       CLR  R3
        BL   @write_test_sprites
 * Clear COINC flag, and wait till end of video frame
        MOVB @VDPSTA,R2
@@ -170,8 +170,9 @@ while_coinc_not_triggered
 * Let R2 = new timer value
        BL   @get_timer_value
 * Let R2 = time that passed
+* Suspect: Adding 9 here, subtracting 11 elsewhere
        NEG  R2
-       AI   R2,>3FFF
+       AI   R2,>3FFF+9
 * Update destination table
        MOV  R2,*R7+
        MOV  *R8+,*R7+
@@ -199,7 +200,7 @@ timer_difference_end_coinic
        LI   R1,timer_isr
        MOV  R1,@USRISR
 * Draw zero sprites
-       LI   R3,0
+       CLR  R3
        BL   @write_test_sprites
 *
        MOV  *R10+,R11
