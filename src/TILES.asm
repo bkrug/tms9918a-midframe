@@ -26,7 +26,7 @@ color  BYTE >10
 ONE    BYTE >1
 * except for the Y-position, these are the sprite-attributes for the COINC sprites
 sprite_attributes
-       BYTE >FF,>02,>06
+       BYTE >FF,>02,>00
        EVEN
 scan_line_interrupts
        DATA 0,blue_color_isr
@@ -172,7 +172,7 @@ timer_difference_loop_coinic
        JMP  timer_difference_loop_coinic
 timer_difference_end_coinic
 * Draw zero sprites
-       CLR  R3
+       CLR  R2
        BL   @write_test_sprites
 * Specify parent ISR address, which will call the child ISRs.
        LI   R1,timer_isr
@@ -196,7 +196,7 @@ measure_time_to_reach_pixel_row
        DEC  R1
        SLA  R1,8
 * Draw zero sprites
-       CLR  R3
+       CLR  R2
        BL   @write_test_sprites
 * Clear COINC flag, and wait for two video frames
        MOVB @VDPSTA,R2
@@ -208,7 +208,7 @@ clear_coinc
        JNE  clear_coinc
        LIMI 0
 * Draw two overlapping sprites at the pixel-index specified by R1
-       LI   R3,2
+       LI   R2,2
        BL   @write_test_sprites
 * Reset timer
        LI   R1,>3FFF
@@ -221,9 +221,9 @@ while_coinc_not_triggered
 * Let R2 = new timer value
        BL   @get_timer_value
 * Let R2 = time that passed
-* Suspect: Adding 9 here, subtracting 11 elsewhere
+* Suspect: Adding 5 here, subtracting 11 elsewhere
        NEG  R2
-       AI   R2,>3FFF+9
+       AI   R2,>3FFF+5
 *
        MOV  *R10+,R11
        RT
@@ -233,7 +233,9 @@ while_coinc_not_triggered
 *
 * Input:
 *   R1(high-byte) - pixel-index at which to draw top of sprite
-*   R3 - number of sprites to draw
+*   R2 - number of sprites to draw
+* Changed:
+*   R0,R3
 write_test_sprites
        DECT R10
        MOV  R11,*R10
@@ -241,24 +243,24 @@ write_test_sprites
        LI   R0,>300
        BL   @VDPADR
 * If R3 = 0, just write the end-of-sprite-attribute-list symbol
-       MOV  R3,R3
+       MOV  R2,R2
        JEQ  end_sprite_list
 write_one_sprite
 * Set Y-Position
        MOVB R1,@VDPWD
 * Set X-Position, char, and color
-       LI   R2,sprite_attributes
-while_more_attr_to_write
-       MOVB *R2+,@VDPWD
-       CI   R2,sprite_attributes+3
-       JL   while_more_attr_to_write
+       LI   R0,sprite_attributes
+       LI   R3,VDPWD
+       MOVB *R0+,*R3
+       MOVB *R0+,*R3
+       MOVB *R0+,*R3
 *
-       DEC  R3
+       DEC  R2
        JNE  write_one_sprite
 * End sprite list
 end_sprite_list
-       LI   R2,>D000
-       MOVB R2,@VDPWD
+       LI   R3,>D000
+       MOVB R3,@VDPWD
 *
        MOV  *R10+,R11
        RT
