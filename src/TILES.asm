@@ -16,18 +16,19 @@
        COPY 'EQU.asm'
 
 char_pattern
+* Patterns used to demonstrate degree of accuracy in the results
        DATA >F000,>0000,>C000,>0000
        DATA >F000,>0000,>C000,>0001
-coinc_sprite_pattern
+* Pattern used for COINIC detection
        DATA >8080,>8080,>8080,>8080
+end_of_char_patterns
 color  BYTE >10
 ONE    BYTE >1
-* except for the Y-position, these are the sprite-attributes for the COINC sprits
+* except for the Y-position, these are the sprite-attributes for the COINC sprites
 sprite_attributes
-       BYTE >FF,>01,>06
+       BYTE >FF,>02,>06
        EVEN
 scan_line_interrupts
-*       DATA -8,red_color_isr
        DATA 0,blue_color_isr
        DATA 4*8+0,yellow_color_isr
        DATA 8*8+0,blue_color_isr
@@ -124,8 +125,9 @@ timer_difference_end
 
 *
 * Initialize the timer loop.
-* Transform data from the scan-line-ISR-table to the timer-ISR-table
-* This doesn't work in Classic 99, but check on real hardware
+* Given a table of pixel-row indexes followed by ISR addresses,
+* generates a table of corresponding timer-values followed with the same ISR addresses.
+* The results are stored at @timer_interrupts.
 *
 * Input:
 *   R0 - address of scan-line-ISR-table
@@ -137,13 +139,13 @@ init_timer_from_coinc
 * Let R9 = table end address
        MOV  R0,R8
        MOV  R1,R9
-* Let R7 = destination address
+* Let R7 = address of destination table
        LI   R7,timer_interrupts
 while_isr_records_remain_coinc
 * Let R1 (16-bits) = index of a pixel row
        MOV  *R8+,R1
 * Let R2 = time between VDP interrupt and a pixel-row
-       BL   @measure_time_to_reach_pixle_row
+       BL   @measure_time_to_reach_pixel_row
 * Update destination table
        MOV  R2,*R7+
        MOV  *R8+,*R7+
@@ -157,8 +159,10 @@ while_isr_records_remain_coinc
 *
 * The "timer interrupts" table now contains values
 * that measure time between the end of a frame and a desired pixel row.
-* Those values need to be replaced with the time between
-* one pixel row and the next pixel row.
+* But as each interrupt triggers within a given frame,
+* the main ISR will need to set a timer for the next interrupt.
+* So the existing timer values need to be replaced with
+* the time between one pixel row and the next pixel row.
 *
 timer_difference_loop_coinic
        AI   R7,-4
@@ -167,12 +171,12 @@ timer_difference_loop_coinic
        S    @-4(R7),*R7
        JMP  timer_difference_loop_coinic
 timer_difference_end_coinic
-* Specify parent ISR address, which will call the child ISRs.
-       LI   R1,timer_isr
-       MOV  R1,@USRISR
 * Draw zero sprites
        CLR  R3
        BL   @write_test_sprites
+* Specify parent ISR address, which will call the child ISRs.
+       LI   R1,timer_isr
+       MOV  R1,@USRISR
 *
        MOV  *R10+,R11
        RT
@@ -185,7 +189,7 @@ timer_difference_end_coinic
 *   R1: index of pixel row
 * Output:
 *   R2: number of CRU ticks
-measure_time_to_reach_pixle_row
+measure_time_to_reach_pixel_row
        DECT R10
        MOV  R11,*R10
 * Let R1 = Y-Position minus 1 (for TMS9918a reasons)
@@ -194,7 +198,7 @@ measure_time_to_reach_pixle_row
 * Draw zero sprites
        CLR  R3
        BL   @write_test_sprites
-* Clear COINC flag, and wait till end of video frame
+* Clear COINC flag, and wait for two video frames
        MOVB @VDPSTA,R2
        LIMI 2
        MOVB @VINTTM,R0
@@ -203,13 +207,13 @@ clear_coinc
        CB   @VINTTM,R0
        JNE  clear_coinc
        LIMI 0
-* Draw two overlapping sprites
+* Draw two overlapping sprites at the pixel-index specified by R1
        LI   R3,2
        BL   @write_test_sprites
 * Reset timer
        LI   R1,>3FFF
        BL   @set_timer
-* Wait for COINC
+* Wait util COINC flag is "true"
 while_coinc_not_triggered
        MOVB @VDPSTA,R1
        ANDI R1,>2000
@@ -228,20 +232,21 @@ while_coinc_not_triggered
 * Write sprite attibute list
 *
 * Input:
-*    R1, R3
+*   R1(high-byte) - pixel-index at which to draw top of sprite
+*   R3 - number of sprites to draw
 write_test_sprites
        DECT R10
        MOV  R11,*R10
 * Set VDP address to sprite attribute list
        LI   R0,>300
        BL   @VDPADR
-*
+* If R3 = 0, just write the end-of-sprite-attribute-list symbol
        MOV  R3,R3
        JEQ  end_sprite_list
 write_one_sprite
 * Set Y-Position
        MOVB R1,@VDPWD
-* Set X-Position
+* Set X-Position, char, and color
        LI   R2,sprite_attributes
 while_more_attr_to_write
        MOVB *R2+,@VDPWD
@@ -464,12 +469,10 @@ init_graphics
        LI   R0,>0601
        BL   @VDPREG
 * Write patterns
-* >00 = tile pattern forming dotted lines
-* >01 = our sprite
        LI   R0,>800
        BL   @VDPADR
        LI   R0,char_pattern
-       LI   R1,3*8
+       LI   R1,end_of_char_patterns-char_pattern
        BL   @VDPWRT
 * Write color code
        LI   R0,>380
