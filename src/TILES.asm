@@ -101,41 +101,8 @@ delay_loop
 *   R2 - end-of-frame interrupt routine
 *      - set to 0, if there is no end-of-frame ISR
 init_timer_loop
-       DECT R10
-       MOV  R11,*R10
-* Let R8 = table start address
-* Let R9 = table end address
-       MOV  R0,R8
-       MOV  R1,R9
-* See restart_timer_loop, where it branch-links to the method in @frame_isr
-* If we put a null-check there AND a frame is dropped, stuff breaks.
-* I haven't figured out why,
-* so instead we'll guarantee that @frame_isr always points to some sort of method.
-       MOV  R2,R2
-       JNE  set_frame_isr_60hz
-       LI   R2,just_return
-set_frame_isr_60hz
-       MOV  R2,@frame_isr
-* Let R7 = destination address
-init_dest_table_60hz
-       LI   R7,timer_interrupts
-while_isr_records_remain
-* Let R2 = desired pixel row
-       MOV  *R8+,R1
-       MPY  @cru_scan_ratio_top,R1
-       DIV  @cru_scan_ratio_bottom,R1
-       A    @top_scan_time,R1
-* Update destination table
-       MOV  R1,*R7+
-       MOV  *R8+,*R7+
-* Have we run out of space in the destination table?
-       CI   R7,limit_timer_interrupts
-       JHE  assign_timer_table_addresses       
-* Did we reach the end of the source table?
-       C    R8,R9
-       JL   while_isr_records_remain
-* Yes, set start/end addresses
-       JMP  assign_timer_table_addresses
+       LI   R6,calculate_time_to_reach_pixel_row
+       JMP  generic_timer_init
 
 *
 * Initialize the timer loop.
@@ -149,8 +116,24 @@ while_isr_records_remain
 *   R2 - end-of-frame interrupt routine
 *      - set to 0, if there is no end-of-frame ISR
 init_timer_from_coinc
+       LI   R6,measure_time_to_reach_pixel_row
+       JMP  generic_timer_init
+
+*
+* Initialize the timer loop.
+* Given a table of pixel-row indexes followed by ISR addresses,
+* generates a table of corresponding timer-values followed with the same ISR addresses.
+* The results are stored at @timer_interrupts.
+*
+* Input:
+*   R0 - address of scan-line-ISR-table
+*   R1 - end of scan-line-ISR-table
+*   R2 - end-of-frame interrupt routine
+*      - set to 0, if there is no end-of-frame ISR
+*   R6 - routine for converting a pixel-row to a timer value
+generic_timer_init
        DECT R10
-       MOV  R11,*R10
+       MOV  R11,*R10       
 * Let R8 = table start address
 * Let R9 = table end address
        MOV  R0,R8
@@ -170,7 +153,7 @@ while_isr_records_remain_coinc
 * Let R1 (16-bits) = index of a pixel row
        MOV  *R8+,R1
 * Let R2 = time between VDP interrupt and a pixel-row
-       BL   @measure_time_to_reach_pixel_row
+       BL   *R6
 * Update destination table
        MOV  R2,*R7+
        MOV  *R8+,*R7+
@@ -216,6 +199,23 @@ timer_difference_end_coinic
 *
        MOV  *R10+,R11
 just_return       
+       RT
+
+*
+* Calculatre the time it takes to get from
+* the end of one frame to a particular pixel-row
+* in a 60hz environment
+*
+* Input:
+*   R1: index of pixel row
+* Output:
+*   R2: number of CRU ticks
+calculate_time_to_reach_pixel_row
+       MPY  @cru_scan_ratio_top,R1
+       DIV  @cru_scan_ratio_bottom,R1
+       A    @top_scan_time,R1
+       MOV  R1,R2
+*
        RT
 
 *
