@@ -1,13 +1,13 @@
        DEF  tiles
 *
        REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
-       REF  calc_init_timer_loop            Ref from PIXELROW
+       REF  block_vdp_interrupt             Ref from PIXELROW
+       REF  calc_init_timer_loop            "
        REF  coinc_init_timer_loop           "
        REF  restart_timer_loop              "
        REF  set_timer                       "
        REF  get_timer_value                 "
        REF  timer_isr                       "
-       REF  block_vdp_interrupt             "
 
 *
 * Addresses

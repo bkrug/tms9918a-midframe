@@ -1,13 +1,17 @@
-       DEF  calc_init_timer_loop
+       DEF  block_vdp_interrupt             *BLWP
+       DEF  unblock_vdp_interrupt           *BLWP
+       DEF  calc_init_timer_loop            *This and other routines are BL
        DEF  coinc_init_timer_loop
        DEF  restart_timer_loop
        DEF  set_timer
        DEF  get_timer_value
        DEF  timer_isr
-       DEF  block_vdp_interrupt             *BLWP
-       DEF  unblock_vdp_interrupt           *BLWP
 *
-       REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
+       REF  VDPADR                          Ref from VDP
+
+*
+* All of these routines require R10 to be a stack pointer
+*
 
 *
 * Addresses
@@ -25,6 +29,54 @@ sprite_attributes
 top_scan_time           DATA 186
 cru_scan_ratio_top      DATA 95
 cru_scan_ratio_bottom   DATA 32
+
+*
+* BLWP:
+* Wait for the VDP interrupt, but don't clear it.
+* Any future interrupts will be interpreted by ROMs as VDP interrupts.
+* We can no longer listen for VDP interrupts,
+* but we can listen for timer interrupts.
+*
+block_vdp_interrupt
+       DATA >83C0,block_vdp_interrupt+4
+* Munge the INTWS.
+       SETO R1                * Disable all VDP interrupt processing.
+       SETO R11               * Disable screen timeouts.
+       CLR  R12               * Set to 9901 CRU base.
+* Munge the GPLWS.
+       LWPI >83E0
+       CLR  R14               * Disable cassette interrupt and protect >8379.
+       LI   R15,>877B         * Disable VDPST reading and protect >837B.   (>FC00 + >877B = >837B, so this results in moving >837B to itself)
+* Wait for one frame to finish
+       LWPI >83C0
+       SBO  2
+       MOVB @VDPSTA,R8
+*
+* Synchronize with the next VDP interrupt.
+SYNC   TB   2                 * Check for VDP interrupt.
+       JEQ  SYNC
+* Configure the 9901 for interrupts.
+       SBZ  1                 * Disable external interrupt prioritization.
+       SBZ  2                 * Disable VDP interrupt prioritization.
+* Done
+       RTWP
+
+*
+* Unblock VDP interrupts
+*
+unblock_vdp_interrupt
+       DATA >83C0,unblock_vdp_interrupt+4
+* Munge the INTWS.
+       CLR  R1                * Enable all VDP interrupt processing.
+       CLR  R11               * Enable screen timeouts.
+       LI   R12,>70           * Set to 9901 CRU base.
+* Munge the GPLWS.
+       LWPI >83E0
+       LI   R14,>0108         * Enbale cassette interrupt.
+       LI   R15,>8C02         * Enable VDPST (>FC00 + >83C0 = >8802)
+* Done
+       LWPI >83C0
+       RTWP
 
 *
 * Initialize the timer loop.
@@ -370,52 +422,4 @@ not_end_of_isr_list
        LIMI 2
 *
        MOV  *R10+,R11
-       RT
-
-*
-* BLWP:
-* Wait for the VDP interrupt, but don't clear it.
-* Any future interrupts will be interpreted by ROMs as VDP interrupts.
-* We can no longer listen for VDP interrupts,
-* but we can listen for timer interrupts.
-*
-block_vdp_interrupt
-       DATA >83C0,block_vdp_interrupt+4
-* Munge the INTWS.
-       SETO R1                * Disable all VDP interrupt processing.
-       SETO R11               * Disable screen timeouts.
-       CLR  R12               * Set to 9901 CRU base.
-* Munge the GPLWS.
-       LWPI >83E0
-       CLR  R14               * Disable cassette interrupt and protect >8379.
-       LI   R15,>877B         * Disable VDPST reading and protect >837B.   (>FC00 + >877B = >837B, so this results in moving >837B to itself)
-* Wait for one frame to finish
-       LWPI >83C0
-       SBO  2
-       MOVB @VDPSTA,R8
-*
-* Synchronize with the next VDP interrupt.
-SYNC   TB   2                 * Check for VDP interrupt.
-       JEQ  SYNC
-* Configure the 9901 for interrupts.
-       SBZ  1                 * Disable external interrupt prioritization.
-       SBZ  2                 * Disable VDP interrupt prioritization.
-* Done
-       RTWP
-
-*
-* Unblock VDP interrupts
-*
-unblock_vdp_interrupt
-       DATA >83C0,unblock_vdp_interrupt+4
-* Munge the INTWS.
-       CLR  R1                * Enable all VDP interrupt processing.
-       CLR  R11               * Enable screen timeouts.
-       LI   R12,>70           * Set to 9901 CRU base.
-* Munge the GPLWS.
-       LWPI >83E0
-       LI   R14,>0108         * Enbale cassette interrupt.
-       LI   R15,>8C02         * Enable VDPST (>FC00 + >83C0 = >8802)
-* Done
-       LWPI >83C0
        RT
