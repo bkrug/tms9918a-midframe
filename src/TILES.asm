@@ -128,32 +128,14 @@ while_isr_records_remain
 * Update destination table
        MOV  R1,*R7+
        MOV  *R8+,*R7+
+* Have we run out of space in the destination table?
+       CI   R7,limit_timer_interrupts
+       JHE  assign_timer_table_addresses       
 * Did we reach the end of the source table?
        C    R8,R9
        JL   while_isr_records_remain
 * Yes, set start/end addresses
-* TODO: jump to the COINC version of this routine
-       LI   R0,timer_interrupts
-       MOV  R0,@isr_table_address
-       MOV  R7,@isr_end_address
-* The "timer interrupts" table now contains values
-* that measure time between the end of a frame and a desired pixel row.
-* Those values need to be replaced with the time between
-* one pixel row and the next pixel row.
-*
-timer_difference_loop
-       AI   R7,-4
-       C    R7,R0
-       JLE  timer_difference_end
-       S    @-4(R7),*R7
-       JMP  timer_difference_loop
-timer_difference_end
-* Specify parent ISR address, which will call the child ISRs.
-       LI   R1,timer_isr
-       MOV  R1,@USRISR
-*
-       MOV  *R10+,R11
-       RT
+       JMP  assign_timer_table_addresses
 
 *
 * Initialize the timer loop.
