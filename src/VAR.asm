@@ -6,6 +6,7 @@
        DEF  isr_table_address
        DEF  isr_element_address
        DEF  isr_end_address
+       DEF  frame_isr
 *
        DEF  screen_copy
        DEF  timer_interrupts
@@ -30,6 +31,7 @@ all_lines_scanned         EQU  >833A
 isr_table_address         EQU  >833C
 isr_element_address       EQU  >833E
 isr_end_address           EQU  >8340
+frame_isr                 EQU  >8342
 
 *
 * Avoid letting the above grow past >8370 which is reserved for GPL status

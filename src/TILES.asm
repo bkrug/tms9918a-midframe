@@ -9,6 +9,7 @@
        REF  isr_end_address
        REF  timer_interrupts
        REF  limit_timer_interrupts
+       REF  frame_isr
 
 *
 * Addresses
@@ -36,7 +37,7 @@ scan_line_interrupts
        DATA 12*8+0,blue_color_isr
        DATA 16*8+0,yellow_color_isr
 scan_line_interrups_end
-* we can set up more than 5 pixel-row interrupts,
+* We can set up more than 5 pixel-row interrupts,
 * but for some reason that makes the timer interrupts 
 * less tolerant of dropped frames.
 * To experiment, uncomment "BL   @delay_and_drop_a_frame"
@@ -57,6 +58,7 @@ tiles
 * Specify the location of the table of timer ISRs
        LI   R0,scan_line_interrupts
        LI   R1,scan_line_interrups_end
+       LI   R2,red_color_isr
        BL   @init_timer_from_coinc
 *
 game_loop
@@ -96,7 +98,8 @@ delay_loop
 * Input:
 *   R0 - address of scan-line-ISR-table
 *   R1 - end of scan-line-ISR-table
-* TODO: R2 - end-of-frame interrupt routine
+*   R2 - end-of-frame interrupt routine
+*      - set to 0, if there is no end-of-frame ISR
 init_timer_loop
        DECT R10
        MOV  R11,*R10
@@ -104,7 +107,17 @@ init_timer_loop
 * Let R9 = table end address
        MOV  R0,R8
        MOV  R1,R9
+* See restart_timer_loop, where it branch-links to the method in @frame_isr
+* If we put a null-check there, stuff breaks.
+* I haven't figured out why,
+* so instead we'll guarantee that @frame_isr always points to some sort of method.
+       MOV  R2,R2
+       JNE  set_frame_isr_60hz
+       LI   R2,just_return
+set_frame_isr_60hz
+       MOV  R2,@frame_isr
 * Let R7 = destination address
+init_dest_table_60hz
        LI   R7,timer_interrupts
 while_isr_records_remain
 * Let R2 = desired pixel row
@@ -151,7 +164,8 @@ timer_difference_end
 * Input:
 *   R0 - address of scan-line-ISR-table
 *   R1 - end of scan-line-ISR-table
-* TODO: R2 - end-of-frame interrupt routine
+*   R2 - end-of-frame interrupt routine
+*      - set to 0, if there is no end-of-frame ISR
 init_timer_from_coinc
        DECT R10
        MOV  R11,*R10
@@ -159,6 +173,15 @@ init_timer_from_coinc
 * Let R9 = table end address
        MOV  R0,R8
        MOV  R1,R9
+* See restart_timer_loop, where it branch-links to the method in @frame_isr
+* If we put a null-check there, stuff breaks.
+* I haven't figured out why,
+* so instead we'll guarantee that @frame_isr always points to some sort of method.
+       MOV  R2,R2
+       JNE  set_frame_isr
+       LI   R2,just_return
+set_frame_isr
+       MOV  R2,@frame_isr
 * Let R7 = address of destination table
        LI   R7,timer_interrupts
 while_isr_records_remain_coinc
@@ -210,6 +233,7 @@ timer_difference_end_coinic
        MOV  R1,@USRISR
 *
        MOV  *R10+,R11
+just_return       
        RT
 
 *
@@ -339,8 +363,11 @@ restart_timer_loop
        MOV  *R0+,R1
        MOV  R0,@isr_element_address
        BL   @set_timer
-* TODO: call this method from within @end_of_frame_ISR
-       BL   @red_color_isr
+* Call an ISR that was set up for the end-of-frame event,
+* to replace the regular VDP interrupt.
+       MOV  @frame_isr,R1
+       BL   *R1
+no_frame_isr_requested
 * Do stuff that would normally be triggered by VDP interrupts
        AB   @ONE,@VINTTM
 *
@@ -421,7 +448,6 @@ timer_isr
 * Yes, let main code know that it can proceed with the next game loop
 * and thus can test for the next end-of-frame
        SETO @all_lines_scanned
-* TODO: After running the end-of-frame ISR we need to restart the timer loop
 not_end_of_isr_list
 *
        LIMI 2
@@ -466,8 +492,6 @@ blue_color_isr
 *
        MOV  *R10+,R11
        RT
-
-purple_color_isr
 
 *
 * Wait for the VDP interrupt, but don't clear it.
