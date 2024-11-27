@@ -152,7 +152,7 @@ set_frame_isr
 while_isr_records_remain_coinc
 * Let R1 (16-bits) = index of a pixel row
        MOV  *R8+,R1
-* Let R2 = time between VDP interrupt and a pixel-row
+* Let R2 = number of CRU ticks between VDP interrupt and a pixel-row
        BL   *R6
 * Update destination table
        MOV  R2,*R7+
@@ -183,12 +183,12 @@ assign_timer_table_addresses
 * So the existing timer values need to be replaced with
 * the time between one pixel row and the next pixel row.
 *
-timer_difference_loop_coinic
+timer_difference_loop
        AI   R7,-4
        CI   R7,timer_interrupts
        JLE  timer_difference_end_coinic
        S    @-4(R7),*R7
-       JMP  timer_difference_loop_coinic
+       JMP  timer_difference_loop
 timer_difference_end_coinic
 * Draw zero sprites
        CLR  R2
