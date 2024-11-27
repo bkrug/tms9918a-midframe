@@ -1,4 +1,4 @@
-       REF  BEGIN,disable_vdp,tiles
+       REF  BEGIN,log_interrupts,tiles
 
 ********@*****@*********************@**************************
 *--------------------------------------------------------------
@@ -18,7 +18,7 @@ P3MSG  TEXT  'TILES'
 P3MSGE
 *
 PROG2  DATA  PROG1
-       DATA  disable_vdp
+       DATA  log_interrupts
        BYTE  P2MSGE-P2MSG
 P2MSG  TEXT  'TIMER INTERRUPT'
 P2MSGE

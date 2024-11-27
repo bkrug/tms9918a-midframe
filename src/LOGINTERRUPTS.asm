@@ -1,4 +1,4 @@
-       DEF  disable_vdp
+       DEF  log_interrupts
 *
        REF  STACK,WS                        Ref from VAR
        REF  OLDR12,COUNT,COLOR,RETPT
@@ -51,7 +51,7 @@ cassette_isr_reached:
 *
 * Runable code
 *
-disable_vdp:
+log_interrupts:
 *
        LWPI WS
        LI   R10,STACK

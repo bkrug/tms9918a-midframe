@@ -46,7 +46,7 @@ temp_files = [
     "MAIN",
     "VAR",
     "VDP",
-    "TIMERINTERRUPT",
+    "LOGINTERRUPTS",
     "TILES"
 ]
 link_main_files("midFrame.bin", temp_files)
