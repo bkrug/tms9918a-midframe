@@ -1,21 +1,13 @@
        DEF  tiles
 *
        REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
-       REF  STACK                           Ref from VAR
-       REF  WS
-       REF  all_lines_scanned
-       REF  isr_table_address
-       REF  isr_element_address
-       REF  isr_end_address
-       REF  timer_interrupts
-       REF  limit_timer_interrupts
-       REF  frame_isr
 
 *
 * Addresses
 *
        COPY 'EQUCPUADR.asm'
        COPY 'EQU.asm'
+       COPY 'EQUVAR.asm'
 
 char_pattern
 * Patterns used to demonstrate degree of accuracy in the results

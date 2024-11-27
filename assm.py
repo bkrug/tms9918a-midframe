@@ -44,7 +44,6 @@ temp_files = [
     "CART",
     "GROM",
     "MAIN",
-    "VAR",
     "VDP",
     "LOGINTERRUPTS",
     "TILES"

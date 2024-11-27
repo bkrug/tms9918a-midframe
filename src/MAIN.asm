@@ -1,8 +1,5 @@
        DEF  BEGIN
 *
-       REF  STACK,WS                        Ref from VAR
-       REF  OLDR12,COUNT,COLOR,RETPT
-       REF  isr_hit_count
        REF  GROMCR                          Ref from GROM
        REF  DSPINT,NUMASC                   Ref from DISPLAY
        REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
@@ -12,6 +9,7 @@
 *
        COPY 'EQUCPUADR.asm'
        COPY 'EQU.asm'
+       COPY 'EQUVAR.asm'
 
 *
 * Runable code
@@ -53,7 +51,7 @@ FRSTLP CB   @VINTTM,R0
        LI   R0,60
        MOV  R0,@COUNT
        LI   R0,>1771
-       MOV  R0,@COLOR
+       MOV  R0,@swappable_colors
 *
 * Game Loop
 *
@@ -81,8 +79,8 @@ game_loop:
        JNE  flash
        LI   R0,>0384
        BL   @VDPADR
-       SWPB @COLOR
-       MOVB @COLOR,@VDPWD
+       SWPB @swappable_colors
+       MOVB @swappable_colors,@VDPWD
        LI   R0,60
        MOV  R0,@COUNT
 flash

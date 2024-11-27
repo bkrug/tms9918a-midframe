@@ -4,10 +4,9 @@
        DEF  read_multiple_vdp_bytes
        DEF  scroll_and_print
 *
-       REF  LBR0                               "
-       REF  screen_copy
 
        COPY 'EQUCPUADR.asm'
+       COPY 'EQUVAR.asm'
 BIT0   DATA >8000
 BIT1   DATA >4000
 SPACE  TEXT ' '

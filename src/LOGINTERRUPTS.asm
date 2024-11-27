@@ -1,7 +1,5 @@
        DEF  log_interrupts
 *
-       REF  STACK,WS                        Ref from VAR
-       REF  OLDR12,COUNT,COLOR,RETPT
        REF  GROMCR                          Ref from GROM
        REF  DSPINT,NUMASC                   Ref from DISPLAY
        REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
@@ -17,6 +15,7 @@
 * Addresses
 *
        COPY 'EQUCPUADR.asm'
+       COPY 'EQUVAR.asm'
        COPY 'EQU.asm'
 
 H20    BYTE >20
