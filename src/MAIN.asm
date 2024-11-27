@@ -4,6 +4,7 @@
        REF  DSPINT,NUMASC                   Ref from DISPLAY
        REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
        REF  block_vdp_interrupt             Ref from PIXELROW
+       REF  set_timer                       "
 
 *
 * Addresses
@@ -92,21 +93,6 @@ while_waiting_for_interrupt:
        MOV  @isr_hit_count,R0
        JEQ  while_waiting_for_interrupt
        JMP  game_loop
-
-*
-* Private Method:
-* Initialize Timer
-*
-* Input
-*   R1 - time before trigger (least significant 14-bits)
-set_timer:
-       CLR  R12         CRU base of the TMS9901 
-       SBO  0           Enter timer mode
-       INCT R12         Address of bit 1 
-       LDCR R1,14       Load value 
-       DECT R12         There is a faster way (see http://www.nouspikel.com/ti99/titechpages.htm) 
-       SBZ  0           Exit clock mode, start decrementer 
-       RT
 
 *
 * This is a traditional User-Defined interrupt.

@@ -4,12 +4,9 @@
        REF  DSPINT,NUMASC                   Ref from DISPLAY
        REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
        REF  scroll_and_print                "
-
-*
-* STATUS:
-* Currently we have an interrupt that can maintain the return address.
-* And the interrupt is only triggered 3 times per second, when the timer hits zero.
-*
+       REF  block_vdp_interrupt             Ref from PIXELROW       
+       REF  set_timer                       "
+       REF  get_timer_value                 "
 
 *
 * Addresses
@@ -73,14 +70,15 @@ FRSTLP CB   @VINTTM,R0
 *
        BL   @check_vdp_interrupt_bit
 *
-       BL   @block_vdp_interrupt
+       LIMI 0
+       BLWP @block_vdp_interrupt
 *
        BL   @check_vdp_interrupt_bit
 * Specify user defined interrupt routine
        LI   R0,report_unexpected_vdp
        MOV  R0,@USRISR
 * Wait for about 1/3 second
-       BL   @init_timer
+       BL   @set_timer
        MOVB @VINTTM,R9
 while_timer_not_elapsed:
        BL   @get_timer_value
@@ -108,7 +106,7 @@ timer_interrupt_test:
 * Enable timer interrupts
        CLR  R12                CRU base address >0000 
        SBO  3                  Enable timer interrupts
-       BL   @init_timer
+       BL   @set_timer
 * Demonstrate that interrupts are not seeing a left-over return address
        CLR  R11
        CLR  R14
@@ -212,66 +210,6 @@ bit_low:
 vdp_check_done:
        MOV  *R10+,R11
        RT
-
-*
-* Private Method:
-* Initialize Timer
-*
-init_timer:
-       CLR  R12         CRU base of the TMS9901 
-       SBO  0           Enter timer mode
-       LI   R1,>3FFF    Maximum value
-       INCT R12         Address of bit 1 
-       LDCR R1,14       Load value 
-       DECT R12         There is a faster way (see http://www.nouspikel.com/ti99/titechpages.htm) 
-       SBZ  0           Exit clock mode, start decrementer 
-       RT
-
-*
-* Private Method:
-* Get Time from CRU
-* Output: R2
-*   - Status bits compared to 0
-*
-get_timer_value:
-       CLR  R12 
-       SBO  0           Enter timer mode 
-       STCR R2,15       Read current value (plus mode bit)
-       SBZ  0
-* Ignore left-most and right-most bits, while maintaining sign
-       SLA  R2,1
-       SRL  R2,2
-       RT
-
-*
-* Wait for the VDP interrupt, but don't clear it.
-* Any future interrupts will be interpreted by ROMs as VDP interrupts.
-* We can no longer listen for VDP interrupts,
-* but we can listen for timer interrupts.
-*
-block_vdp_interrupt:
-       LIMI 0
-* Munge the GPLWS.
-       LWPI >83E0
-       CLR  R14               * Disable cassette interrupt and protect >8379.
-       LI   R15,>877B         * Disable VDPST reading and protect >837B.   (>FC00 + >877B = >837B, so this results in moving >837B to itself)
-* Munge the INTWS.
-       LWPI >83C0
-       SETO R1                * Disable all VDP interrupt processing.
-       SETO R11               * Disable screen timeouts.
-       CLR  R12               * Set to 9901 CRU base.
-*
-* Synchronize with the next VDP interrupt.
-SYNC   TB   2                 * Check for VDP interrupt.
-       JEQ  SYNC
-* Configure the 9901 for interrupts.
-       SBZ  1                 * Disable external interrupt prioritization.
-       SBZ  2                 * Disable VDP interrupt prioritization.
-       SBZ  3                 * Disable Timer interrupt prioritization.
-* Done
-       LWPI WS
-       RT
-
 
 *
 * This is the non-hacky way to set a timer-interrupt.
