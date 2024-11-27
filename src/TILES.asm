@@ -30,15 +30,19 @@ sprite_attributes
        BYTE >FF,>02,>00
        EVEN
 scan_line_interrupts
-       DATA 0,blue_color_isr
-       DATA 4*8+0,yellow_color_isr
-       DATA 8*8+0,blue_color_isr
-       DATA 12*8+0,yellow_color_isr
-       DATA 16*8+0,blue_color_isr
-       DATA 20*8+0,yellow_color_isr
-       DATA 23*8+0,blue_color_isr
+       DATA 0,yellow_color_isr
+       DATA 4*8+0,blue_color_isr
+       DATA 8*8+0,yellow_color_isr
+       DATA 12*8+0,blue_color_isr
+       DATA 16*8+0,yellow_color_isr
 scan_line_interrups_end
-       DATA vdp_mock,purple_color_isr
+* we can set up more than 5 pixel-row interrupts,
+* but for some reason that makes the timer interrupts 
+* less tolerant of dropped frames.
+* To experiment, uncomment "BL   @delay_and_drop_a_frame"
+* and move "scan_line_interrups_end"
+       DATA 20*8+0,blue_color_isr
+       DATA 23*8+0,yellow_color_isr
 * timer of first scan line
 top_scan_time           DATA 186
 cru_scan_ratio_top      DATA 95
@@ -176,12 +180,10 @@ assign_timer_table_addresses
        LI   R0,timer_interrupts
        MOV  R0,@isr_table_address
        MOV  R7,@isr_end_address
-* TODO: add an entry for the end of the frame.
-* If will be "outside" the table, but if the game loop drops a frame,
-* It will try to compensate by resetting the loop.
 * Let R2 = length of a video frame
        BL   @measure_length_of_frame
-* Update destination table
+* Add an entry to the timer-ISR-table
+* that will only get triggered if the game loop drops a frame.
        MOV  R2,*R7+
        LI   R8,restart_timer_loop
        MOV  R8,*R7+
