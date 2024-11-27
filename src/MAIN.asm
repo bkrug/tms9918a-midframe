@@ -158,7 +158,7 @@ block_vdp_interrupt:
        CLR  R12               * Set to 9901 CRU base.
 * Wait for one frame to finish
        SBO  2
-       MOVB @>8802,R8
+       MOVB @VDPSTA,R8
 *
 * Synchronize with the next VDP interrupt.
 SYNC   TB   2                 * Check for VDP interrupt.

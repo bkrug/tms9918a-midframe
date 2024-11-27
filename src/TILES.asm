@@ -66,7 +66,7 @@ game_loop
        LIMI 0
 * Block thread until then end of a frame
 * Fool TI-99/4a into thinking that later interrupts are VDP interrupts.
-       BL   @block_vdp_interrupt
+       BLWP @block_vdp_interrupt
 * Tell timer_isr to look at the begging of the table again
        BL   @restart_timer_loop
 * Enable interrupts
@@ -476,25 +476,26 @@ blue_color_isr
        RT
 
 *
+* BLWP:
 * Wait for the VDP interrupt, but don't clear it.
 * Any future interrupts will be interpreted by ROMs as VDP interrupts.
 * We can no longer listen for VDP interrupts,
 * but we can listen for timer interrupts.
 *
-* TODO: These should be BLWP methods
 block_vdp_interrupt
+       DATA >83C0,block_vdp_interrupt+4
+* Munge the INTWS.
+       SETO R1                * Disable all VDP interrupt processing.
+       SETO R11               * Disable screen timeouts.
+       CLR  R12               * Set to 9901 CRU base.
 * Munge the GPLWS.
        LWPI >83E0
        CLR  R14               * Disable cassette interrupt and protect >8379.
        LI   R15,>877B         * Disable VDPST reading and protect >837B.   (>FC00 + >877B = >837B, so this results in moving >837B to itself)
-* Munge the INTWS.
-       LWPI >83C0
-       SETO R1                * Disable all VDP interrupt processing.
-       SETO R11               * Disable screen timeouts.
-       CLR  R12               * Set to 9901 CRU base.
 * Wait for one frame to finish
+       LWPI >83C0
        SBO  2
-       MOVB @>8802,R8
+       MOVB @VDPSTA,R8
 *
 * Synchronize with the next VDP interrupt.
 SYNC   TB   2                 * Check for VDP interrupt.
@@ -503,8 +504,7 @@ SYNC   TB   2                 * Check for VDP interrupt.
        SBZ  1                 * Disable external interrupt prioritization.
        SBZ  2                 * Disable VDP interrupt prioritization.
 * Done
-       LWPI WS
-       RT
+       RTWP
 
 *
 * Unblock VDP interrupts

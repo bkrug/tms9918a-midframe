@@ -51,8 +51,8 @@ temp_files = [
 ]
 link_main_files("midFrame.bin", temp_files)
 
-# #Clean up
+#Clean up
 # for file in glob.glob(WORK_FOLDER + "*.lst"):
 #     os.remove(file)
-# for file in glob.glob(WORK_FOLDER + "*.obj"):
-#     os.remove(file)
+for file in glob.glob(WORK_FOLDER + "*.obj"):
+    os.remove(file)
