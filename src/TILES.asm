@@ -65,13 +65,25 @@ game_loop
        BL   @restart_timer_loop
 * Enable interrupts
        LIMI 2
+* Uncomment this line to delay game_loop long enough to drop a frame
+*       BL   @delay_and_drop_a_frame
 * Don't end game loop until all timer-interrupts have been triggered
-*
 while_waiting_for_interrupt
        MOV  @all_lines_scanned,R0
        JEQ  while_waiting_for_interrupt
 *
        JMP  game_loop
+
+*
+*
+*
+delay_and_drop_a_frame
+       LI   R0,1500
+delay_loop
+       DEC  R0
+       JNE  delay_loop
+*
+       RT
 
 *
 * Initialize the timer loop.
@@ -171,7 +183,7 @@ assign_timer_table_addresses
        BL   @measure_length_of_frame
 * Update destination table
        MOV  R2,*R7+
-       LI   R8,end_of_frame_ISR
+       LI   R8,restart_timer_loop
        MOV  R8,*R7+
 *
 * The "timer interrupts" table now contains values
@@ -307,6 +319,8 @@ while_second_frame_continues
        LIMI 0
 * Let R2 = new timer value
        BL   @get_timer_value
+       NEG  R2
+       AI   R2,>3FFF
 *
        MOV  *R10+,R11
        RT
@@ -323,10 +337,10 @@ restart_timer_loop
        MOV  *R0+,R1
        MOV  R0,@isr_element_address
        BL   @set_timer
-* Do stuff that would normally be done by the VDP interrupt
-       BL   @end_of_frame_ISR
-* TODO: call this method from within @end_of_fram_ISR
+* TODO: call this method from within @end_of_frame_ISR
        BL   @red_color_isr
+* Do stuff that would normally be triggered by VDP interrupts
+       AB   @ONE,@VINTTM
 *
        CLR  @all_lines_scanned
 * Enable Timer interrupt prioritization
@@ -405,6 +419,7 @@ timer_isr
 * Yes, let main code know that it can proceed with the next game loop
 * and thus can test for the next end-of-frame
        SETO @all_lines_scanned
+* TODO: After running the end-of-frame ISR we need to restart the timer loop
 not_end_of_isr_list
 *
        LIMI 2
