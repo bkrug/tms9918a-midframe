@@ -108,7 +108,7 @@ init_timer_loop
        MOV  R0,R8
        MOV  R1,R9
 * See restart_timer_loop, where it branch-links to the method in @frame_isr
-* If we put a null-check there, stuff breaks.
+* If we put a null-check there AND a frame is dropped, stuff breaks.
 * I haven't figured out why,
 * so instead we'll guarantee that @frame_isr always points to some sort of method.
        MOV  R2,R2
@@ -174,7 +174,7 @@ init_timer_from_coinc
        MOV  R0,R8
        MOV  R1,R9
 * See restart_timer_loop, where it branch-links to the method in @frame_isr
-* If we put a null-check there, stuff breaks.
+* If we put a null-check there AND a frame is dropped, stuff breaks.
 * I haven't figured out why,
 * so instead we'll guarantee that @frame_isr always points to some sort of method.
        MOV  R2,R2
