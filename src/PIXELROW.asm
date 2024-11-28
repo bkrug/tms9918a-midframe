@@ -8,6 +8,7 @@
        DEF  timer_isr
 *
        REF  VDPADR                          Ref from VDP
+       REF  KSCAN
 
 *
 * All of these routines require R10 to be a stack pointer
@@ -29,6 +30,22 @@ sprite_attributes
 top_scan_time           DATA 186
 cru_scan_ratio_top      DATA 95
 cru_scan_ratio_bottom   DATA 32
+quit_key_bits           DATA >5000
+*
+* These are the values of the >83C0 and >83E0
+* workspaces if we just BLWP @>0 from the beginning
+* of our program
+*
+orig_workspace
+       DATA >8B6F,0,0,0
+       DATA >1B1B,>FF00,>0484,0
+       DATA >9804,>E000,>E000,>001C
+       DATA >0070,>83E0,>0074,>0202
+       DATA >66B0,>8380,>B066,>8302
+       DATA >66B0,>0270,>0664,>06BA
+       DATA >019E,>001E,>0800,>061C
+       DATA >0000,>83E0,>66B4,>C200
+
 
 *
 * BLWP:
@@ -336,10 +353,19 @@ restart_timer_loop
 * to replace the regular VDP interrupt.
        MOV  @frame_isr,R1
        BL   *R1
-no_frame_isr_requested
 * Do stuff that would normally be triggered by VDP interrupts
        AB   @ONE,@VINTTM
+* Let R3 = keys pressed
+* Was the Quit key pressed?
+       SB   @KEYCOD,@KEYCOD
+       BL   @KSCAN
+       COC  @quit_key_bits,R3
+       JEQ  restart_ti99
+* No, quit key not pressed
+quit_key_not_detected
 *
+* Tell game loop that it
+* shouldn't turn off interrupts and wait for Video frame yet.
        CLR  @all_lines_scanned
 * Enable Timer interrupt prioritization
        CLR  R12
@@ -423,3 +449,15 @@ not_end_of_isr_list
 *
        MOV  *R10+,R11
        RT
+
+*
+*
+*
+restart_ti99
+* Disable timer interrupts,
+* or restart routine will get stuck in infinite loop
+       CLR  R12
+       SBZ  3
+*
+       LWPI 0
+       BLWP @0

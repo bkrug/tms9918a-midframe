@@ -26,7 +26,7 @@ def link_main_files(linked_file, object_files):
     os.system(link_command_2)
     rpk_link_1 = "xas99.py -c -a \">6000\" -l {source} -o {output}"
     rpk_link_2 = rpk_link_1.format(source = unlinked_files_string, output = get_work_file(linked_file.replace(".bin", ".rpk")))
-    os.system(rpk_link_2)
+    #os.system(rpk_link_2)
 
 #Assemble Src and Tests
 files = os.scandir(".//Src")
@@ -47,7 +47,8 @@ temp_files = [
     "VDP",
     "LOGINTERRUPTS",
     "PIXELROW",
-    "TILES"
+    "TILES",
+    "KSCAN"
 ]
 link_main_files("midFrame.bin", temp_files)
 

@@ -42,7 +42,7 @@ scan_line_interrups_end
        DATA 20*8+0,blue_color_isr
        DATA 23*8+0,yellow_color_isr
 
-tiles
+tiles  
        LWPI WS
        LI   R10,STACK
        LIMI 0
