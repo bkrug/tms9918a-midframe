@@ -32,6 +32,11 @@ cru_scan_ratio_top      DATA 95
 cru_scan_ratio_bottom   DATA 32
 quit_key_bits           DATA >5000
 
+* adjustments that need to be made because
+* the act of measuring time takes time
+post_coinc_adjustment   EQU  3
+isr_trigger_adjustment  EQU  -11
+
 *
 * BLWP:
 * Wait for the VDP interrupt, but don't clear it.
@@ -255,7 +260,7 @@ while_coinc_not_triggered
 * and setting the timer for the first interrupt, there would be a delay of ~3 CRU ticks.
 * So why are we adding 3 ticks, instead of (9-3=6) 6 ticks or more?
        NEG  R2
-       AI   R2,>3FFF+3
+       AI   R2,>3FFF+post_coinc_adjustment
 *
        MOV  *R10+,R11
        RT
@@ -418,7 +423,7 @@ timer_isr
        MOV  R0,@isr_element_address
 * Subtract 12 CRU ticks from timer value.
 * There is a delay between triggering the ISR, and resetting the timer
-       AI   R1,-11
+       AI   R1,isr_trigger_adjustment
 * Configure next interrupt's timer
        BL   @set_timer
 * Clear timer-interrupt
