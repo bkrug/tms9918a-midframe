@@ -20,9 +20,9 @@
 SCRN8  EQU  >2000
 
 pixel_row_interrupts
-       DATA 6*8-2,pattern1_isr
-       DATA 12*8-2,pattern2_isr
-       DATA 18*8-2,pattern3_isr
+       DATA 6*8-1,pattern1_isr
+       DATA 12*8-1,pattern2_isr
+       DATA 18*8-1,pattern3_isr
 pixel_row_interrupts_end
 
 char_pattern
@@ -59,6 +59,7 @@ quarter_text
 *
        BL   @copy_init_text
        BL   @init_screen_image_table
+       CLR  @doc_display_index
 *
 game_loop
 * Disable interrupts
@@ -68,6 +69,8 @@ game_loop
        BLWP @block_vdp_interrupt
 * Tell timer_isr to look at the begging of the table again
        BL   @restart_timer_loop
+* Display some of the text
+       BL   @display_text
 * Enable interrupts
        LIMI 2
 * Don't end game loop until all timer-interrupts have been triggered
@@ -186,7 +189,7 @@ initial_text
        TEXT 'in order to achieve 40-columns. '
 initial_text_end
 initial_fonts
-       TEXT 'bbbbbbbbbbbbbbbbbbb '
+       TEXT 'bbbbbbbbbbbbbbbbbb '
        TEXT '          iii                      '
        TEXT '                bbbbb iiiiiii    '
        TEXT 'mmmmmmmmmmm       '
@@ -208,5 +211,82 @@ initial_fonts
        TEXT '                                '
 initial_fonts_end
 font_keys
-       TEXT ' bim'
+       TEXT ' ibm'
        EVEN
+
+display_text
+       DECT R10
+       MOV  R11,*R10
+* Let R2 = document index
+* Let R3 = stopping point
+       MOV  @doc_display_index,R2
+       MOV  R2,R3
+       AI   R3,10
+* Let R0 = tile position
+       MOV  R2,R0
+* if R0 >= 18*40, then R0 += 16*3
+* else if R0 >= 12*40, then R0 += 16*2
+* else if R0 >= 6*40, then R0 += 16
+       CI   R0,18*40
+       JL   pattern_pick1
+       AI   R0,16*3
+       JMP  pattern_pick_good
+pattern_pick1
+       CI   R0,12*40
+       JL   pattern_pick2
+       AI   R0,16*2
+       JMP  pattern_pick_good
+pattern_pick2
+       CI   R0,6*40
+       JL   pattern_pick_good
+       AI   R0,16
+pattern_pick_good
+* Let R0 = pattern table position
+       SLA  R0,3
+* Set VDP ram position
+       BL   @VDPADR
+char_loop
+* Let R1 (high byte) = desired char
+       MOV  R2,R1
+       AI   R1,document_text
+       MOVB *R1,R1
+* Let R1 = offset within some pattern table (CPU RAM)
+       SRL  R1,8
+       AI   R1,-32
+       SLA  R1,3
+* Let R0 (high byte) = font key
+       MOV  R2,R0
+       AI   R0,document_font
+       MOVB *R0,R0
+* Let R0 = address of this font's pattern table (CPU RAM)
+       SRL  R0,8
+       SLA  R0,1
+       AI   R0,font_addresses
+       MOV  *R0,R0
+* Let R0 = address of character's pattern
+       A    R1,R0
+* Write char
+       LI   R1,VDPWD
+       MOVB *R0+,*R1
+       MOVB *R0+,*R1
+       MOVB *R0+,*R1
+       MOVB *R0+,*R1
+*
+       MOVB *R0+,*R1
+       MOVB *R0+,*R1
+       MOVB *R0+,*R1
+       MOVB *R0+,*R1
+* Next char
+       INC  R2
+       C    R2,R3
+       JL   char_loop
+* Finished?
+       CI   R2,24*40
+       JL   update_index
+* Yes, Finished
+       CLR  R2
+update_index
+       MOV  R2,@doc_display_index
+*
+       MOV  *R10+,R11
+       RT

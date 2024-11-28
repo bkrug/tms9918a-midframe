@@ -49,7 +49,8 @@ temp_files = [
     "PIXELROW",
     "TILES",
     "KSCAN",
-    "QUARTERTEXT"
+    "QUARTERTEXT",
+    "FONTS"
 ]
 link_main_files("midFrame.bin", temp_files)
 
