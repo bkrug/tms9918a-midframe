@@ -48,7 +48,8 @@ temp_files = [
     "LOGINTERRUPTS",
     "PIXELROW",
     "TILES",
-    "KSCAN"
+    "KSCAN",
+    "QUARTERTEXT"
 ]
 link_main_files("midFrame.bin", temp_files)
 

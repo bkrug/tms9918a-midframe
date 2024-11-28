@@ -1,4 +1,7 @@
-       REF  BEGIN,log_interrupts,tiles
+       REF  log_interrupts
+       REF  BEGIN
+       REF  tiles
+       REF  quarter_text
 
 ********@*****@*********************@**************************
 *--------------------------------------------------------------
@@ -8,8 +11,14 @@
 * it is important to include '-a ">6000"' in the xas99.py
 * command when linking files into a cartridge.
        BYTE  >AA,1,1,0,0,0
-       DATA  PROG3
+       DATA  PROG4
        BYTE  0,0,0,0,0,0,0,0
+*
+PROG4  DATA  PROG3
+       DATA  quarter_text
+       BYTE  P4MSGE-P4MSG
+P4MSG  TEXT  'QUARTER TEXT MODE'
+P4MSGE
 *
 PROG3  DATA  PROG2
        DATA  tiles

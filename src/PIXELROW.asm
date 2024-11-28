@@ -13,6 +13,14 @@
 *
 * All of these routines require R10 to be a stack pointer
 *
+* TODO:
+* the COINC operation is making assumptions about:
+*    the location of the sprite pattern table
+*    the location of the sprite attribute list
+*    the correct sprite-code to use
+*    8x8 vs 16x16 sprites
+* Make this not rely on assumptions in the future.
+*
 
 *
 * Addresses
@@ -21,7 +29,6 @@
        COPY 'EQU.asm'
        COPY 'EQUVAR.asm'
 
-ONE    BYTE >1
 * except for the Y-position, these are the sprite-attributes for the COINC sprites
 sprite_attributes
        BYTE >FF,>02,>00

@@ -16,6 +16,10 @@
        COPY 'EQU.asm'
        COPY 'EQUVAR.asm'
 
+* TODO: PIXELROW.asm needs a sprite to be defined,
+* and it neeeds to know which sprite to use.
+* But we have the sprite pattern defined here.
+* That might be bad.
 char_pattern
 * Patterns used to demonstrate degree of accuracy in the results
        DATA >F000,>0000,>C000,>0000
@@ -24,7 +28,6 @@ char_pattern
        DATA >8080,>8080,>8080,>8080
 end_of_char_patterns
 color  BYTE >10
-ONE    BYTE >1
        EVEN
 
 * For the default demonstration, we will only Configure
