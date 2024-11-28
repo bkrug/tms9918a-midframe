@@ -57,6 +57,7 @@ quarter_text
        LI   R0,>07F4
        BL   @VDPREG
 *
+       BL   @copy_init_text
        BL   @init_screen_image_table
 *
 game_loop
@@ -75,31 +76,6 @@ while_waiting_for_interrupt
        JEQ  while_waiting_for_interrupt
 *
        JMP  game_loop
-
-init_screen_image_table
-       DECT R10
-       MOV  R11,*R10
-* Choose the screen image table
-       LI   R0,>0208
-       BL   @VDPREG
-       LI   R0,SCRN8
-       BL   @VDPADR
-* Let R1 = number of quarter-screens remaining to initialize
-       LI   R1,4
-four_quarters_of_screen
-* Let R0 = tile-code to write
-       CLR  R0
-one_quarter_of_screen
-       MOV  R0,@VDPWD
-       AB   @ONE,R0
-       CI   R0,6*40*>100
-       JL   one_quarter_of_screen
-*
-       DEC  R1
-       JNE  four_quarters_of_screen
-*
-       MOV  *R10+,R11
-       RT
 
 pattern0_isr
        LI   R0,>0400
@@ -129,6 +105,64 @@ any_pattern
        MOV  *R10+,R11
        RT
 
+init_screen_image_table
+       DECT R10
+       MOV  R11,*R10
+* Choose the screen image table
+       LI   R0,>0208
+       BL   @VDPREG
+       LI   R0,SCRN8
+       BL   @VDPADR
+* Let R1 = number of quarter-screens remaining to initialize
+       LI   R1,4
+four_quarters_of_screen
+* Let R0 = tile-code to write
+       CLR  R0
+one_quarter_of_screen
+       MOV  R0,@VDPWD
+       AB   @ONE,R0
+       CI   R0,6*40*>100
+       JL   one_quarter_of_screen
+*
+       DEC  R1
+       JNE  four_quarters_of_screen
+*
+       MOV  *R10+,R11
+       RT
+
+*
+*
+*
+copy_init_text
+* Copy text to RAM
+       LI   R0,initial_text
+       LI   R1,document_text
+copy_text_loop
+       MOVB *R0+,*R1+
+       CI   R0,initial_text_end
+       JL   copy_text_loop
+* Copy font data to RAM
+       LI   R0,initial_fonts
+       LI   R1,document_font
+copy_fonts_loop
+* Let R2 = font key
+       LI   R3,font_keys
+       MOV  R3,R2
+key_search_loop
+       CB   *R0,*R2
+       JEQ  found_font_key
+       INC  R2
+       JMP  key_search_loop
+found_font_key
+       S    R3,R2
+* Copy font key to RAM
+       INC  R0
+       MOVB @LBR2,*R1+
+       CI   R0,initial_fonts_end
+       JL   copy_fonts_loop
+*
+       RT
+
 initial_text
        TEXT 'Quarter Text Mode. '
        TEXT 'This is a toy text editor that can '
@@ -150,6 +184,7 @@ initial_text
        TEXT 'This would be possible in regular bitmap mode, '
        TEXT 'but would require a lot of bitshift operations '
        TEXT 'in order to achieve 40-columns. '
+initial_text_end
 initial_fonts
        TEXT 'bbbbbbbbbbbbbbbbbbb '
        TEXT '          iii                      '
@@ -171,3 +206,7 @@ initial_fonts
        TEXT '                                  bbbbbbbbbbbb '
        TEXT '                           iiiiiiii            '
        TEXT '                                '
+initial_fonts_end
+font_keys
+       TEXT ' bim'
+       EVEN
