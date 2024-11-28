@@ -89,3 +89,7 @@ limit_timer_interrupts:
        EQU  >A33C      * We never want to fill the last 4 bytes with a user-defined ISR.
 *                        The last 4 bytes in the timer-ISR-table should always
 *                        point to the end-of-frame interrupt that replaces the VDP interrupt.
+document_text:
+       EQU  >B000
+document_font:
+       EQU  >B800
