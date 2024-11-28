@@ -246,10 +246,16 @@ while_coinc_not_triggered
        JEQ  while_coinc_not_triggered
 * Let R2 = new timer value
        BL   @get_timer_value
-* Let R2 = time that passed
-* Suspect: Adding 5 here, subtracting 11 elsewhere
+* Need to increase the result in R2 a little bit,
+* because we did not record the time when we were
+* writing overlapping sprites to the VDP RAM.
+* SUSPECT: But something is off.
+* I would have thought that the process of writing test sprites would take at least 9 CRU ticks.
+* I would have thought that inbetween the end of one frame
+* and setting the timer for the first interrupt, there would be a delay of ~3 CRU ticks.
+* So why are we adding 3 ticks, instead of (9-3=6) 6 ticks or more?
        NEG  R2
-       AI   R2,>3FFF+5
+       AI   R2,>3FFF+3
 *
        MOV  *R10+,R11
        RT
