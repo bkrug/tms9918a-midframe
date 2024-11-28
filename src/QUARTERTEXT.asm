@@ -146,6 +146,12 @@ copy_text_loop
        MOVB *R0+,*R1+
        CI   R0,initial_text_end
        JL   copy_text_loop
+* Write spaces
+       LI   R0,>2000
+write_spaces_loop
+       MOVB R0,*R1+
+       CI   R1,document_text+>800
+       JL   write_spaces_loop
 * Copy font data to RAM
        LI   R0,initial_fonts
        LI   R1,document_font
