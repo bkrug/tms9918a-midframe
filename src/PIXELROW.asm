@@ -127,7 +127,7 @@ coinc_init_timer_loop
 *   R6 - routine for converting a pixel-row to a timer value
 generic_timer_init
        DECT R10
-       MOV  R11,*R10       
+       MOV  R11,*R10
 * Let R8 = table start address
 * Let R9 = table end address
        MOV  R0,R8
@@ -164,6 +164,13 @@ assign_timer_table_addresses
        MOV  R7,@isr_end_address
 * Let R2 = length of a video frame
        BL   @measure_length_of_frame
+* Now adjust the value of R2 because of what we've seen in real life experiments
+       MOV  @isr_end_address,R0
+       S    @isr_table_address,R0
+       SRL  R0,2
+       LI   R3,2
+       MPY  R3,R0
+       S    R1,R2
 * Add an entry to the timer-ISR-table
 * that will only get triggered if the game loop drops a frame.
        MOV  R2,*R7+

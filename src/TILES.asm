@@ -27,18 +27,19 @@ color  BYTE >10
 ONE    BYTE >1
        EVEN
 
+* For the default demonstration, we will only Configure
+* 4 pixel-row interrupts.
+* As we increase the number of interrupts-per-frame,
+* the system becomes less tolerant of dropped frames.
+* To experiment, uncomment "BL   @delay_and_drop_a_frame"
+* and move "scan_line_interrups_end"
 scan_line_interrupts
        DATA 0,yellow_color_isr
        DATA 4*8+0,blue_color_isr
        DATA 8*8+0,yellow_color_isr
        DATA 12*8+0,blue_color_isr
-       DATA 16*8+0,yellow_color_isr
 scan_line_interrups_end
-* We can set up more than 5 pixel-row interrupts,
-* but for some reason that makes the timer interrupts 
-* less tolerant of dropped frames.
-* To experiment, uncomment "BL   @delay_and_drop_a_frame"
-* and move "scan_line_interrups_end"
+       DATA 16*8+0,yellow_color_isr
        DATA 20*8+0,blue_color_isr
        DATA 23*8+0,yellow_color_isr
 
