@@ -17,7 +17,9 @@
        COPY 'EQU.asm'
        COPY 'EQUVAR.asm'
 
-SCRN8  EQU  >2000
+SCRN8                 EQU  >2000
+char_draw_per_frame   EQU  20
+
 
 pixel_row_interrupts
        DATA 6*8-1,pattern1_isr
@@ -221,7 +223,7 @@ display_text
 * Let R3 = stopping point
        MOV  @doc_display_index,R2
        MOV  R2,R3
-       AI   R3,10
+       AI   R3,char_draw_per_frame
 * Let R0 = tile position
        MOV  R2,R0
 * if R0 >= 18*40, then R0 += 16*3
