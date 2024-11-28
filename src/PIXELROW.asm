@@ -30,7 +30,7 @@ sprite_attributes
 top_scan_time           DATA 186
 cru_scan_ratio_top      DATA 95
 cru_scan_ratio_bottom   DATA 32
-quit_key_bits           DATA >5000
+quit_key_bits           DATA >1100
 
 * adjustments that need to be made because
 * the act of measuring time takes time

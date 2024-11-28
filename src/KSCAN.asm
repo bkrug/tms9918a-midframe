@@ -13,7 +13,7 @@
 *   >08  E
 *   >04  D
 *   >02  SPACE
-*   >01  (unused)
+*   >01  =
 *
 *       REF  VDPREG
 
@@ -26,7 +26,7 @@
 *
 KCOL2  BYTE >02
 * Key column, key rows to ignore
-SCNCOL BYTE >0,>ED       * Ignore everything except FCTN & Space
+SCNCOL BYTE >0,>EC       * Ignore everything except FCTN, Space, and =
        BYTE >1,>5F       * Ignore everything except X & S
        BYTE >5,>BF       * Ignore everything except Q
 SCEND
