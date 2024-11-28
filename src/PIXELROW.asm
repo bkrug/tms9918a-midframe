@@ -31,21 +31,6 @@ top_scan_time           DATA 186
 cru_scan_ratio_top      DATA 95
 cru_scan_ratio_bottom   DATA 32
 quit_key_bits           DATA >5000
-*
-* These are the values of the >83C0 and >83E0
-* workspaces if we just BLWP @>0 from the beginning
-* of our program
-*
-orig_workspace
-       DATA >8B6F,0,0,0
-       DATA >1B1B,>FF00,>0484,0
-       DATA >9804,>E000,>E000,>001C
-       DATA >0070,>83E0,>0074,>0202
-       DATA >66B0,>8380,>B066,>8302
-       DATA >66B0,>0270,>0664,>06BA
-       DATA >019E,>001E,>0800,>061C
-       DATA >0000,>83E0,>66B4,>C200
-
 
 *
 * BLWP:
@@ -459,5 +444,5 @@ restart_ti99
        CLR  R12
        SBZ  3
 *
-       LWPI 0
+       LWPI >0
        BLWP @0
