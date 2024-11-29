@@ -48,7 +48,6 @@ temp_files = [
     "LOGINTERRUPTS",
     "PIXELROW",
     "TILES",
-    "KSCAN",
     "QUARTERTEXT",
     "FONTS"
 ]
