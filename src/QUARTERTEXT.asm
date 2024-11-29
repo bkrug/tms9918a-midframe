@@ -145,7 +145,9 @@ one_quarter_of_screen
 *
 *
 copy_init_text
-* Copy text to RAM
+*
+* Copy text from Cartridge ROM to a RAM position where it can be edited.
+*
        LI   R0,initial_text
        LI   R1,document_text
 copy_text_loop
@@ -158,6 +160,11 @@ write_spaces_loop
        MOVB R0,*R1+
        CI   R1,document_text+>800
        JL   write_spaces_loop
+*
+* Convert space, "b", "i", or "m" to an index (0-3).
+* This will allow later code to find an address within "font_addresses".
+* And thereafter to find a pattern for one charater within a font.
+*       
 * Copy font data to RAM
        LI   R0,initial_fonts
        LI   R1,document_font
