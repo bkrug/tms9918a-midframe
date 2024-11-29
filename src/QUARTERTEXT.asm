@@ -239,72 +239,15 @@ display_text
        MOV  @line_break_index,R4
        SLA  R4,1
        AI   R4,line_breaks
-* Let R0 = tile position
-       MOV  @screen_draw_position,R0
-* Let R0 = tile code within a particular VDP RAM pattern table.
-* If R0 >= 18*40, then R0 += 16*3
-* else if R0 >= 12*40, then R0 += 16*2
-* else if R0 >= 6*40, then R0 += 16
-       CI   R0,18*40
-       JL   pattern_pick1
-       AI   R0,16*3
-       JMP  pattern_pick_good
-pattern_pick1
-       CI   R0,12*40
-       JL   pattern_pick2
-       AI   R0,16*2
-       JMP  pattern_pick_good
-pattern_pick2
-       CI   R0,6*40
-       JL   pattern_pick_good
-       AI   R0,16
-pattern_pick_good
-* Let R0 = address within in VDP RAM pointing to
-* the first pattern that we will update in this video-frame.
-       SLA  R0,3
+* Let R0 = position in VDP RAM to write next pattern
+       BL   @get_vdp_ram_pattern_address
 * Set VDP ram position
        BL   @VDPADR
 char_loop
-* Have we reached the end of a line?
-       C    R2,*R4
-       JL   draw_actual_char
-* Yes, draw spaces
-       MOVB @SPACE,R1
-       JMP  ascii_char_selected
-* Let R1 (high byte) = desired ASCII code of next char
-draw_actual_char
-       MOV  R2,R1
-       AI   R1,document_text
-       MOVB *R1,R1
-* Let R1 = offset within some pattern table (Cartridge ROM).
-* Spaces are the first character in each table.
-ascii_char_selected
-       SRL  R1,8
-       AI   R1,-32
-       SLA  R1,3
-* Let R0 (high byte) = font key
-       MOV  R2,R0
-       AI   R0,document_font
-       MOVB *R0,R0
-* Let R0 = address of this font's pattern table (Cartridge ROM)
-       SRL  R0,8
-       SLA  R0,1
-       AI   R0,font_addresses
-       MOV  *R0,R0
-* Let R0 = address of character's pattern
-       A    R1,R0
-* Write char pattern
-       LI   R1,VDPWD
-       MOVB *R0+,*R1
-       MOVB *R0+,*R1
-       MOVB *R0+,*R1
-       MOVB *R0+,*R1
-*
-       MOVB *R0+,*R1
-       MOVB *R0+,*R1
-       MOVB *R0+,*R1
-       MOVB *R0+,*R1
-* Advance R2 to the next character within the document.
+* Draw pattern of one character
+       BL   @draw_one_char
+* Advance R2 to the next character within the document,
+* unless we've passed then end of the line.
        C    R2,*R4
        JHE  skip_char_advance
        INC  R2
@@ -345,6 +288,85 @@ update_index
        MOV  R2,@doc_display_index
 *
        MOV  *R10+,R11
+       RT
+
+*
+*
+* Output: R0
+get_vdp_ram_pattern_address
+* Let R0 = tile position
+       MOV  @screen_draw_position,R0
+* Let R0 = tile code within a particular VDP RAM pattern table.
+* If R0 >= 18*40, then R0 += 16*3
+* else if R0 >= 12*40, then R0 += 16*2
+* else if R0 >= 6*40, then R0 += 16
+       CI   R0,18*40
+       JL   pattern_pick1
+       AI   R0,16*3
+       JMP  pattern_pick_good
+pattern_pick1
+       CI   R0,12*40
+       JL   pattern_pick2
+       AI   R0,16*2
+       JMP  pattern_pick_good
+pattern_pick2
+       CI   R0,6*40
+       JL   pattern_pick_good
+       AI   R0,16
+pattern_pick_good
+* Let R0 = address within in VDP RAM pointing to
+* the first pattern that we will update in this video-frame.
+       SLA  R0,3
+*
+       RT
+
+*
+* Places a single ASCII character on screen.
+*
+* Input:
+*   R2 - document index
+*   R4 - address within line break list
+draw_one_char
+* Have we reached the end of a line?
+       C    R2,*R4
+       JL   draw_actual_char
+* Yes, draw spaces
+       MOVB @SPACE,R1
+       JMP  ascii_char_selected
+* Let R1 (high byte) = desired ASCII code of next char
+draw_actual_char
+       MOV  R2,R1
+       AI   R1,document_text
+       MOVB *R1,R1
+* Let R1 = offset within some pattern table (Cartridge ROM).
+* Spaces are the first character in each table.
+ascii_char_selected
+       SRL  R1,8
+       AI   R1,-32
+       SLA  R1,3
+* Let R0 (high byte) = font key
+       MOV  R2,R0
+       AI   R0,document_font
+       MOVB *R0,R0
+* Let R0 = address of this font's pattern table (Cartridge ROM)
+       SRL  R0,8
+       SLA  R0,1
+       AI   R0,font_addresses
+       MOV  *R0,R0
+* Let R0 = address of character's pattern
+       A    R1,R0
+* Write char pattern
+       LI   R1,VDPWD
+       MOVB *R0+,*R1
+       MOVB *R0+,*R1
+       MOVB *R0+,*R1
+       MOVB *R0+,*R1
+*
+       MOVB *R0+,*R1
+       MOVB *R0+,*R1
+       MOVB *R0+,*R1
+       MOVB *R0+,*R1
+*
        RT
 
 *
