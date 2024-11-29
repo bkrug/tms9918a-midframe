@@ -91,10 +91,14 @@ limit_timer_interrupts:
 *                        point to the end-of-frame interrupt that replaces the VDP interrupt.
 doc_display_index:
        EQU  >A340
-word_wrap_needed:
+screen_draw_position:
        EQU  >A342
+line_break_index:
+       EQU  >A344
+word_wrap_needed:
+       EQU  >A346
 line_breaks:
-       EQU  >A344      * 24 words (>18 words)
+       EQU  >A348      * 24 words (>18 words)
 
 document_text:
        EQU  >B000

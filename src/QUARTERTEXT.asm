@@ -26,6 +26,7 @@ pixel_row_interrupts
        DATA 12*8-1,pattern2_isr
        DATA 18*8-1,pattern3_isr
 pixel_row_interrupts_end
+forty  DATA 40
 
 char_pattern
 * Patterns used to demonstrate degree of accuracy in the results
@@ -62,6 +63,8 @@ quarter_text
        BL   @copy_init_text
        BL   @init_screen_image_table
        CLR  @doc_display_index
+       CLR  @screen_draw_position
+       CLR  @line_break_index
        SETO @word_wrap_needed
 *
 game_loop
@@ -229,12 +232,15 @@ display_text
        DECT R10
        MOV  R11,*R10
 * Let R2 = document index
-* Let R3 = stopping point
+* Let R3 = number of chars to write
        MOV  @doc_display_index,R2
-       MOV  R2,R3
-       AI   R3,char_draw_per_frame
+       LI   R3,char_draw_per_frame
+* Let R4 = address within line break list
+       MOV  @line_break_index,R4
+       SLA  R4,1
+       AI   R4,line_breaks
 * Let R0 = tile position
-       MOV  R2,R0
+       MOV  @screen_draw_position,R0
 * Let R0 = tile code within a particular VDP RAM pattern table.
 * If R0 >= 18*40, then R0 += 16*3
 * else if R0 >= 12*40, then R0 += 16*2
@@ -259,12 +265,20 @@ pattern_pick_good
 * Set VDP ram position
        BL   @VDPADR
 char_loop
+* Have we reached the end of a line?
+       C    R2,*R4
+       JL   draw_actual_char
+* Yes, draw spaces
+       MOVB @SPACE,R1
+       JMP  ascii_char_selected
 * Let R1 (high byte) = desired ASCII code of next char
+draw_actual_char
        MOV  R2,R1
        AI   R1,document_text
        MOVB *R1,R1
 * Let R1 = offset within some pattern table (Cartridge ROM).
 * Spaces are the first character in each table.
+ascii_char_selected
        SRL  R1,8
        AI   R1,-32
        SLA  R1,3
@@ -290,19 +304,35 @@ char_loop
        MOVB *R0+,*R1
        MOVB *R0+,*R1
        MOVB *R0+,*R1
+* Advance R2 to the next character within the document.
+       C    R2,*R4
+       JHE  skip_char_advance
+       INC  R2
+skip_char_advance
 * Have we writen the last pattern for this video frame?
 * If not, continue in the loop.
-       INC  R2
-       C    R2,R3
-       JL   char_loop
+       DEC  R3
+       JH   char_loop
+* Loop complete.
+* Let R0 = next screen position
+       MOV  @screen_draw_position,R0
+       AI   R0,char_draw_per_frame
+* Update line_break_index
+       CLR  R3
+       MOV  R0,R4
+       DIV  @forty,R3
+       MOV  R3,@line_break_index
 * Have we written the last pattern on screen?
-       CI   R2,24*40
+       CI   R3,24
        JL   update_index
-* Yes, Finished.
+* Yes, last pattern.
        CLR  R2
-* Update the index so that we know where to continue
+       CLR  R0
+       CLR  @line_break_index
+* Update the indecies so that we know where to continue
 * in the next video frame.
 update_index
+       MOV  R0,@screen_draw_position
        MOV  R2,@doc_display_index
 *
        MOV  *R10+,R11
@@ -335,10 +365,19 @@ find_space
 * Word is too long to break
        AI   R2,39
 space_found
-* Let R2 = address of line break within RAM
+* Let R2 = address after the found space
        INC  R2
+* Some spaces can be off screen
+skip_more_spaces
+       CB   *R2,@SPACE
+       JNE  no_more_spaces
+       INC  R2
+       JMP  skip_more_spaces
+no_more_spaces
 * Store line break address
-       MOV  R2,*R1+
+       MOV  R2,R3
+       AI   R3,-document_text
+       MOV  R3,*R1+
 * Was that the 24th line?
        CI   R1,line_breaks+(24*2)
        JL   word_wrap_loop
