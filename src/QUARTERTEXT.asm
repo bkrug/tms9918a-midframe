@@ -225,7 +225,7 @@ initial_fonts
        TEXT '                                '
 initial_fonts_end
 font_keys
-       TEXT ' ibm'
+       TEXT ' bim'
        EVEN
 
 display_text

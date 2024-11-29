@@ -5,10 +5,9 @@
        DEF  restart_timer_loop
        DEF  set_timer
        DEF  get_timer_value
-       DEF  timer_isr
+       DEF  handle_quit_button
 *
        REF  VDPADR                          Ref from VDP
-       REF  KSCAN
 
 *
 * All of these routines require R10 to be a stack pointer
@@ -367,10 +366,7 @@ restart_timer_loop
        AB   @ONE,@VINTTM
 * Let R3 = keys pressed
 * Was the Quit key pressed?
-       SB   @KEYCOD,@KEYCOD
-       BL   @KSCAN
-       COC  @quit_key_bits,R3
-       JEQ  restart_ti99
+       BL   @handle_quit_button
 * No, quit key not pressed
 quit_key_not_detected
 *
@@ -458,6 +454,23 @@ not_end_of_isr_list
        LIMI 2
 *
        MOV  *R10+,R11
+       RT
+
+*
+* Check if the user is pressing the quit key,
+* And if so, restart the TI.
+*
+handle_quit_button
+* Get key presses from CRU
+       CLR  R1                  Test column 0
+       LI   R12,>0024           Address for column selection
+       LDCR R1,3                Select column
+       LI   R12,>0006           Address to read rows
+       STCR R1,8
+* Is the user pressing the FCTN and = keys?
+       CZC  @quit_key_bits,R1
+       JEQ  restart_ti99
+* No, return
        RT
 
 *
