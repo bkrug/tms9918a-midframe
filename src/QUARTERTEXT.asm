@@ -209,6 +209,9 @@ initial_text
        TEXT 'but would require a lot of bitshift operations '
        TEXT 'in order to achieve 40-columns. '
 initial_text_end
+
+* Space implies basic text.
+* "m" implies both bold and italic.
 initial_fonts
        TEXT 'bbbbbbbbbbbbbbbbbb '
        TEXT '          iii                      '
@@ -231,6 +234,7 @@ initial_fonts
        TEXT '                           iiiiiiii            '
        TEXT '                                '
 initial_fonts_end
+
 font_keys
        TEXT ' bim'
        EVEN
