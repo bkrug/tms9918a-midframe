@@ -1,3 +1,7 @@
+ONE    EQU  >002A        The address of a byte in ROM that always contains "1"
+SPACE  EQU  >0033        The address of a byte in ROM that always contains ">20"
+NEGONE EQU  >0044        The address of a byte in ROM that always contains ">FF"
+*
 FAC    EQU  >834A        GPL parameter (word)
 STATUS EQU  >837C        GPL status (byte)
 VINTTM EQU  >8379        VDP Interrupt timer (byte)

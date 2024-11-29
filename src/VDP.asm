@@ -9,7 +9,6 @@
        COPY 'EQUVAR.asm'
 BIT0   DATA >8000
 BIT1   DATA >4000
-SPACE  TEXT ' '
        EVEN
 
 *

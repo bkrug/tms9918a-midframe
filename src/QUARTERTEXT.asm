@@ -62,6 +62,7 @@ quarter_text
        BL   @copy_init_text
        BL   @init_screen_image_table
        CLR  @doc_display_index
+       SETO @word_wrap_needed
 *
 game_loop
 * Disable interrupts
@@ -75,6 +76,8 @@ game_loop
        BL   @display_text
 * Enable interrupts
        LIMI 2
+* If word_wrap_needed = -1, wrap text
+       BL   @word_wrap
 * Don't end game loop until all timer-interrupts have been triggered
 while_waiting_for_interrupt
        MOV  @all_lines_scanned,R0
@@ -232,7 +235,8 @@ display_text
        AI   R3,char_draw_per_frame
 * Let R0 = tile position
        MOV  R2,R0
-* if R0 >= 18*40, then R0 += 16*3
+* Let R0 = tile code within a particular VDP RAM pattern table.
+* If R0 >= 18*40, then R0 += 16*3
 * else if R0 >= 12*40, then R0 += 16*2
 * else if R0 >= 6*40, then R0 += 16
        CI   R0,18*40
@@ -249,16 +253,18 @@ pattern_pick2
        JL   pattern_pick_good
        AI   R0,16
 pattern_pick_good
-* Let R0 = pattern table position
+* Let R0 = address within in VDP RAM pointing to
+* the first pattern that we will update in this video-frame.
        SLA  R0,3
 * Set VDP ram position
        BL   @VDPADR
 char_loop
-* Let R1 (high byte) = desired char
+* Let R1 (high byte) = desired ASCII code of next char
        MOV  R2,R1
        AI   R1,document_text
        MOVB *R1,R1
-* Let R1 = offset within some pattern table (CPU RAM)
+* Let R1 = offset within some pattern table (Cartridge ROM).
+* Spaces are the first character in each table.
        SRL  R1,8
        AI   R1,-32
        SLA  R1,3
@@ -266,14 +272,14 @@ char_loop
        MOV  R2,R0
        AI   R0,document_font
        MOVB *R0,R0
-* Let R0 = address of this font's pattern table (CPU RAM)
+* Let R0 = address of this font's pattern table (Cartridge ROM)
        SRL  R0,8
        SLA  R0,1
        AI   R0,font_addresses
        MOV  *R0,R0
 * Let R0 = address of character's pattern
        A    R1,R0
-* Write char
+* Write char pattern
        LI   R1,VDPWD
        MOVB *R0+,*R1
        MOVB *R0+,*R1
@@ -284,17 +290,58 @@ char_loop
        MOVB *R0+,*R1
        MOVB *R0+,*R1
        MOVB *R0+,*R1
-* Next char
+* Have we writen the last pattern for this video frame?
+* If not, continue in the loop.
        INC  R2
        C    R2,R3
        JL   char_loop
-* Finished?
+* Have we written the last pattern on screen?
        CI   R2,24*40
        JL   update_index
-* Yes, Finished
+* Yes, Finished.
        CLR  R2
+* Update the index so that we know where to continue
+* in the next video frame.
 update_index
        MOV  R2,@doc_display_index
 *
        MOV  *R10+,R11
+       RT
+
+*
+* Word wraps the document.
+* For now we assume the whole document is just one big paragraph.
+* The document can be 2KB long, but we only wrap the first 24 lines.
+*
+word_wrap
+       MOV  @word_wrap_needed,R0
+       JNE  word_wrap_start
+       RT
+word_wrap_start
+* Let R0 = start of the current line
+* Let R1 = current location in line break list
+       LI   R2,document_text
+       LI   R1,line_breaks
+word_wrap_loop
+       MOV  R2,R0
+* Let R2 = position at which we look for a space
+       AI   R2,40
+find_space
+       CB   *R2,@SPACE
+       JEQ  space_found
+       DEC  R2
+       C    R2,R0
+       JH   find_space
+* Word is too long to break
+       AI   R2,39
+space_found
+* Let R2 = address of line break within RAM
+       INC  R2
+* Store line break address
+       MOV  R2,*R1+
+* Was that the 24th line?
+       CI   R1,line_breaks+(24*2)
+       JL   word_wrap_loop
+* Yes
+       CLR  @word_wrap_needed
        RT
