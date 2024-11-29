@@ -322,7 +322,16 @@ skip_char_advance
        MOV  R0,R4
        DIV  @forty,R3
        MOV  R3,@line_break_index
+* Is this the end of a line?
+       MOV  R4,R4
+       JNE  last_pattern_check
+* Yes, doc_display_index should point to the same place as the old line break
+       MOV  R3,R4
+       SLA  R4,1
+       AI   R4,line_breaks-2
+       MOV  *R4,R2
 * Have we written the last pattern on screen?
+last_pattern_check
        CI   R3,24
        JL   update_index
 * Yes, last pattern.
@@ -367,13 +376,6 @@ find_space
 space_found
 * Let R2 = address after the found space
        INC  R2
-* Some spaces can be off screen
-skip_more_spaces
-       CB   *R2,@SPACE
-       JNE  no_more_spaces
-       INC  R2
-       JMP  skip_more_spaces
-no_more_spaces
 * Store line break address
        MOV  R2,R3
        AI   R3,-document_text
