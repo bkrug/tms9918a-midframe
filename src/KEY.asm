@@ -5,9 +5,6 @@
        COPY 'EQUVAR.asm'
        COPY 'EQUCPUADR.asm'
 
-* Key pressed
-KEYPRS EQU  >8375
-
 * The delay before initial repeat
 WAIT1  DATA >18
 * The delay before additional repeats
@@ -29,12 +26,12 @@ KEYINT
        MOV  *R10+,R11
        RT
 *
-       CB   @KEYPRS,@NOKEY
+       CB   @KEYCOD,@NOKEY
        JNE  KEYDWN
-       MOVB @KEYPRS,@PREVKY
+       MOVB @KEYCOD,@PREVKY
        RT
 * A key has been pressed.
-KEYDWN CB   @KEYPRS,@PREVKY
+KEYDWN CB   @KEYCOD,@PREVKY
        JNE  KEYNEW
        DEC  @key_timer
        JH   KEYRTN
@@ -43,11 +40,11 @@ KEYAGN MOV  @WAIT2,@key_timer
        JMP  KEYCPY
 * The Key is new
 KEYNEW MOV  @WAIT1,@key_timer
-       MOVB @KEYPRS,@PREVKY
+       MOVB @KEYCOD,@PREVKY
 * Copy the key to the key buffer
 * Auto increment the buffer position
 KEYCPY MOV  @KEYWRT,R0
-       MOVB @KEYPRS,*R0+
+       MOVB @KEYCOD,*R0+
 * If the next position is past the
 * buffer end, move to the buffer start
        CI   R0,KEYEND
@@ -99,7 +96,7 @@ unpressed_loop
        CI   R1,>0800
        JL   scan_loop
 * Record NOKEY and return
-       MOVB @NOKEY,@KEYPRS
+       MOVB @NOKEY,@KEYCOD
        RT
 key_press_found
 * A key press has been detected.
@@ -120,7 +117,7 @@ key_press_found
        SWPB R5
        MOVB R5,@GRMWA
 * Record the key code
-       MOVB @GRMRD,@KEYPRS
+       MOVB @GRMRD,@KEYCOD
 *
        RT
 
