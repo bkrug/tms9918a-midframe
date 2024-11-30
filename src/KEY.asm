@@ -1,3 +1,4 @@
+       DEF  initialize_key_values
        DEF  KEYINT
 *
        REF  SCAN
@@ -9,8 +10,14 @@
 WAIT1  DATA >18
 * The delay before additional repeats
 WAIT2  DATA >4
-NOKEY  EQU  NEGONE
+NOKEY  BYTE >FF
        EVEN
+
+initialize_key_values
+       LI   R0,KEYSTR
+       MOV  R0,@KEYWRT
+       MOV  R0,@KEYRD
+       RT
 
 * Use an interupt to record key presses
 * so that if the computer is working on
@@ -24,22 +31,25 @@ KEYINT
        BL   @replacement_scan
 * restore R11
        MOV  *R10+,R11
-       RT
-*
+* Was a key pressed?
        CB   @KEYCOD,@NOKEY
        JNE  KEYDWN
+* No
        MOVB @KEYCOD,@PREVKY
        RT
 * A key has been pressed.
+* If the user holding a key down?
 KEYDWN CB   @KEYCOD,@PREVKY
        JNE  KEYNEW
+* Yes, has enough time passed to register it a second time?
        DEC  @key_timer
        JH   KEYRTN
-* The Key is being repeated
-KEYAGN MOV  @WAIT2,@key_timer
+* Yes, reset the timer, then register the repeated key.
+       MOV  @WAIT2,@key_timer
        JMP  KEYCPY
-* The Key is new
-KEYNEW MOV  @WAIT1,@key_timer
+* The Key is new, reset the timer.
+KEYNEW CB   @PREVKY,@NOKEY
+       MOV  @WAIT1,@key_timer
        MOVB @KEYCOD,@PREVKY
 * Copy the key to the key buffer
 * Auto increment the buffer position

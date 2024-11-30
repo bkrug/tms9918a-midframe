@@ -3,6 +3,7 @@
        REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
        REF  font_addresses                  Ref from FONTS
        REF  KEYINT                          Ref from KEY
+       REF  initialize_key_values           "
        REF  block_vdp_interrupt             Ref from PIXELROW
        REF  calc_init_timer_loop            "
        REF  coinc_init_timer_loop           "
@@ -67,6 +68,7 @@ quarter_text
        CLR  @screen_draw_position
        CLR  @line_break_index
        SETO @word_wrap_needed
+       BL   @initialize_key_values
 *
 game_loop
 * Disable interrupts
