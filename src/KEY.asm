@@ -149,11 +149,11 @@ caps_lock_up
 * Whichever bit is set to 0, is being pressed.
 * The keys by bit position are CTRL, SHIFT, FCTN
 modifier_key_offsets
-       DATA >30       * All modifiers pressed
-       DATA >90       * CTRL & SHIFT pressed
-       DATA >60       * CTRL & FCTN pressed
+       DATA >30       * All modifiers pressed, select SHIFT key codes
+       DATA >90       * CTRL & SHIFT pressed, select SHIFT key codes
+       DATA >60       * CTRL & FCTN pressed, select FCTN key codes
        DATA >90       * Only CTRL pressed
-       DATA >60       * SHIFT & FCTN pressed
+       DATA >60       * SHIFT & FCTN pressed, select FCTN key codes
        DATA >30       * Only SHIFT pressed
        DATA >60       * Only FCTN pressed
        DATA 0         * No modifiers pressed
