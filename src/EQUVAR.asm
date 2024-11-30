@@ -100,6 +100,22 @@ word_wrap_needed:
 line_breaks:
        EQU  >A348      * 24 words (>18 words)
 
+* KEY.asm
+key_timer     EQU  >A400
+KEYWRT        EQU  >A402      * Address where the next keypress 
+*                             * should be stored.
+KEYRD         EQU  >A404      * Next address to read a keypress from.
+*                             * If the value here is equal to the
+*                             * value in KEYWRT, then there are no
+*                             * new characters to write.===
+KEYSTR        EQU  >A406      * First address of key buffer
+KEYBUF        EQU  >A406      * Buffer to store keypresses (>10 bytes)
+KEYEND        EQU  >A416      * First address after key buffer
+PREVKY        EQU  >A406      * The previously detected key press.
+*                             * Wait a while before letting this key
+*                             * repeat.  (1 byte)
+
+
 document_text:
        EQU  >B000
 document_font:

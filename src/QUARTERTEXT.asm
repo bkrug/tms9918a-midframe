@@ -2,6 +2,7 @@
 *
        REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
        REF  font_addresses                  Ref from FONTS
+       REF  KEYINT                          Ref from KEY
        REF  block_vdp_interrupt             Ref from PIXELROW
        REF  calc_init_timer_loop            "
        REF  coinc_init_timer_loop           "
@@ -93,8 +94,16 @@ pattern0_isr
        JMP  any_pattern
 
 pattern1_isr
+       DECT R10
+       MOV  R11,*R10
+*
        LI   R0,>0401
-       JMP  any_pattern
+       BL   @VDPREG
+*
+       BL   @KEYINT
+*
+       MOV  *R10+,R11
+       RT
 
 pattern2_isr
        LI   R0,>0402
