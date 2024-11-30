@@ -63,7 +63,7 @@ KEY1   C    R0,@KEYRD
 KEYRTN RT
 
 *
-* The console scan doesn't seem to work now.
+* The console scan doesn't seem to work after we mangled the GPL WS.
 * So there!
 *
 replacement_scan
@@ -79,7 +79,7 @@ scan_loop
        LI   R12,>0006
        STCR R2,8
 * If this is column 0, store CTRL, SHIFT, FCTN in R3
-       MOV  R0,R0
+       MOV  R1,R1
        JNE  not_col_0
        MOV  R2,R3
 * For column 0, set modifier keys to unpressed.
@@ -105,13 +105,34 @@ key_press_found
 * A key press has been detected.
 * Get the key code from GROM.
 *
+* Let R5 = GROM address of key code without modifier keys
+       LI   R5,>1700
+       A    R4,R5
+* Let R3 = address in modifier_key_offsets
+       ANDI R3,>7000
+       MOVB R3,@>A416
+       SRL  R3,11
+       AI   R3,modifier_key_offsets
+* Increase GROM address by a multiple of >30
+       A    *R3,R5
 * Set GROM address
-       LI   R3,>1700
-       A    R4,R3
-       MOVB R3,@GRMWA
-       SWPB R3
-       MOVB R3,@GRMWA
+       MOVB R5,@GRMWA
+       SWPB R5
+       MOVB R5,@GRMWA
 * Record the key code
        MOVB @GRMRD,@KEYPRS
 *
        RT
+
+* Three bits are used to tell us if modifier keys are pressed.
+* Whichever bit is set to 0, is being pressed.
+* The keys by bit position are CTRL, SHIFT, FCTN
+modifier_key_offsets
+       DATA >30       * All modifiers pressed
+       DATA >90       * CTRL & SHIFT pressed
+       DATA >60       * CTRL & FCTN pressed
+       DATA >90       * Only CTRL pressed
+       DATA >60       * SHIFT & FCTN pressed
+       DATA >30       * Only SHIFT pressed
+       DATA >60       * Only FCTN pressed
+       DATA 0         * No modifiers pressed

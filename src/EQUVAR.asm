@@ -111,7 +111,7 @@ KEYRD         EQU  >A404      * Next address to read a keypress from.
 KEYSTR        EQU  >A406      * First address of key buffer
 KEYBUF        EQU  >A406      * Buffer to store keypresses (>10 bytes)
 KEYEND        EQU  >A416      * First address after key buffer
-PREVKY        EQU  >A406      * The previously detected key press.
+PREVKY        EQU  >A416      * The previously detected key press.
 *                             * Wait a while before letting this key
 *                             * repeat.  (1 byte)
 
