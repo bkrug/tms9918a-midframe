@@ -74,19 +74,21 @@ KEYRTN RT
 * So there!
 *
 replacement_scan
-* Let R1 = column to scan
+* Let R1 = column to scan, with caps-lock ignored
+*      bit of weight >0800 turns off caps-lock scanning
+*      bits of weight >0100 to >0400 selects the column
 * Let R4 = index in key code table
-       CLR  R1
+       LI   R1,>0800
        CLR  R4
 * Select column to scan
 scan_loop
        LI   R12,>0024
-       LDCR R1,3
+       LDCR R1,4
 * Put results in R2
        LI   R12,>0006
        STCR R2,8
 * If this is column 0, store CTRL, SHIFT, FCTN in R3
-       MOV  R1,R1
+       CI   R1,>0800
        JNE  not_col_0
        MOV  R2,R3
 * For column 0, set modifier keys to unpressed.
@@ -103,7 +105,7 @@ unpressed_loop
        JNE  unpressed_loop
 * select next column
        AB   @ONE,R1
-       CI   R1,>0800
+       CI   R1,>1000
        JL   scan_loop
 * Record NOKEY and return
        MOVB @NOKEY,@KEYCOD
@@ -115,6 +117,18 @@ key_press_found
 * Let R5 = GROM address of key code without modifier keys
        LI   R5,>1700
        A    R4,R5
+* Let R2 = >00 if caps lock is down, >01 if caps lock is up.
+       LI   R12,>002A
+       CLR  R1
+       LDCR R1,1
+       LI   R12,>000E
+       STCR R2,1
+* If caps lock is down, update R3 to suggest shift key is pressed.
+       MOVB R2,R2
+       JNE  caps_lock_up
+       LI   R2,>2000
+       SZCB R2,R3
+caps_lock_up
 * Let R3 = address in modifier_key_offsets
        ANDI R3,>7000
        MOVB R3,@>A416
