@@ -131,7 +131,6 @@ key_press_found
 caps_lock_up
 * Let R3 = address in modifier_key_offsets
        ANDI R3,>7000
-       MOVB R3,@>A416
        SRL  R3,11
        AI   R3,modifier_key_offsets
 * Increase GROM address by a multiple of >30
