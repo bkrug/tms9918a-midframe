@@ -10,7 +10,9 @@
 WAIT1  DATA >18
 * The delay before additional repeats
 WAIT2  DATA >4
-NOKEY  BYTE >FF
+* Bits that correspond to the modifier keys in key-column 0
+MODKEY BYTE >F8
+NOKEY  EQU  NEGONE
        EVEN
 
 initialize_key_values
@@ -19,10 +21,8 @@ initialize_key_values
        MOV  R0,@KEYRD
        RT
 
-* Use an interupt to record key presses
-* so that if the computer is working on
-* a long process the keys will still be
-* recorded.
+* In order to avoid dropped keys,
+* record key presses in a buffer.
 KEYINT
 *
        DECT R10
@@ -74,9 +74,15 @@ KEYRTN RT
 * So there!
 *
 replacement_scan
+* Let R6 = >00 if caps lock is down, >01 if caps lock is up.
+       LI   R12,>002A
+       CLR  R1
+       LDCR R1,1
+       LI   R12,>000E
+       STCR R6,1
 * Let R1 = column to scan, with caps-lock ignored
 *      bit of weight >0800 turns off caps-lock scanning
-*      bits of weight >0100 to >0400 selects the column
+*      bits of weight >0100 to >0400 select the column
 * Let R4 = index in key code table
        LI   R1,>0800
        CLR  R4
@@ -92,8 +98,7 @@ scan_loop
        JNE  not_col_0
        MOV  R2,R3
 * For column 0, set modifier keys to unpressed.
-       LI   R0,>F800
-       SOC  R0,R2
+       SOCB @MODKEY,R2
 not_col_0
 * find a pressed key
        LI   R5,8
@@ -117,17 +122,11 @@ key_press_found
 * Let R5 = GROM address of key code without modifier keys
        LI   R5,>1700
        A    R4,R5
-* Let R2 = >00 if caps lock is down, >01 if caps lock is up.
-       LI   R12,>002A
-       CLR  R1
-       LDCR R1,1
-       LI   R12,>000E
-       STCR R2,1
 * If caps lock is down, update R3 to suggest shift key is pressed.
-       MOVB R2,R2
+       MOVB R6,R6
        JNE  caps_lock_up
-       LI   R2,>2000
-       SZCB R2,R3
+       LI   R6,>2000
+       SZCB R6,R3
 caps_lock_up
 * Let R3 = address in modifier_key_offsets
        ANDI R3,>7000
