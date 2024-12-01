@@ -455,8 +455,34 @@ handle_keys
        CB   R0,@byte_126
        JH   handle_keys_done
 * Yes, make space for extra character in document
-       LI   R1,document_text_end-9
-       MOV  @doc_cursor_position,R2
+       MOV  @doc_cursor_position,R3
+       LI   R1,document_text_end
+       BL   @insert_one_byte
+* Make space for extra font detail
+       MOV  @doc_cursor_position,R3
+       AI   R3,document_font-document_text
+       LI   R1,document_font_end
+       BL   @insert_one_byte
+* Copy character to document
+       MOV  @doc_cursor_position,R1
+       MOVB R0,*R1+
+       MOV  R1,@doc_cursor_position
+* Word wrap the document
+       SETO @word_wrap_needed
+*
+handle_keys_done
+       MOV  *R10+,R11
+       RT
+
+*
+*
+* Input:
+*   R3 - insertion point
+*   R1 - address following the moveable block
+insert_one_byte
+* Yes, make space for extra character in document
+       AI   R1,-9
+       MOV  R3,R2
        AI   R2,8
        SRL  R2,3
        SLA  R2,3
@@ -474,31 +500,12 @@ insert_char_loop
        JHE  insert_char_loop
 *
        AI   R1,7
-       C    R1,@doc_cursor_position
+       C    R1,R3
        JL   insert_no_more
 insert_char_loop_2
        MOVB *R1,@1(R1)
        DEC  R1
-       C    R1,@doc_cursor_position
+       C    R1,R3
        JHE  insert_char_loop_2
 insert_no_more
-* Make space for extra font detail
-       LI   R1,document_font_end-2
-       LI   R2,document_font_end-1
-       MOV  @doc_cursor_position,R3
-       AI   R3,document_font-document_text
-insert_font_loop
-       MOVB *R1,@1(R1)
-       DEC  R1
-       C    R1,R3
-       JHE  insert_font_loop
-* Copy character to document
-       MOV  @doc_cursor_position,R1
-       MOVB R0,*R1+
-       MOV  R1,@doc_cursor_position
-* Word wrap the document
-       SETO @word_wrap_needed
-*
-handle_keys_done
-       MOV  *R10+,R11
        RT
