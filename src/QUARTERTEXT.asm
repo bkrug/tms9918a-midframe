@@ -2,8 +2,9 @@
 *
        REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
        REF  font_addresses                  Ref from FONTS
-       REF  update_key_buffer                          Ref from KEY
-       REF  init_key_buffer           "
+       REF  update_key_buffer               Ref from KEY
+       REF  init_key_buffer                 "
+       REF  get_key_from_buffer             "
        REF  block_vdp_interrupt             Ref from PIXELROW
        REF  calc_init_timer_loop            "
        REF  coinc_init_timer_loop           "
@@ -38,6 +39,9 @@ char_pattern
        DATA >8080,>8080,>8080,>8080
 end_of_char_patterns
 
+byte_126  BYTE >7E
+          EVEN
+
 quarter_text
        LWPI WS
        LI   R10,STACK
@@ -70,6 +74,9 @@ quarter_text
        SETO @word_wrap_needed
        BL   @init_key_buffer
 *
+       LI   R0,document_text
+       MOV  R0,@doc_cursor_position
+*
 game_loop
 * Disable interrupts
        LIMI 0
@@ -82,6 +89,8 @@ game_loop
        BL   @display_text
 * Enable interrupts
        LIMI 2
+* Process keys
+       BL   @handle_keys
 * If word_wrap_needed = -1, wrap text
        BL   @word_wrap
 * Don't end game loop until all timer-interrupts have been triggered
@@ -429,4 +438,48 @@ space_found
        JL   word_wrap_loop
 * Yes
        CLR  @word_wrap_needed
+       RT
+
+*
+* 
+*
+handle_keys
+       DECT R10
+       MOV  R11,*R10
+* Let R0 (high byte) = key press
+       BL   @get_key_from_buffer
+* Was this a visible key press?
+       CB   R0,@SPACE
+       JL   handle_keys_done
+       CB   R0,@byte_126
+       JH   handle_keys_done
+* Yes, make space for extra character in document
+*       LI   R1,document_text_end-2
+*       LI   R2,document_text_end-1
+*insert_char_loop
+*       MOVB *R1,*R2
+*       DEC  R1
+*       DEC  R2
+*       C    R1,@doc_cursor_position
+*       JHE  insert_char_loop
+* Make space for extra font detail
+*       LI   R1,document_font_end-2
+*       LI   R2,document_font_end-1
+*       MOV  @doc_cursor_position,R3
+*       AI   R3,document_font-document_text
+*insert_font_loop
+*       MOVB *R1,*R2
+*       DEC  R1
+*       DEC  R2
+*       C    R1,R3
+*       JHE  insert_font_loop
+* Copy character to document
+       MOV  @doc_cursor_position,R1
+       MOVB R0,*R1+
+       MOV  R1,@doc_cursor_position
+* Word wrap the document
+       SETO @word_wrap_needed
+*
+handle_keys_done
+       MOV  *R10+,R11
        RT

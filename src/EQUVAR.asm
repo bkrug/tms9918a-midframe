@@ -99,6 +99,8 @@ word_wrap_needed:
        EQU  >A346
 line_breaks:
        EQU  >A348      * 24 words (>18 words)
+doc_cursor_position:
+       EQU  >A378
 
 * KEY.asm
 key_timer     EQU  >A400
@@ -116,7 +118,7 @@ PREVKY        EQU  >A416      * The previously detected key press.
 *                             * repeat.  (1 byte)
 
 
-document_text:
-       EQU  >B000
-document_font:
-       EQU  >B800
+document_text       EQU  >B000
+document_text_end   EQU  document_text+>800
+document_font       EQU  >B800
+document_font_end   EQU  document_font+>800

@@ -30,15 +30,17 @@ init_key_buffer
 * Changed:
 *   R1
 get_key_from_buffer
+* Set R0 to default value.
+       MOVB @NOKEY,R0
 * Is there anything in the key buffer?
        C    @KEYRD,@KEYWRT
        JEQ  get_key_done
 * Yes, copy one byte to R0
-       MOVB @KEYRD,R0
-* Update read position
-       INC  @KEYRD
+       MOV  @KEYRD,R1
+       MOVB *R1+,R0
+       MOV  R1,@KEYRD
 * Has the read position reached the end of the buffer?
-       CI   R0,KEYEND
+       CI   R1,KEYEND
        JL   get_key_done
 * Yes, point it to the start of the buffer
        LI   R1,KEYSTR
