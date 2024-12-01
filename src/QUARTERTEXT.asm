@@ -85,6 +85,7 @@ game_loop
        BLWP @block_vdp_interrupt
 * Tell timer_isr to look at the begging of the table again
        BL   @restart_timer_loop
+       DEC  @dropped_frames
 * Display some of the text
        BL   @display_text
 * Enable interrupts
@@ -454,25 +455,23 @@ handle_keys
        CB   R0,@byte_126
        JH   handle_keys_done
 * Yes, make space for extra character in document
-*       LI   R1,document_text_end-2
-*       LI   R2,document_text_end-1
-*insert_char_loop
-*       MOVB *R1,*R2
-*       DEC  R1
-*       DEC  R2
-*       C    R1,@doc_cursor_position
-*       JHE  insert_char_loop
+       LI   R1,document_text_end-2
+       LI   R2,document_text_end-1
+insert_char_loop
+       MOVB *R1,@1(R1)
+       DEC  R1
+       C    R1,@doc_cursor_position
+       JHE  insert_char_loop
 * Make space for extra font detail
-*       LI   R1,document_font_end-2
-*       LI   R2,document_font_end-1
-*       MOV  @doc_cursor_position,R3
-*       AI   R3,document_font-document_text
-*insert_font_loop
-*       MOVB *R1,*R2
-*       DEC  R1
-*       DEC  R2
-*       C    R1,R3
-*       JHE  insert_font_loop
+       LI   R1,document_font_end-2
+       LI   R2,document_font_end-1
+       MOV  @doc_cursor_position,R3
+       AI   R3,document_font-document_text
+insert_font_loop
+       MOVB *R1,@1(R1)
+       DEC  R1
+       C    R1,R3
+       JHE  insert_font_loop
 * Copy character to document
        MOV  @doc_cursor_position,R1
        MOVB R0,*R1+

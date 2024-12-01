@@ -377,6 +377,8 @@ quit_key_not_detected
        CLR  R12
        SBO  3
 *
+       INC  @dropped_frames
+*
        MOV  *R10+,R11
        RT
 
@@ -445,11 +447,11 @@ timer_isr
        BL   *R9
 * did we run out of ISR elements?
        C    @isr_element_address,@isr_end_address
-       JL   not_end_of_isr_list
+       JL   timer_isr_return
 * Yes, let main code know that it can proceed with the next game loop
 * and thus can test for the next end-of-frame
        SETO @all_lines_scanned
-not_end_of_isr_list
+timer_isr_return
 *
        LIMI 2
 *

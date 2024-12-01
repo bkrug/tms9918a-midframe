@@ -89,18 +89,8 @@ limit_timer_interrupts:
        EQU  >A33C      * We never want to fill the last 4 bytes with a user-defined ISR.
 *                        The last 4 bytes in the timer-ISR-table should always
 *                        point to the end-of-frame interrupt that replaces the VDP interrupt.
-doc_display_index:
-       EQU  >A340
-screen_draw_position:
-       EQU  >A342
-line_break_index:
-       EQU  >A344
-word_wrap_needed:
-       EQU  >A346
-line_breaks:
-       EQU  >A348      * 24 words (>18 words)
-doc_cursor_position:
-       EQU  >A378
+dropped_frames:
+       EQU  >A37A
 
 * KEY.asm
 key_timer     EQU  >A400
@@ -119,6 +109,18 @@ PREVKY        EQU  >A416      * The previously detected key press.
 
 
 document_text       EQU  >B000
-document_text_end   EQU  document_text+>800
+document_text_end   EQU  document_text+>400
 document_font       EQU  >B800
-document_font_end   EQU  document_font+>800
+document_font_end   EQU  document_font+>400
+doc_display_index:
+       EQU  >C040
+screen_draw_position:
+       EQU  >C042
+line_break_index:
+       EQU  >C044
+word_wrap_needed:
+       EQU  >C046
+line_breaks:
+       EQU  >C048      * 24 words (>18 words)
+doc_cursor_position:
+       EQU  >C078
