@@ -455,13 +455,33 @@ handle_keys
        CB   R0,@byte_126
        JH   handle_keys_done
 * Yes, make space for extra character in document
-       LI   R1,document_text_end-2
-       LI   R2,document_text_end-1
+       LI   R1,document_text_end-9
+       MOV  @doc_cursor_position,R2
+       AI   R2,8
+       SRL  R2,3
+       SLA  R2,3
 insert_char_loop
+       MOVB @7(R1),@8(R1)
+       MOVB @6(R1),@7(R1)
+       MOVB @5(R1),@6(R1)
+       MOVB @4(R1),@5(R1)
+       MOVB @3(R1),@4(R1)
+       MOVB @2(R1),@3(R1)
+       MOVB @1(R1),@2(R1)
+       MOVB *R1,@1(R1)
+       AI   R1,-8
+       C    R1,R2
+       JHE  insert_char_loop
+*
+       AI   R1,7
+       C    R1,@doc_cursor_position
+       JL   insert_no_more
+insert_char_loop_2
        MOVB *R1,@1(R1)
        DEC  R1
        C    R1,@doc_cursor_position
-       JHE  insert_char_loop
+       JHE  insert_char_loop_2
+insert_no_more
 * Make space for extra font detail
        LI   R1,document_font_end-2
        LI   R2,document_font_end-1
