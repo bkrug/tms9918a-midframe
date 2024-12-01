@@ -455,13 +455,13 @@ handle_keys
        CB   R0,@byte_126
        JH   handle_keys_done
 * Yes, make space for extra character in document
-       MOV  @doc_cursor_position,R3
-       LI   R1,document_text_end
+       MOV  @doc_cursor_position,R1
+       LI   R2,document_text_end
        BL   @insert_one_byte
 * Make space for extra font detail
-       MOV  @doc_cursor_position,R3
-       AI   R3,document_font-document_text
-       LI   R1,document_font_end
+       MOV  @doc_cursor_position,R1
+       AI   R1,document_font-document_text
+       LI   R2,document_font_end
        BL   @insert_one_byte
 * Copy character to document
        MOV  @doc_cursor_position,R1
@@ -475,37 +475,39 @@ handle_keys_done
        RT
 
 *
+* Move block of data forwards by one byte
 *
 * Input:
-*   R3 - insertion point
-*   R1 - address following the moveable block
+*   R1 - insertion point
+*   R2 - address following the moveable block
 insert_one_byte
 * Yes, make space for extra character in document
-       AI   R1,-9
-       MOV  R3,R2
-       AI   R2,8
-       SRL  R2,3
-       SLA  R2,3
+       AI   R2,-9
+* Let R4 = insert point rounded up to the address divislbe by 8
+       MOV  R1,R4
+       AI   R4,8
+       SRL  R4,3
+       SLA  R4,3
 insert_char_loop
-       MOVB @7(R1),@8(R1)
-       MOVB @6(R1),@7(R1)
-       MOVB @5(R1),@6(R1)
-       MOVB @4(R1),@5(R1)
-       MOVB @3(R1),@4(R1)
-       MOVB @2(R1),@3(R1)
-       MOVB @1(R1),@2(R1)
-       MOVB *R1,@1(R1)
-       AI   R1,-8
-       C    R1,R2
+       MOVB @7(R2),@8(R2)
+       MOVB @6(R2),@7(R2)
+       MOVB @5(R2),@6(R2)
+       MOVB @4(R2),@5(R2)
+       MOVB @3(R2),@4(R2)
+       MOVB @2(R2),@3(R2)
+       MOVB @1(R2),@2(R2)
+       MOVB *R2,@1(R2)
+       AI   R2,-8
+       C    R2,R4
        JHE  insert_char_loop
 *
-       AI   R1,7
-       C    R1,R3
+       AI   R2,7
+       C    R2,R1
        JL   insert_no_more
 insert_char_loop_2
-       MOVB *R1,@1(R1)
-       DEC  R1
-       C    R1,R3
+       MOVB *R2,@1(R2)
+       DEC  R2
+       C    R2,R1
        JHE  insert_char_loop_2
 insert_no_more
        RT
