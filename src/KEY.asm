@@ -1,5 +1,6 @@
-       DEF  initialize_key_values
-       DEF  KEYINT
+       DEF  init_key_buffer
+       DEF  get_key_from_buffer
+       DEF  update_key_buffer
 *
        REF  SCAN
 
@@ -15,20 +16,44 @@ MODKEY BYTE >F8
 NOKEY  EQU  NEGONE
        EVEN
 
-initialize_key_values
+init_key_buffer
        LI   R0,KEYSTR
        MOV  R0,@KEYWRT
        MOV  R0,@KEYRD
        RT
 
+*
+* Get the next key from the key buffer
+*
+* Output:
+*   R0 (high byte)
+* Changed:
+*   R1
+get_key_from_buffer
+* Is there anything in the key buffer?
+       C    @KEYRD,@KEYWRT
+       JEQ  get_key_done
+* Yes, copy one byte to R0
+       MOVB @KEYRD,R0
+* Update read position
+       INC  @KEYRD
+* Has the read position reached the end of the buffer?
+       CI   R0,KEYEND
+       JL   get_key_done
+* Yes, point it to the start of the buffer
+       LI   R1,KEYSTR
+       MOV  R1,@KEYRD
+get_key_done
+       RT
+
 * In order to avoid dropped keys,
 * record key presses in a buffer.
-KEYINT
+update_key_buffer
 *
        DECT R10
        MOV  R11,*R10
 * Call our Key Scan routine
-       BL   @replacement_scan
+       BL   @kscan_mode_0
 * restore R11
        MOV  *R10+,R11
 * Was a key pressed?
@@ -71,9 +96,9 @@ KEYRTN RT
 
 *
 * The console scan doesn't seem to work after we mangled the GPL WS.
-* So there!
+* I can't think of a solution other than to reimplement it.
 *
-replacement_scan
+kscan_mode_0
 * Let R6 = >00 if caps lock is down, >01 if caps lock is up.
        LI   R12,>002A
        CLR  R1

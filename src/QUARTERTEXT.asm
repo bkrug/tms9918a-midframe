@@ -2,8 +2,8 @@
 *
        REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
        REF  font_addresses                  Ref from FONTS
-       REF  KEYINT                          Ref from KEY
-       REF  initialize_key_values           "
+       REF  update_key_buffer                          Ref from KEY
+       REF  init_key_buffer           "
        REF  block_vdp_interrupt             Ref from PIXELROW
        REF  calc_init_timer_loop            "
        REF  coinc_init_timer_loop           "
@@ -68,7 +68,7 @@ quarter_text
        CLR  @screen_draw_position
        CLR  @line_break_index
        SETO @word_wrap_needed
-       BL   @initialize_key_values
+       BL   @init_key_buffer
 *
 game_loop
 * Disable interrupts
@@ -102,7 +102,7 @@ pattern1_isr
        LI   R0,>0401
        BL   @VDPREG
 *
-       BL   @KEYINT
+       BL   @update_key_buffer
 *
        MOV  *R10+,R11
        RT
