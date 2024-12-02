@@ -48,7 +48,7 @@ temp_files = [
     "LOGINTERRUPTS",
     "PIXELROW",
     "TILES",
-    "QUARTERTEXT",
+    "FOURPARTTEXT",
     "FONTS",
     "KEY"
 ]
