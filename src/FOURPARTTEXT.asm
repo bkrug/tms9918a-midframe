@@ -97,6 +97,8 @@ cursor_loop
 game_loop
 * Disable interrupts
        LIMI 0
+*
+       BL   @flash_cursor
 * Block thread until then end of a frame
 * Fool TI-99/4a into thinking that later interrupts are VDP interrupts.
        BLWP @block_vdp_interrupt
@@ -105,7 +107,6 @@ game_loop
        DEC  @dropped_frames
 * Display some of the text
        BL   @display_text
-       BL   @flash_cursor
 * Enable interrupts
        LIMI 2
 * Process keys
@@ -473,7 +474,9 @@ handle_keys
        JL   handle_keys_done
        CB   R0,@byte_126
        JH   handle_keys_done
-* Yes, make space for extra character in document
+* Yes, replace cursor with display text
+       BL   @hide_cursor
+* Make space for extra character in document
        MOV  @doc_cursor_position,R1
        LI   R2,document_text_end
        BL   @insert_one_byte
@@ -568,9 +571,16 @@ flash_cursor_rt
        MOV  *R10+,R11
        RT
 
+*
+* Display the character that was replaced by the cursor
+*
+* Input: n/a
+* Changed: R1, R2, R3
 hide_cursor
        DECT R10
        MOV  R11,*R10
+       DECT R10
+       MOV  R0,*R10
 * Let R1 = screen position of cursor
        BL   @get_screen_position
 * Let R0 = address in screen image table
@@ -590,6 +600,7 @@ have_tile_code
 * Write code to VDP RAM
        MOVB @LBR1,@VDPWD
 *
+       MOV  *R10+,R0
        MOV  *R10+,R11
        RT
 
