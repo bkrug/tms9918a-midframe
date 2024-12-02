@@ -554,8 +554,6 @@ flash_cursor
 * On, show cursor
 show_cursor
 * Let R1 = screen position of cursor
-       MOV  @doc_cursor_position,R3
-       AI   R3,-document_text
        BL   @get_screen_position
 * Let R0 = address in screen image table
        MOV  R1,R0
@@ -574,16 +572,15 @@ hide_cursor
        DECT R10
        MOV  R11,*R10
 * Let R1 = screen position of cursor
-       MOV  @doc_cursor_position,R3
-       AI   R3,-document_text
        BL   @get_screen_position
 * Let R0 = address in screen image table
        MOV  R1,R0
        AI   R0,SCRN8
 * Set VDP RAM write address
        BL   @VDPADR
-* Cursor is to be off
-* Calculate tile-code to restore
+* Let R1 = tile code to place in screen image table.
+* Except for the cursor, the screen image table holds
+* codes 0-239 repeated four times.
 find_tile_code
        CI   R1,240
        JL   have_tile_code
@@ -599,12 +596,15 @@ have_tile_code
 *
 *
 * Input:
-*   R3 - index within document
+*   @doc_cursor_position
 * Output:
 *   R1 - screen position
 * Changed:
-*   R1, R2
+*   R0, R2, R3
 get_screen_position
+* Let R3 = index within document
+       MOV  @doc_cursor_position,R3
+       AI   R3,-document_text
 * Let R2 = highest address within line_breaks
 * where line break within paragraph > doc_cursor_position
        LI   R2,line_breaks+48
