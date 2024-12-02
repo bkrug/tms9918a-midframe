@@ -196,10 +196,9 @@ copy_text_loop
        CI   R0,initial_text_end
        JL   copy_text_loop
 * Write spaces
-       LI   R0,>2000
 write_spaces_loop
-       MOVB R0,*R1+
-       CI   R1,document_text+>800
+       MOVB @SPACE,*R1+
+       CI   R1,document_text_end
        JL   write_spaces_loop
 *
 * Convert space, "b", "i", or "m" to an index (0-3).

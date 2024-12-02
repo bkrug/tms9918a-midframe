@@ -1,8 +1,8 @@
        DEF  BSCAN
 *
-* Our method of enabling timer interrupts,
-* seems to also disable the console SCAN routine.
-* Sorry.
+* A routine for scanning only a limited set of
+* keys for use in a game.
+* Can report more than one simultaneous key-press.
 *
 * This routine sets the following bits at >8375
 * when one or more keys are detected:

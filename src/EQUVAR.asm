@@ -105,22 +105,22 @@ PREVKY        EQU  >A416      * The previously detected key press.
 *                             * Wait a while before letting this key
 *                             * repeat.  (1 byte)
 
-* QUARTERTEXT.asm
+* FOURPARTTEXT.asm
 document_text       EQU  >B000
 document_text_end   EQU  document_text+>400
-document_font       EQU  >B800
+document_font       EQU  >B400
 document_font_end   EQU  document_font+>400
 doc_display_index:
-       EQU  >C040
+       EQU  >B800
 screen_draw_position:
-       EQU  >C042
+       EQU  >B802
 line_break_index:
-       EQU  >C044
+       EQU  >B804
 word_wrap_needed:
-       EQU  >C046
-line_breaks:
-       EQU  >C048      * 24 words (>18 words)
+       EQU  >B806
 doc_cursor_position:
-       EQU  >C078
+       EQU  >B808
 dropped_frames:
-       EQU  >C07A
+       EQU  >B80A
+line_breaks:
+       EQU  >B810      * 24 words (>18 words)
