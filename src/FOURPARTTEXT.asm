@@ -461,6 +461,16 @@ space_found
        CLR  @word_wrap_needed
        RT
 
+key_routines
+*       DATA >0300,delete_char
+       DATA >0800,move_left
+       DATA >0900,move_right
+*       DATA >0A00,move_down
+*       DATA >0B00,move_up
+*       DATA >8200,toggle_bold
+*       DATA >8900,toggle_italic
+key_routines_end
+
 *
 * 
 *
@@ -471,9 +481,43 @@ handle_keys
        BL   @get_key_from_buffer
 * Was this a visible key press?
        CB   R0,@SPACE
-       JL   handle_keys_done
+       JL   fctn_ctrl_key
        CB   R0,@byte_126
-       JH   handle_keys_done
+       JH   fctn_ctrl_key
+* Yes, insert it into the document
+       BL   @insert_visible_text
+       JMP  handle_keys_done
+* No, the user pressed a FCTN or CTRL key
+fctn_ctrl_key
+* Let R1 = position in dictionary of routines for each key press
+       LI   R1,key_routines
+* Does this entry match the key that was pressed?
+find_key_routine_loop
+       CB   *R1,R0
+       JEQ  found_routine
+* No, move to next entry.
+       C    *R1+,*R1+
+* Did we run out of table entries?
+       CI   R1,key_routines_end
+       JL   find_key_routine_loop
+* Yes
+       JMP  handle_keys_done
+* Run the routine for this key
+found_routine
+       INCT R1
+       MOV  *R1,R1
+       BL   *R1       
+*
+handle_keys_done
+       MOV  *R10+,R11
+       RT
+
+*
+*
+*
+insert_visible_text
+       DECT R10
+       MOV  R11,*R10
 * Yes, replace cursor with display text
        BL   @hide_cursor
 * Make space for extra character in document
@@ -492,7 +536,36 @@ handle_keys
 * Word wrap the document
        SETO @word_wrap_needed
 *
-handle_keys_done
+       MOV  *R10+,R11
+       RT
+
+move_left
+       DECT R10
+       MOV  *R10,R11
+*
+       BL   @hide_cursor
+*
+       LI   R1,document_text
+       C    @doc_cursor_position,R1
+       JEQ  move_left_done
+       DEC  @doc_cursor_position
+move_left_done
+*
+       MOV  *R10+,R11
+       RT
+
+move_right
+       DECT R10
+       MOV  *R10,R11
+*
+       BL   @hide_cursor
+*
+       LI   R1,document_text+(24*40)-1
+       C    @doc_cursor_position,R1
+       JEQ  move_right_done
+       INC  @doc_cursor_position
+move_right_done
+*
        MOV  *R10+,R11
        RT
 
