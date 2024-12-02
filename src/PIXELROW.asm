@@ -364,11 +364,8 @@ restart_timer_loop
        BL   *R1
 * Do stuff that would normally be triggered by VDP interrupts
        AB   @ONE,@VINTTM
-* Let R3 = keys pressed
-* Was the Quit key pressed?
+* If the quit key was pressed, restart the computer
        BL   @handle_quit_button
-* No, quit key not pressed
-quit_key_not_detected
 *
 * Tell game loop that it
 * shouldn't turn off interrupts and wait for Video frame yet.
@@ -376,8 +373,6 @@ quit_key_not_detected
 * Enable Timer interrupt prioritization
        CLR  R12
        SBO  3
-*
-       INC  @dropped_frames
 *
        MOV  *R10+,R11
        RT
@@ -451,8 +446,8 @@ timer_isr
 * Yes, let main code know that it can proceed with the next game loop
 * and thus can test for the next end-of-frame
        SETO @all_lines_scanned
-timer_isr_return
 *
+timer_isr_return
        LIMI 2
 *
        MOV  *R10+,R11

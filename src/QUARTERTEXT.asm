@@ -102,6 +102,8 @@ while_waiting_for_interrupt
        JMP  game_loop
 
 pattern0_isr
+       INC  @dropped_frames
+*
        LI   R0,>0400
        JMP  any_pattern
 
