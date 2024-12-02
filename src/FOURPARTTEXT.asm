@@ -547,9 +547,11 @@ move_left
 *
        LI   R1,document_text
        C    @doc_cursor_position,R1
-       JEQ  move_left_done
+       JEQ  not_doc_beggining
        DEC  @doc_cursor_position
-move_left_done
+not_doc_beggining
+*
+       BL   @show_cursor
 *
        MOV  *R10+,R11
        RT
@@ -562,9 +564,11 @@ move_right
 *
        LI   R1,document_text+(24*40)-1
        C    @doc_cursor_position,R1
-       JEQ  move_right_done
+       JEQ  not_screen_end
        INC  @doc_cursor_position
-move_right_done
+not_screen_end
+*
+       BL   @show_cursor
 *
        MOV  *R10+,R11
        RT
@@ -623,12 +627,23 @@ flash_cursor
 * Turn cursor on or off?
        MOVB @VINTTM,R0
        COC  @bits_indicating_cursor,R0
-       JEQ  show_cursor
+       JEQ  display_cursor
 * Off, hide cursor
        BL   @hide_cursor
        JMP  flash_cursor_rt
 * On, show cursor
+display_cursor
+       BL   @show_cursor
+flash_cursor_rt
+       MOV  *R10+,R11
+       RT
+
+*
+*
+*
 show_cursor
+       DECT R10
+       MOV  R11,*R10
 * Let R1 = screen position of cursor
        BL   @get_screen_position
 * Let R0 = address in screen image table
@@ -640,7 +655,6 @@ show_cursor
        LI   R1,cursor_code*>100
        MOVB R1,@VDPWD
 *
-flash_cursor_rt
        MOV  *R10+,R11
        RT
 
