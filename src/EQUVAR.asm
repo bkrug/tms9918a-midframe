@@ -6,7 +6,7 @@ STACK                     EQU  >8320+>10
 OLDR12                    EQU  >8330
 COUNT                     EQU  >8332
 swappable_colors          EQU  >8334
-RETPT                     EQU  >8336
+*                         EQU  >8336
 isr_hit_count             EQU  >8338
 all_lines_scanned         EQU  >833A
 isr_table_address         EQU  >833C
