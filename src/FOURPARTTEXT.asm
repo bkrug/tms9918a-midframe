@@ -544,36 +544,14 @@ flash_cursor
        MOVB @VINTTM,R0
        CZC  @bits_indicating_flash,R0
        JNE  flash_cursor_rt
-* Yes, let R2 = highest address within line_breaks
-* where line break within paragraph > doc_cursor_position
+* Let R1 = screen position of cursor
        MOV  @doc_cursor_position,R3
        AI   R3,-document_text
-       LI   R2,line_breaks+48
-calc_screen_row
-       DECT R2
-       C    *R2,R3
-       JH   calc_screen_row
-       INCT R2
-* Let R0 = screen row
-       MOV  R2,R0
-       AI   R0,-line_breaks
-       SRL  R0,1
-* Let R3 = screen column
-       CI   R2,line_breaks  
-       JEQ  top_line
-       S    @-2(R2),R3
-top_line
-* Let R0 = screen position
-* Let R1 = screen position
-       MPY  @FORTY,R0
-       A    R3,R1
-       MOV  R1,R0
-*
-       CI   R1,24*40
-       JH   flash_cursor_rt
+       BL   @get_screen_position
 * Let R0 = address in screen image table
-       AI   R0,>2000
-* Set write address
+       MOV  R1,R0
+       AI   R0,SCRN8
+* Set VDP RAM write address
        BL   @VDPADR
 * Turn cursor on or off?
        MOVB @VINTTM,R0
@@ -599,4 +577,40 @@ show_cursor
 *
 flash_cursor_rt
        MOV  *R10+,R11
+       RT
+
+*
+*
+* Input:
+*   R3 - index within document
+* Output:
+*   R1 - screen position
+* Changed:
+*   R1, R2
+get_screen_position
+* Let R2 = highest address within line_breaks
+* where line break within paragraph > doc_cursor_position
+       LI   R2,line_breaks+48
+calc_screen_row
+       DECT R2
+       C    *R2,R3
+       JH   calc_screen_row
+       INCT R2
+* Let R0 = screen row
+       MOV  R2,R0
+       AI   R0,-line_breaks
+       SRL  R0,1
+* Let R3 = screen column
+       CI   R2,line_breaks  
+       JEQ  top_line
+       S    @-2(R2),R3
+top_line
+* Let R1 = screen position
+       MPY  @FORTY,R0
+       A    R3,R1
+* Check for irrational result
+       CI   R1,24*40
+screen_position_error
+       JH   screen_position_error
+*
        RT
