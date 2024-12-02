@@ -22,14 +22,20 @@
 
 SCRN8                 EQU  >2000
 char_draw_per_frame   EQU  20
+cursor_code           EQU  6*40
 
-
-pixel_row_interrupts
-       DATA 6*8-1,pattern1_isr
-       DATA 12*8-1,pattern2_isr
-       DATA 18*8-1,pattern3_isr
+pixel_row_interrupts        DATA 6*8-1,pattern1_isr
+                            DATA 12*8-1,pattern2_isr
+                            DATA 18*8-1,pattern3_isr
 pixel_row_interrupts_end
-forty  DATA 40
+forty                       DATA 40
+* Tells us if the cursor should flash or not
+bits_indicating_flash       DATA >1F00
+* Tells us if the cursor should flash on or off
+bits_indicating_cursor      DATA >2000
+
+cursor_char                 DATA >6060,>6060,>6060,>6000
+cursor_char_end
 
 char_pattern
 * Patterns used to demonstrate degree of accuracy in the results
@@ -39,8 +45,8 @@ char_pattern
        DATA >8080,>8080,>8080,>8080
 end_of_char_patterns
 
-byte_126  BYTE >7E
-          EVEN
+byte_126     BYTE >7E
+             EVEN
 
 quarter_text
        LWPI WS
@@ -54,6 +60,17 @@ quarter_text
        BL   @VDPWRT
        LI   R0,>0601
        BL   @VDPREG
+* Write cursor pattern
+       LI   R3,cursor_code*8
+cursor_loop
+       MOV  R3,R0
+       BL   @VDPADR
+       LI   R0,cursor_char
+       LI   R1,cursor_char_end-cursor_char
+       BL   @VDPWRT
+       AI   R3,256*8
+       CI   R3,>2000
+       JL   cursor_loop
 * Specify the location of the table of timer ISRs
        LI   R0,pixel_row_interrupts
        LI   R1,pixel_row_interrupts_end
@@ -88,6 +105,7 @@ game_loop
        DEC  @dropped_frames
 * Display some of the text
        BL   @display_text
+       BL   @flash_cursor
 * Enable interrupts
        LIMI 2
 * Process keys
@@ -512,4 +530,74 @@ insert_char_loop_2
        C    R2,R1
        JHE  insert_char_loop_2
 insert_no_more
+       RT
+
+*
+*
+*
+flash_cursor
+       DECT R10
+       MOV  R11,*R10
+* Don't flash if waiting for word wrap
+       MOV  @word_wrap_needed,R0
+       JNE  flash_cursor_rt
+* Is this an okay time to flash cursor?
+       MOVB @VINTTM,R0
+       CZC  @bits_indicating_flash,R0
+       JNE  flash_cursor_rt
+* Yes, let R2 = highest address within line_breaks
+* where line break within paragraph > doc_cursor_position
+       MOV  @doc_cursor_position,R3
+       AI   R3,-document_text
+       LI   R2,line_breaks+48
+calc_screen_row
+       DECT R2
+       C    *R2,R3
+       JH   calc_screen_row
+       INCT R2
+* Let R0 = screen row
+       MOV  R2,R0
+       AI   R0,-line_breaks
+       SRL  R0,1
+* Let R3 = screen column
+       CI   R2,line_breaks  
+       JEQ  top_line
+       S    @-2(R2),R3
+top_line
+* Let R0 = screen position
+* Let R1 = screen position
+       MPY  @FORTY,R0
+       A    R3,R1
+       MOV  R1,R0
+*
+       CI   R1,24*40
+       JH   flash_cursor_rt
+* Let R0 = address in screen image table
+       AI   R0,>2000
+* Set write address
+       BL   @VDPADR
+* Turn cursor on or off?
+       MOVB @VINTTM,R0
+       COC  @bits_indicating_cursor,R0
+       JEQ  show_cursor
+* Cursor is to be off
+* Calculate tile-code to restore
+find_tile_code
+       CI   R1,240
+       JL   have_tile_code
+       AI   R1,-240
+       JMP  find_tile_code
+have_tile_code
+* Write code to VDP RAM
+       MOVB @LBR1,@VDPWD
+*
+       MOV  *R10+,R11
+       RT
+*
+show_cursor
+       LI   R1,cursor_code*>100
+       MOVB R1,@VDPWD
+*
+flash_cursor_rt
+       MOV  *R10+,R11
        RT
