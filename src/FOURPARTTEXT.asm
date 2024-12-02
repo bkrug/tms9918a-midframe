@@ -544,6 +544,15 @@ flash_cursor
        MOVB @VINTTM,R0
        CZC  @bits_indicating_flash,R0
        JNE  flash_cursor_rt
+* Turn cursor on or off?
+       MOVB @VINTTM,R0
+       COC  @bits_indicating_cursor,R0
+       JEQ  show_cursor
+* Off, hide cursor
+       BL   @hide_cursor
+       JMP  flash_cursor_rt
+* On, show cursor
+show_cursor
 * Let R1 = screen position of cursor
        MOV  @doc_cursor_position,R3
        AI   R3,-document_text
@@ -553,10 +562,26 @@ flash_cursor
        AI   R0,SCRN8
 * Set VDP RAM write address
        BL   @VDPADR
-* Turn cursor on or off?
-       MOVB @VINTTM,R0
-       COC  @bits_indicating_cursor,R0
-       JEQ  show_cursor
+* Write character to screen
+       LI   R1,cursor_code*>100
+       MOVB R1,@VDPWD
+*
+flash_cursor_rt
+       MOV  *R10+,R11
+       RT
+
+hide_cursor
+       DECT R10
+       MOV  R11,*R10
+* Let R1 = screen position of cursor
+       MOV  @doc_cursor_position,R3
+       AI   R3,-document_text
+       BL   @get_screen_position
+* Let R0 = address in screen image table
+       MOV  R1,R0
+       AI   R0,SCRN8
+* Set VDP RAM write address
+       BL   @VDPADR
 * Cursor is to be off
 * Calculate tile-code to restore
 find_tile_code
@@ -568,14 +593,6 @@ have_tile_code
 * Write code to VDP RAM
        MOVB @LBR1,@VDPWD
 *
-       MOV  *R10+,R11
-       RT
-*
-show_cursor
-       LI   R1,cursor_code*>100
-       MOVB R1,@VDPWD
-*
-flash_cursor_rt
        MOV  *R10+,R11
        RT
 
