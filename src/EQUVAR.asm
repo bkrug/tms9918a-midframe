@@ -124,3 +124,5 @@ dropped_frames:
        EQU  >B80A
 line_breaks:
        EQU  >B810      * 24 words (>18 words)
+current_font:
+       EQU  >B840      * 1 byte

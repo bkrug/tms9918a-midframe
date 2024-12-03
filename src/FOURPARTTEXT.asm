@@ -553,6 +553,8 @@ not_doc_beggining
 *
        BL   @show_cursor
 *
+       BL   @get_font_from_position
+*
        MOV  *R10+,R11
        RT
 
@@ -569,6 +571,8 @@ move_right
 not_screen_end
 *
        BL   @show_cursor
+*
+       BL   @get_font_from_position
 *
        MOV  *R10+,R11
        RT
@@ -608,6 +612,8 @@ found_new_position
 move_down_return
        BL   @show_cursor
 *
+       BL   @get_font_from_position
+*
        MOV  *R10+,R11
        RT
 
@@ -643,6 +649,8 @@ found_new_up_position
 move_up_return
        BL   @show_cursor
 *
+       BL   @get_font_from_position
+*
        MOV  *R10+,R11
        RT
 
@@ -669,6 +677,8 @@ delete_font_loop
        JL   delete_font_loop
 *
        SETO @word_wrap_needed
+*
+       BL   @get_font_from_position
 *
        RT
 
@@ -847,3 +857,12 @@ calc_screen_row
        INCT R2
 *
        RT
+
+*
+* Look up the current font based on the position in the document.
+*
+get_font_from_position
+      MOV  @doc_cursor_position,R1
+      AI   R1,document_font-document_text
+      MOVB *R1,@current_font
+      RT
