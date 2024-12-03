@@ -83,6 +83,9 @@ cursor_loop
        LI   R0,>07F4
        BL   @VDPREG
 *
+       LI   R0,document_text
+       MOV  R0,@doc_cursor_position
+*
        BL   @copy_init_text
        BL   @init_screen_image_table
        CLR  @doc_display_index
@@ -90,9 +93,7 @@ cursor_loop
        CLR  @line_break_index
        SETO @word_wrap_needed
        BL   @init_key_buffer
-*
-       LI   R0,document_text
-       MOV  R0,@doc_cursor_position
+       BL   @get_font_from_position       
 *
 game_loop
 * Disable interrupts
@@ -467,8 +468,8 @@ key_routines
        DATA >0900,move_right
        DATA >0A00,move_down
        DATA >0B00,move_up
-*       DATA >8200,toggle_bold
-*       DATA >8900,toggle_italic
+       DATA >8200,toggle_bold
+       DATA >8900,toggle_italic
 key_routines_end
 
 *
@@ -658,6 +659,8 @@ move_up_return
 *
 *
 delete_char
+       DECT R10
+       MOV  R11,*R10
 * Delete one character
        MOV  @doc_cursor_position,R1
        MOV  R1,R2
@@ -680,6 +683,31 @@ delete_font_loop
 *
        BL   @get_font_from_position
 *
+       MOV  *R10+,R11
+       RT
+
+*
+*
+*
+toggle_bold
+       LI   R1,>0100
+       JMP  toggle_one_bit
+
+*
+*
+*
+toggle_italic
+       LI   R1,>0200
+toggle_one_bit
+       MOVB @current_font,R2
+       COC  R1,R2
+       JEQ  turn_bit_off
+       SOCB R1,R2
+       JMP  save_bit
+turn_bit_off
+       SZCB R1,R2
+save_bit
+       MOVB R2,@current_font
        RT
 
 *
