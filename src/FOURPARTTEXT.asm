@@ -525,15 +525,15 @@ insert_visible_text
        MOV  @doc_cursor_position,R1
        LI   R2,document_text_end
        BL   @insert_one_byte
+* Copy character to document
+       MOV  @doc_cursor_position,R1
+       MOVB R0,*R1+
+       MOV  R1,@doc_cursor_position
 * Make space for extra font detail
        MOV  @doc_cursor_position,R1
        AI   R1,document_font-document_text
        LI   R2,document_font_end
        BL   @insert_one_byte
-* Copy character to document
-       MOV  @doc_cursor_position,R1
-       MOVB R0,*R1+
-       MOV  R1,@doc_cursor_position
 * Word wrap the document
        SETO @word_wrap_needed
 *
@@ -717,34 +717,40 @@ save_bit
 *   R1 - insertion point
 *   R2 - address following the moveable block
 insert_one_byte
-* Yes, make space for extra character in document
-       AI   R2,-9
 * Let R4 = insert point rounded up to the address divislbe by 8
        MOV  R1,R4
-       AI   R4,8
+       AI   R4,7
        SRL  R4,3
        SLA  R4,3
 insert_char_loop
-       MOVB @7(R2),@8(R2)
-       MOVB @6(R2),@7(R2)
-       MOVB @5(R2),@6(R2)
-       MOVB @4(R2),@5(R2)
-       MOVB @3(R2),@4(R2)
-       MOVB @2(R2),@3(R2)
-       MOVB @1(R2),@2(R2)
-       MOVB *R2,@1(R2)
-       AI   R2,-8
+       DECT R2
+       MOVB *R2+,*R2
+       DECT R2
+       MOVB *R2+,*R2
+       DECT R2
+       MOVB *R2+,*R2
+       DECT R2
+       MOVB *R2+,*R2
+       DECT R2
+       MOVB *R2+,*R2
+       DECT R2
+       MOVB *R2+,*R2
+       DECT R2
+       MOVB *R2+,*R2
+       DECT R2
+       MOVB *R2+,*R2
        C    R2,R4
-       JHE  insert_char_loop
-*
-       AI   R2,7
-       C    R2,R1
-       JL   insert_no_more
+       JH   insert_char_loop
+* Let R1 = postion after the desired insertion point
+       INC  R1
+* Is R2 already pointing to after insertion point?
 insert_char_loop_2
-       MOVB *R2,@1(R2)
-       DEC  R2
        C    R2,R1
-       JHE  insert_char_loop_2
+       JLE  insert_no_more
+* No copy one more byte
+       DECT R2
+       MOVB *R2+,*R2
+       JMP  insert_char_loop_2
 insert_no_more
        RT
 
