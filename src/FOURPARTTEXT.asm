@@ -462,7 +462,7 @@ space_found
        RT
 
 key_routines
-*       DATA >0300,delete_char
+       DATA >0300,delete_char
        DATA >0800,move_left
        DATA >0900,move_right
        DATA >0A00,move_down
@@ -646,6 +646,31 @@ move_up_return
        MOV  *R10+,R11
        RT
 
+*
+*
+*
+delete_char
+* Delete one character
+       MOV  @doc_cursor_position,R1
+       MOV  R1,R2
+       INC  R2
+delete_loop
+       MOVB *R2+,*R1+
+       CI   R2,document_text_end
+       JL   delete_loop
+* Delete one font byte
+       MOV  @doc_cursor_position,R1
+       AI   R1,document_font-document_text
+       MOV  R1,R2
+       INC  R2
+delete_font_loop
+       MOVB *R2+,*R1+
+       CI   R2,document_font_end
+       JL   delete_font_loop
+*
+       SETO @word_wrap_needed
+*
+       RT
 
 *
 * Move block of data forwards by one byte
