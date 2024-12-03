@@ -465,7 +465,7 @@ key_routines
 *       DATA >0300,delete_char
        DATA >0800,move_left
        DATA >0900,move_right
-*       DATA >0A00,move_down
+       DATA >0A00,move_down
 *       DATA >0B00,move_up
 *       DATA >8200,toggle_bold
 *       DATA >8900,toggle_italic
@@ -562,12 +562,50 @@ move_right
 *
        BL   @hide_cursor
 *
-       LI   R1,document_text+(24*40)-1
+       LI   R1,document_text+(24*40)-2
        C    @doc_cursor_position,R1
-       JEQ  not_screen_end
+       JHE  not_screen_end
        INC  @doc_cursor_position
 not_screen_end
 *
+       BL   @show_cursor
+*
+       MOV  *R10+,R11
+       RT
+
+move_down
+       DECT R10
+       MOV  *R10,R11
+*
+       BL   @hide_cursor
+* Let R2 = highest address within line_breaks
+* where line break within paragraph > doc_cursor_position
+* Let R3 = index of character within document
+       BL   @get_line_break_address
+* Is R2 pointing to the last line break (and thus last line on screen?)
+       CI   R2,line_breaks+(2*23)
+       JEQ  move_down_return
+* Let R4 = screen column
+       MOV  R3,R4
+       CI   R2,line_breaks
+       JEQ  screen_col
+       S    @-2(R2),R4
+screen_col
+* Let R1 = index of the end of the line + column index
+       MOV  *R2,R1
+       A    R4,R1
+* Is R1 right of the next line's end?
+       C    R1,@2(R2)
+       JL   found_new_position
+* Yes, lower R1
+       MOV  @2(R2),R1
+       DEC  R1
+* Save new position
+found_new_position
+       AI   R1,document_text
+       MOV  R1,@doc_cursor_position
+*
+move_down_return
        BL   @show_cursor
 *
        MOV  *R10+,R11
@@ -700,17 +738,12 @@ have_tile_code
 * Changed:
 *   R0, R2, R3
 get_screen_position
-* Let R3 = index within document
-       MOV  @doc_cursor_position,R3
-       AI   R3,-document_text
+       DECT R10
+       MOV  R11,*R10
 * Let R2 = highest address within line_breaks
 * where line break within paragraph > doc_cursor_position
-       LI   R2,line_breaks+48
-calc_screen_row
-       DECT R2
-       C    *R2,R3
-       JH   calc_screen_row
-       INCT R2
+* Let R3 = index of character within document
+       BL   @get_line_break_address
 * Let R0 = screen row
        MOV  R2,R0
        AI   R0,-line_breaks
@@ -727,5 +760,29 @@ top_line
        CI   R1,24*40
 screen_position_error
        JH   screen_position_error
+*
+       MOV  *R10+,R11
+       RT
+
+*
+* Get address within line breaks pointing at current line
+*
+* Input:
+*   @doc_cursor_position
+* Output:
+*   R2 - address within line_breaks
+*   R3 - index of character within document
+get_line_break_address
+* Let R3 = index within document
+       MOV  @doc_cursor_position,R3
+       AI   R3,-document_text
+* Let R2 = highest address within line_breaks
+* where line break within paragraph > doc_cursor_position
+       LI   R2,line_breaks+48
+calc_screen_row
+       DECT R2
+       C    *R2,R3
+       JH   calc_screen_row
+       INCT R2
 *
        RT
