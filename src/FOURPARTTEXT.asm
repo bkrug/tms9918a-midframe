@@ -525,15 +525,18 @@ insert_visible_text
        MOV  @doc_cursor_position,R1
        LI   R2,document_text_end
        BL   @insert_one_byte
+* Make space for extra font detail
+       MOV  @doc_cursor_position,R1
+       AI   R1,document_font-document_text
+       MOV  R1,R5
+       LI   R2,document_font_end
+       BL   @insert_one_byte
 * Copy character to document
        MOV  @doc_cursor_position,R1
        MOVB R0,*R1+
        MOV  R1,@doc_cursor_position
-* Make space for extra font detail
-       MOV  @doc_cursor_position,R1
-       AI   R1,document_font-document_text
-       LI   R2,document_font_end
-       BL   @insert_one_byte
+* Place user-specified font in place
+       MOVB @current_font,*R5
 * Word wrap the document
        SETO @word_wrap_needed
 *
