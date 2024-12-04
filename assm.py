@@ -42,7 +42,6 @@ for file_obj in files:
 print("Linking Main Program")
 temp_files = [
     "CART",
-    "GROM",
     "MAIN",
     "VDP",
     "PIXELROW",

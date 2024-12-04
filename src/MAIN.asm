@@ -1,6 +1,5 @@
        DEF  BEGIN
 *
-       REF  GROMCR                          Ref from GROM
        REF  DSPINT,NUMASC                   Ref from DISPLAY
        REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
        REF  block_vdp_interrupt             Ref from PIXELROW
@@ -22,8 +21,6 @@ BEGIN
        LI   R10,STACK
 *
        LIMI 0    
-*
-       BL   @GROMCR              Copy pattern definitions from GROM to VRAM
 * Skip first VDP interrupt; it's too late to measure the full time.
        LIMI 2
        MOVB @VINTTM,R0
