@@ -519,7 +519,7 @@ handle_keys_done
 insert_visible_text
        DECT R10
        MOV  R11,*R10
-* Yes, replace cursor with display text
+* Replace cursor with display text
        BL   @hide_cursor
 * Make space for extra character in document
        MOV  @doc_cursor_position,R1
