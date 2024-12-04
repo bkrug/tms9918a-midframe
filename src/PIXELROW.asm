@@ -244,6 +244,9 @@ measure_time_to_reach_pixel_row
 * Let R1 = Y-Position minus 1 (for TMS9918a reasons)
        DEC  R1
        SLA  R1,8
+*
+       DECT R10
+       MOV  R1,*R10
 * Draw zero sprites
        CLR  R2
        BL   @write_test_sprites
@@ -256,12 +259,13 @@ clear_coinc
        CB   @VINTTM,R0
        JNE  clear_coinc
        LIMI 0
-* Draw two overlapping sprites at the pixel-index specified by R1
-       LI   R2,2
-       BL   @write_test_sprites
 * Reset timer
        LI   R1,>3FFF
        BL   @set_timer
+* Draw two overlapping sprites at the pixel-index specified by R1
+       MOV  *R10+,R1
+       LI   R2,2
+       BL   @write_test_sprites
 * Wait util COINC flag is "true"
 while_coinc_not_triggered
        MOVB @VDPSTA,R1
