@@ -3,7 +3,7 @@ Attempt to change some VDP registers strategically mid-frame
 
 ## Timer-interrupts
 
-Years ago T.N. and Jeff Brown told us that it is possible to configure CRU-timer interrupts so long as you are willing to loose the ability to trigger VDP interrupts.
+Years ago Thierry Nouspikel and Jeff Brown told us that it is possible to configure CRU-timer interrupts so long as you are willing to loose the ability to trigger VDP interrupts.
 (http://www.unige.ch/medecine/nouspikel/ti99/tms9901.htm)
 I never understood how to use their code until now.
 Loosing VDP interrupts isn't a big problem, because at the end of a game loop,

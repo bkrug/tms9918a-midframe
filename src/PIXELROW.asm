@@ -41,8 +41,9 @@ quit_key_bits           DATA >1100
 
 * adjustments that need to be made because
 * the act of measuring time takes time
-post_coinc_adjustment   EQU  -12
-isr_trigger_adjustment  EQU  -11
+ticks_calling_timer     EQU  2
+ticks_initializing_loop EQU  15
+ticks_after_interrupt   EQU  11
 
 *
 * BLWP:
@@ -270,16 +271,10 @@ while_coinc_not_triggered
        JEQ  while_coinc_not_triggered
 * Let R2 = new timer value
        BL   @get_timer_value
-* Need to increase the result in R2 a little bit,
-* because we did not record the time when we were
-* writing overlapping sprites to the VDP RAM.
-* SUSPECT: But something is off.
-* I would have thought that the process of writing test sprites would take at least 9 CRU ticks.
-* I would have thought that inbetween the end of one frame
-* and setting the timer for the first interrupt, there would be a delay of ~3 CRU ticks.
-* So why are we adding 3 ticks, instead of (9-3=6) 6 ticks or more?
        NEG  R2
-       AI   R2,>3FFF+post_coinc_adjustment
+       AI   R2,>3FFF
+* Account for missed ticks branching to/from timer routines
+       AI   R2,ticks_calling_timer
 *
        MOV  *R10+,R11
        RT
@@ -347,8 +342,8 @@ while_second_frame_continues
        BL   @get_timer_value
        NEG  R2
        AI   R2,>3FFF
-*
-       A    @time_to_measure_time,R2
+* Account for the ticks that were missed branching to/from the timer routines
+       AI   R2,ticks_calling_timer
 *
        LIMI 0
 *
@@ -366,6 +361,7 @@ restart_timer_loop
        MOV  @isr_table_address,R0
        MOV  *R0+,R1
        MOV  R0,@isr_element_address
+       AI   R1,-ticks_initializing_loop
        BL   @set_timer
 * Call an ISR that was set up for the end-of-frame event,
 * to replace the regular VDP interrupt.
@@ -457,7 +453,7 @@ timer_isr
        MOV  R0,@isr_element_address
 * Subtract 12 CRU ticks from timer value.
 * There is a delay between triggering the ISR, and resetting the timer
-       AI   R1,isr_trigger_adjustment
+       AI   R1,-ticks_after_interrupt
 * Configure next interrupt's timer
        BL   @set_timer
 * Clear timer-interrupt

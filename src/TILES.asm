@@ -40,10 +40,10 @@ scan_line_interrupts
        DATA 0,yellow_color_isr
        DATA 4*8+0,blue_color_isr
        DATA 8*8+0,yellow_color_isr
-       DATA 23*8+0,blue_color_isr
-scan_line_interrups_end
+       DATA 12*8+0,blue_color_isr
        DATA 16*8+0,yellow_color_isr
        DATA 20*8+0,blue_color_isr
+scan_line_interrups_end
        DATA 23*8+0,yellow_color_isr
 
 tiles  
