@@ -1,4 +1,5 @@
-       REF  log_interrupts
+*       REF  log_interrupts
+       REF  ADJUST
        REF  BEGIN
        REF  tiles
        REF  quarter_text
@@ -33,7 +34,7 @@ P2MSG  TEXT  'TIMER INTERRUPT'
 P2MSGE
 *
 PROG1  DATA  0
-       DATA  log_interrupts
+       DATA  ADJUST
        BYTE  P1MSGE-P1MSG
-P1MSG  TEXT  'WRITE L O G S'
+P1MSG  TEXT  'MEASURE ADJUSTMENTS'
 P1MSGE
