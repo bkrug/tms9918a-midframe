@@ -165,15 +165,15 @@ key_press_found
        MOVB @GRMRD,R0
 * Is caps lock down?
        MOVB R6,R6
-       JNE  caps_lock_up
+       JNE  dont_capitalize
 * Yes, is the key code a lower case letter?
        CB   R0,@lower_a
-       JL   caps_lock_up
+       JL   dont_capitalize
        CB   R0,@lower_z
-       JH   caps_lock_up
+       JH   dont_capitalize
 * Yes, make it upper case
        AI   R0,>E000
-caps_lock_up
+dont_capitalize
 * Record the key code
        MOVB R0,@KEYCOD
 *
