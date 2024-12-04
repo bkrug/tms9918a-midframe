@@ -13,6 +13,8 @@ WAIT1  DATA >18
 WAIT2  DATA >4
 * Bits that correspond to the modifier keys in key-column 0
 MODKEY BYTE >F8
+lower_a TEXT 'a'
+lower_z TEXT 'z'
 NOKEY  EQU  NEGONE
        EVEN
 
@@ -149,12 +151,6 @@ key_press_found
 * Let R5 = GROM address of key code without modifier keys
        LI   R5,>1700
        A    R4,R5
-* If caps lock is down, update R3 to suggest shift key is pressed.
-       MOVB R6,R6
-       JNE  caps_lock_up
-       LI   R6,>2000
-       SZCB R6,R3
-caps_lock_up
 * Let R3 = address in modifier_key_offsets
        ANDI R3,>7000
        SRL  R3,11
@@ -165,8 +161,21 @@ caps_lock_up
        MOVB R5,@GRMWA
        SWPB R5
        MOVB R5,@GRMWA
+* Let R0 = key code
+       MOVB @GRMRD,R0
+* Is caps lock down?
+       MOVB R6,R6
+       JNE  caps_lock_up
+* Yes, is the key code a lower case letter?
+       CB   R0,@lower_a
+       JL   caps_lock_up
+       CB   R0,@lower_z
+       JH   caps_lock_up
+* Yes, make it upper case
+       AI   R0,>E000
+caps_lock_up
 * Record the key code
-       MOVB @GRMRD,@KEYCOD
+       MOVB R0,@KEYCOD
 *
        RT
 
