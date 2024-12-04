@@ -180,8 +180,13 @@ assign_timer_table_addresses
 * Add an entry to the timer-ISR-table
 * that will only get triggered if the game loop drops a frame.
        MOV  R2,*R7+
-       LI   R8,restart_timer_loop
+       LI   R8,restart_loop_after_dropping_fame
        MOV  R8,*R7+
+* Add another entry with no ISR,
+* but with a timer value identical to the first entry in the table.
+* Again, it only matters if a frame is dropped.
+       MOV  @isr_table_address,R0
+       MOV  *R0,*R7
 *
 * The "timer interrupts" table now contains values
 * that measure time between the end of a frame and a desired pixel row.
@@ -360,6 +365,7 @@ restart_timer_loop
        BL   @set_timer
 * Call an ISR that was set up for the end-of-frame event,
 * to replace the regular VDP interrupt.
+continue_restarting
        MOV  @frame_isr,R1
        BL   *R1
 * Do stuff that would normally be triggered by VDP interrupts
@@ -376,6 +382,23 @@ restart_timer_loop
 *
        MOV  *R10+,R11
        RT
+
+*
+* In situations where a frame was dropped,
+* restart the timer loop.
+* But don't restart the timer from here.
+* It was already restarted by timer_isr.
+*
+restart_loop_after_dropping_fame
+       DECT R10
+       MOV  R11,*R10
+* Reset timer
+* Initialize "isr_element_address"
+       MOV  @isr_table_address,R0
+       MOV  *R0+,R1
+       MOV  R0,@isr_element_address
+*
+       JMP  continue_restarting
 
 *
 * Private Method:

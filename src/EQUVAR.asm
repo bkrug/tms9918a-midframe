@@ -17,10 +17,11 @@ isr_hit_count             EQU  >8336
 *   - the number of CRU ticks between the previous interrupt and the next one
 *   - the address of a routine to trigger when the event goes off
 timer_interrupts          EQU  >A000
-* We never want to fill the last 4 bytes with a user-defined ISR.
-* The last 4 bytes in the timer-ISR-table should always
+* We never want to fill the last 8 bytes with a user-defined ISR.
+* The second from last entry in the timer-ISR-table should always
 * point to the end-of-frame interrupt that replaces the VDP interrupt.
-limit_timer_interrupts    EQU  >A03C
+* The last entry should have a time identical to the first.
+limit_timer_interrupts    EQU  >A038
 *
 isr_table_address         EQU  >A040
 isr_element_address       EQU  >A042

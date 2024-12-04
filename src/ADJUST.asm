@@ -159,7 +159,6 @@ mock_set_timer_2
        AI   R2,>3FFF
        S    @time_to_measure_time,R2
        MOV  R2,@skipped_timer_isr_ticks
-
 * Pop something off of the stack that we won't use
        INCT R10
 * Now we need the real return address
