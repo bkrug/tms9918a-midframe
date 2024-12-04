@@ -8,6 +8,7 @@
        DEF  handle_quit_button
 *
        REF  VDPADR                          Ref from VDP
+       REF  measure_inacurracies            Ref from ADJUST
 
 *
 * All of these routines require R10 to be a stack pointer
@@ -134,6 +135,8 @@ coinc_init_timer_loop
 generic_timer_init
        DECT R10
        MOV  R11,*R10
+*
+       BL   @measure_inacurracies
 * Let R8 = table start address
 * Let R9 = table end address
        MOV  R0,R8

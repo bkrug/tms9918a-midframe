@@ -1,14 +1,36 @@
        DEF  ADJUST
+       DEF  measure_inacurracies
 *
        REF  set_timer
        REF  get_timer_value
 
        COPY 'EQUVAR.asm'
-       COPY 'EQUCRU.asm'
 
 ADJUST
        LWPI WS
        LI   R10,STACK
+*
+       BL   @measure_inacurracies
+*
+JMP    JMP  JMP
+
+*
+* It takes time to set the timer, read from the timer,
+* confirm that a video frame has just occurred, or
+* confirm that overlapping sprites have been detected.
+*
+* Measure the values of all of these things,
+* So that we can account for them in PIXELROW.asm
+*
+measure_inacurracies
+       DECT R10
+       MOV  R0,*R10
+       DECT R10
+       MOV  R1,*R10
+       DECT R10
+       MOV  R2,*R10
+       DECT R10
+       MOV  R11,*R10
 *
        BL   @measure_time_between_timer_calls
        BL   @measure_time_setting_up_coinc
@@ -16,8 +38,11 @@ ADJUST
        BL   @measure_time_restarting_loop
        BL   @measure_time_triggering_isr
 *
-JMP    JMP  JMP
-
+       MOV  *R10+,R11
+       MOV  *R10+,R2
+       MOV  *R10+,R1
+       MOV  *R10+,R0
+       RT
 
 *
 * Calling and returning from set_timer & get_timer_value
@@ -148,8 +173,11 @@ mock_end_of_block_vdp_interrupt
        JMP  out_of_sync_loop
 out_of_sync_loop
 * Configure the 9901 for interrupts.
-       SBZ  1                 * Disable external interrupt prioritization.
-       SBZ  2                 * Disable VDP interrupt prioritization.
+* Instead of calling SBZ, call "LI" which we think takes the same amount of time
+*       SBZ  1                 * Disable external interrupt prioritization.
+*       SBZ  2                 * Disable VDP interrupt prioritization.
+       LI   R0,1
+       LI   R0,2
 * Done
        RTWP
 mock_return_from_RTWP
@@ -163,7 +191,7 @@ mock_restart_timer_loop
 * Initialize "isr_element_address"
        MOV  @isr_table_address,R0
        MOV  *R0+,R1
-       MOV  R0,@isr_element_address
+       MOV  R0,@mock_isr_element_address
        BL   @mock_set_timer_2
 *
 * This routine should take the same amount of time
@@ -186,10 +214,6 @@ mock_set_timer_2
        AI   R2,>3FFF
        S    @time_to_measure_time,R2
        MOV  R2,@skipped_starting_new_frame
-* Undo any damage we did to the CRU
-       CLR  R12
-       SBO  1
-       SBO  2
 * Pop something off of the stack that we won't use
        INCT R10
 * Now we need the real return address
@@ -200,28 +224,33 @@ mock_set_timer_2
 *
 *
 measure_time_triggering_isr
-       LWPI >83C0
-*
        DECT R10
        MOV  R11,*R10
+*
+       LI   R1,>3FFF
+       BL   @set_timer
 *
 * This is a mock of the code in timer_isr
 *
        LIMI 0
 * Get stack pointer
-       LI   R10,WS
-       AI   R10,2*10
-       MOV  *R10,R10
+* The original code would copy the stack pointer from the program's WS
+* to the GPL' WS.
+* For this measurement, it isn't necessary to corrupt our own stack pointer.
+* So just go through the same motions with another register.
+       LI   R0,WS
+       AI   R0,2*10
+       MOV  *R0,R0
 * Save Return address
        DECT R10
        MOV  R11,*R10
 * Let R9 = address of child interrupt
 * Let R1 = next timer value
 * Update interrupt element address
-       MOV  @isr_element_address,R0
+       MOV  @mock_isr_element_address,R0
        MOV  *R0+,R9
        MOV  *R0+,R1
-       MOV  R0,@isr_element_address
+       MOV  R0,@mock_isr_element_address
 * Subtract 12 CRU ticks from timer value.
 * There is a delay between triggering the ISR, and resetting the timer
        AI   R1,isr_trigger_adjustment
@@ -252,8 +281,10 @@ mock_set_timer_3
        INCT R10
 * Now we need the real return address
        MOV  *R10+,R11
-*
-       LWPI WS
        RT
+
+* Set this to an address in console ROM
+* We don't actually need to change the value at the address
+mock_isr_element_address   EQU  >1000
 
 isr_trigger_adjustment    EQU  11
