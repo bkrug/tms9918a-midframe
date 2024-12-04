@@ -12,6 +12,7 @@ ADJUST
 *
        BL   @measure_time_between_timer_calls
        BL   @measure_time_restarting_loop
+       BL   @measure_time_triggering_isr
 *
 JMP    JMP  JMP
 
@@ -105,3 +106,66 @@ mock_set_timer
 * Now we need the real return address
        MOV  *R10+,R11
        RT
+
+*
+*
+*
+measure_time_triggering_isr
+       LWPI >83C0
+*
+       DECT R10
+       MOV  R11,*R10
+*
+* This is a mock of the code in timer_isr
+*
+       LIMI 0
+* Get stack pointer
+       LI   R10,WS
+       AI   R10,2*10
+       MOV  *R10,R10
+* Save Return address
+       DECT R10
+       MOV  R11,*R10
+* Let R9 = address of child interrupt
+* Let R1 = next timer value
+* Update interrupt element address
+       MOV  @isr_element_address,R0
+       MOV  *R0+,R9
+       MOV  *R0+,R1
+       MOV  R0,@isr_element_address
+* Subtract 12 CRU ticks from timer value.
+* There is a delay between triggering the ISR, and resetting the timer
+       AI   R1,isr_trigger_adjustment
+* Configure next interrupt's timer
+       BL   @mock_set_timer_2
+*
+* This routine should take the same amount of time
+* as the real set_timer, without actually changing the timer value.
+*
+mock_set_timer_2
+       CLR  R12         CRU base of the TMS9901 
+* Instead of calling SBO, call "LI R0,14" which we think takes the same amount of time
+*       SBO  0           Enter timer mode
+       LI   R0,14
+       INCT R12         Address of bit 1 
+* Instead of calling "LDCR R1,14", call "SRL  R12,0" which we think takes the same amount of time when R0 contains 14
+*       LDCR R1,14       Load value 
+       SRL  R12,0
+*
+* End of mock routine
+*
+       BL   @get_timer_value
+       NEG  R2
+       AI   R2,>3FFF
+       S    @time_to_measure_time,R2
+       MOV  R2,@skipped_timer_isr_ticks
+
+* Pop something off of the stack that we won't use
+       INCT R10
+* Now we need the real return address
+       MOV  *R10+,R11
+*
+       LWPI WS
+       RT
+
+isr_trigger_adjustment    EQU  11
