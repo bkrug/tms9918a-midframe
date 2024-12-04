@@ -81,7 +81,6 @@ measure_time_setting_up_coinc
 *
        JMP  out_of_coinc_loop
 out_of_coinc_loop
-       LIMI 0
 * Reset timer
        LI   R1,>3FFF
 * Configure next interrupt's timer

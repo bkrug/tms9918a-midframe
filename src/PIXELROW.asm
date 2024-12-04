@@ -41,7 +41,7 @@ quit_key_bits           DATA >1100
 
 * adjustments that need to be made because
 * the act of measuring time takes time
-post_coinc_adjustment   EQU  3
+post_coinc_adjustment   EQU  -12
 isr_trigger_adjustment  EQU  -11
 
 *
@@ -173,13 +173,6 @@ assign_timer_table_addresses
        MOV  R7,@isr_end_address
 * Let R2 = length of a video frame
        BL   @measure_length_of_frame
-* Now adjust the value of R2 because of what we've seen in real life experiments
-       MOV  @isr_end_address,R0
-       S    @isr_table_address,R0
-       SRL  R0,2
-       LI   R3,2
-       MPY  R3,R0
-       S    R1,R2
 * Add an entry to the timer-ISR-table
 * that will only get triggered if the game loop drops a frame.
        MOV  R2,*R7+
@@ -261,10 +254,11 @@ measure_time_to_reach_pixel_row
 clear_coinc
        CB   @VINTTM,R0
        JNE  clear_coinc
-       LIMI 0
 * Reset timer
        LI   R1,>3FFF
        BL   @set_timer
+*
+       LIMI 0
 * Draw two overlapping sprites at the pixel-index specified by R1
        MOV  *R10+,R1
        LI   R2,2
@@ -353,6 +347,8 @@ while_second_frame_continues
        BL   @get_timer_value
        NEG  R2
        AI   R2,>3FFF
+*
+       A    @time_to_measure_time,R2
 *
        LIMI 0
 *
