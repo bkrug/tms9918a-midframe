@@ -11,10 +11,12 @@ ADJUST
        LI   R10,STACK
 *
        BL   @measure_time_between_timer_calls
+       BL   @measure_time_setting_up_coinc
        BL   @measure_time_restarting_loop
        BL   @measure_time_triggering_isr
 *
 JMP    JMP  JMP
+
 
 *
 * Calling and returning from set_timer & get_timer_value
@@ -34,6 +36,55 @@ measure_time_between_timer_calls
 *
        MOV  *R10+,R11
        RT
+
+*
+* When using the "sprite coinc" approach,
+* there is a period of time inbetween a video frame
+* that has no sprites, and a frame that does have sprites.
+* Measure the time it takes to get from the end of the
+* frame to setting the timer
+*
+measure_time_setting_up_coinc
+       DECT R10
+       MOV  R11,*R10
+* Set Timer
+       LI   R1,>3FFF
+       BL   @set_timer
+*
+* Beginning of mock of code in "measure_time_to_reach_pixel_row"
+*
+       JMP  out_of_coinc_loop
+out_of_coinc_loop
+       LIMI 0
+* Reset timer
+       LI   R1,>3FFF
+* Configure next interrupt's timer
+       BL   @mock_set_timer_1
+*
+* This routine should take the same amount of time
+* as the real set_timer, without actually changing the timer value.
+*
+mock_set_timer_1
+       CLR  R12         CRU base of the TMS9901 
+* Instead of calling SBO, call "LI R0,14" which we think takes the same amount of time
+*       SBO  0           Enter timer mode
+       LI   R0,14
+       INCT R12         Address of bit 1 
+* Instead of calling "LDCR R1,14", call "SRL  R12,0" which we think takes the same amount of time when R0 contains 14
+*       LDCR R1,14       Load value 
+       SRL  R12,0
+*
+* End of mock routine
+*
+       BL   @get_timer_value
+       NEG  R2
+       AI   R2,>3FFF
+       S    @time_to_measure_time,R2
+       MOV  R2,@pixel_row_pre_measure
+* Now we need the real return address
+       MOV  *R10+,R11
+       RT
+
 
 *
 * At the beginning of a game loop, we normally call 
@@ -75,12 +126,12 @@ mock_restart_timer_loop
        MOV  @isr_table_address,R0
        MOV  *R0+,R1
        MOV  R0,@isr_element_address
-       BL   @mock_set_timer
+       BL   @mock_set_timer_2
 *
 * This routine should take the same amount of time
 * as the real set_timer, without actually changing the timer value.
 *
-mock_set_timer
+mock_set_timer_2
        CLR  R12         CRU base of the TMS9901 
 * Instead of calling SBO, call "LI R0,14" which we think takes the same amount of time
 *       SBO  0           Enter timer mode
@@ -137,12 +188,12 @@ measure_time_triggering_isr
 * There is a delay between triggering the ISR, and resetting the timer
        AI   R1,isr_trigger_adjustment
 * Configure next interrupt's timer
-       BL   @mock_set_timer_2
+       BL   @mock_set_timer_3
 *
 * This routine should take the same amount of time
 * as the real set_timer, without actually changing the timer value.
 *
-mock_set_timer_2
+mock_set_timer_3
        CLR  R12         CRU base of the TMS9901 
 * Instead of calling SBO, call "LI R0,14" which we think takes the same amount of time
 *       SBO  0           Enter timer mode
