@@ -96,7 +96,7 @@ mock_set_timer
        NEG  R2
        AI   R2,>3FFF
        S    @time_to_measure_time,R2
-       MOV  R2,@skipped_ticks_restarting
+       MOV  R2,@skipped_starting_new_frame
 * Undo any damage we did to the CRU
        CLR  R12
        SBO  1
