@@ -12,6 +12,7 @@ ADJUST
 *
        BL   @measure_time_between_timer_calls
        BL   @measure_time_setting_up_coinc
+       BL   @measure_time_after_coinc
        BL   @measure_time_restarting_loop
        BL   @measure_time_triggering_isr
 *
@@ -85,6 +86,43 @@ mock_set_timer_1
        MOV  *R10+,R11
        RT
 
+*
+* After the coinc measurement routine detects
+* two overlapping sprites, it reads the timer.
+* How long does this take?
+measure_time_after_coinc
+       DECT R10
+       MOV  R11,*R10
+* Set Timer
+       LI   R1,>3FFF
+       BL   @set_timer
+*
+* Mock of some code in
+*
+       ANDI R1,>2000
+       JNE  mock_coinc_has_been_triggered
+mock_coinc_has_been_triggered
+* Let R2 = new timer value
+       BL   @mock_get_timer_value
+mock_get_timer_value
+       CLR  R12 
+* Instead of calling SBO, call "LI R0,15" which we think takes the same amount of time
+*       SBO  0           Enter timer mode
+* Instead of calling "STCR R2,15", call "SRL  R12,0" which we think takes the same amount of time when R0 contains 15
+*       STCR R2,15       Read current value (plus mode bit)
+       LI   R0,15
+       SRL  R12,0
+*
+* End of mock
+*
+       BL   @get_timer_value
+       NEG  R2
+       AI   R2,>3FFF
+       S    @time_to_measure_time,R2
+       MOV  R2,@pixel_row_post_measure
+* Now we need the real return address
+       MOV  *R10+,R11
+       RT
 
 *
 * At the beginning of a game loop, we normally call 
