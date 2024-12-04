@@ -3,7 +3,6 @@
 *
 WS                        EQU  >8300
 STACK                     EQU  >8320+>10
-OLDR12                    EQU  >8330
 
 * MAIN.asm
 COUNT                     EQU  >8332

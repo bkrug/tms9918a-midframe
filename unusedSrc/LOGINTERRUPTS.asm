@@ -20,6 +20,8 @@
        COPY 'EQUVAR.asm'
        COPY 'EQU.asm'
 
+OLDR12                    EQU  >8330
+
 H20    BYTE >20
 
 waiting_for_vdp:
