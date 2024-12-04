@@ -346,11 +346,12 @@ skip_first_frame
 while_second_frame_continues
        CB   @VINTTM,R0
        JEQ  while_second_frame_continues
-       LIMI 0
 * Let R2 = new timer value
        BL   @get_timer_value
        NEG  R2
        AI   R2,>3FFF
+*
+       LIMI 0
 *
        MOV  *R10+,R11
        RT
