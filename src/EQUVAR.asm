@@ -1,24 +1,4 @@
 *
-* Labels for lower bytes of registers
-*
-LBR0   EQU  WS+1
-LBR1   EQU  WS+3
-LBR2   EQU  WS+5
-LBR3   EQU  WS+7
-LBR4   EQU  WS+9
-LBR5   EQU  WS+11
-LBR6   EQU  WS+13
-LBR7   EQU  WS+15
-LBR8   EQU  WS+17
-LBR9   EQU  WS+19
-LBR10  EQU  WS+21
-LBR11  EQU  WS+23
-LBR12  EQU  WS+25
-LBR13  EQU  WS+27
-LBR14  EQU  WS+29
-LBR15  EQU  WS+31
-
-*
 * Variables as >8300
 *
 WS                        EQU  >8300
@@ -82,9 +62,35 @@ dropped_frames:
        EQU  >B80A
 line_breaks:
        EQU  >B810      * 24 words (>18 words)
+request_cursor_display:
+       EQU  >B840
+cursor_screen_location:
+       EQU  >B842
 current_font:
-       EQU  >B840      * 1 byte
+       EQU  >B844      * 1 byte
 
 * VDP.asm
 screen_copy:
        EQU  >C000      * >300 bytes
+
+
+
+*
+* Labels for lower bytes of registers
+*
+LBR0   EQU  WS+1
+LBR1   EQU  WS+3
+LBR2   EQU  WS+5
+LBR3   EQU  WS+7
+LBR4   EQU  WS+9
+LBR5   EQU  WS+11
+LBR6   EQU  WS+13
+LBR7   EQU  WS+15
+LBR8   EQU  WS+17
+LBR9   EQU  WS+19
+LBR10  EQU  WS+21
+LBR11  EQU  WS+23
+LBR12  EQU  WS+25
+LBR13  EQU  WS+27
+LBR14  EQU  WS+29
+LBR15  EQU  WS+31

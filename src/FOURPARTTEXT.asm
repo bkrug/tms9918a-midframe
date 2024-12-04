@@ -507,7 +507,7 @@ find_key_routine_loop
 found_routine
        INCT R1
        MOV  *R1,R1
-       BL   *R1       
+       BL   *R1
 *
 handle_keys_done
        MOV  *R10+,R11
@@ -519,8 +519,6 @@ handle_keys_done
 insert_visible_text
        DECT R10
        MOV  R11,*R10
-* Replace cursor with display text
-       BL   @hide_cursor
 * Make space for extra character in document
        MOV  @doc_cursor_position,R1
        LI   R2,document_text_end
@@ -539,6 +537,8 @@ insert_visible_text
        MOVB @current_font,*R5
 * Word wrap the document
        SETO @word_wrap_needed
+* Request that the cursor be displayed, because it moved
+       SETO @request_cursor_display
 *
        MOV  *R10+,R11
        RT
@@ -547,17 +547,15 @@ move_left
        DECT R10
        MOV  *R10,R11
 *
-       BL   @hide_cursor
-*
        LI   R1,document_text
        C    @doc_cursor_position,R1
        JEQ  not_doc_beggining
        DEC  @doc_cursor_position
 not_doc_beggining
 *
-       BL   @show_cursor
-*
        BL   @get_font_from_position
+* Request that the cursor be displayed, because it moved
+       SETO @request_cursor_display
 *
        MOV  *R10+,R11
        RT
@@ -566,17 +564,15 @@ move_right
        DECT R10
        MOV  *R10,R11
 *
-       BL   @hide_cursor
-*
        LI   R1,document_text+(24*40)-2
        C    @doc_cursor_position,R1
        JHE  not_screen_end
        INC  @doc_cursor_position
 not_screen_end
 *
-       BL   @show_cursor
-*
        BL   @get_font_from_position
+* Request that the cursor be displayed, because it moved
+       SETO @request_cursor_display
 *
        MOV  *R10+,R11
        RT
@@ -584,8 +580,6 @@ not_screen_end
 move_down
        DECT R10
        MOV  *R10,R11
-*
-       BL   @hide_cursor
 * Let R2 = highest address within line_breaks
 * where line break within paragraph > doc_cursor_position
 * Let R3 = index of character within document
@@ -612,20 +606,18 @@ screen_col
 found_new_position
        AI   R1,document_text
        MOV  R1,@doc_cursor_position
-*
-move_down_return
-       BL   @show_cursor
+* Request that the cursor be displayed, because it moved
+       SETO @request_cursor_display
 *
        BL   @get_font_from_position
 *
+move_down_return
        MOV  *R10+,R11
        RT
 
 move_up
        DECT R10
        MOV  *R10,R11
-*
-       BL   @hide_cursor
 * Let R2 = highest address within line_breaks
 * where line break within paragraph > doc_cursor_position
 * Let R3 = index of character within document
@@ -649,12 +641,12 @@ move_up
 found_new_up_position
        AI   R1,document_text
        MOV  R1,@doc_cursor_position
-*
-move_up_return
-       BL   @show_cursor
+* Request that the cursor be displayed, because it moved
+       SETO @request_cursor_display
 *
        BL   @get_font_from_position
 *
+move_up_return
        MOV  *R10+,R11
        RT
 
@@ -763,9 +755,19 @@ insert_no_more
 flash_cursor
        DECT R10
        MOV  R11,*R10
+* Has a different routine requested that the cursor be displayed?
+       MOV  @request_cursor_display,R0
+       JEQ  base_flash_on_timer
+* Yes, the cursor must have moved.
+* So hide the old one, and display the new one.
+       BL   @hide_cursor
+       BL   @show_cursor
+       CLR  @request_cursor_display
+       JMP  flash_cursor_rt
+base_flash_on_timer
 * Don't flash if waiting for word wrap
-       MOV  @word_wrap_needed,R0
-       JNE  flash_cursor_rt
+*       MOV  @word_wrap_needed,R0
+*       JNE  flash_cursor_rt
 * Is this an okay time to flash cursor?
        MOVB @VINTTM,R0
        CZC  @bits_indicating_flash,R0
@@ -792,6 +794,7 @@ show_cursor
        MOV  R11,*R10
 * Let R1 = screen position of cursor
        BL   @get_screen_position
+       MOV  R1,@cursor_screen_location
 * Let R0 = address in screen image table
        MOV  R1,R0
        AI   R0,SCRN8
@@ -815,7 +818,7 @@ hide_cursor
        DECT R10
        MOV  R0,*R10
 * Let R1 = screen position of cursor
-       BL   @get_screen_position
+       MOV  @cursor_screen_location,R1
 * Let R0 = address in screen image table
        MOV  R1,R0
        AI   R0,SCRN8
