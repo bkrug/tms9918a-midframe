@@ -28,20 +28,6 @@ isr_element_address       EQU  >A042
 isr_end_address           EQU  >A044
 frame_isr                 EQU  >A046
 all_lines_scanned         EQU  >A048
-*
-* Values to adjust the accuracy of timer values
-* These are values we calculated from CPU documentation
-*
-* number of CRU ticks missed getting ready to measure the frame length
-pixel_row_pre_measure          EQU  >A080
-* number of extra CRU ticks trying to get the measured time
-pixel_row_post_measure         EQU  >A082
-* number of CRU ticks occurring @ block_vdp_interrupt's end & restart_timer_loop's start
-skipped_starting_new_frame     EQU  >A084
-* number of CRU ticks occurring between triggering timer_isr & starting next timer
-skipped_timer_isr_ticks        EQU  >A086
-* time that passes when calling set_timer and get_timer_value consecutively
-time_to_measure_time           EQU  >A088
 
 
 * KEY.asm

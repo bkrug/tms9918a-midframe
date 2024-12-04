@@ -45,7 +45,6 @@ temp_files = [
     "GROM",
     "MAIN",
     "VDP",
-    "ADJUST",
     "PIXELROW",
     "TILES",
     "FOURPARTTEXT",

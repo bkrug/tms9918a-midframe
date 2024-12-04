@@ -1,3 +1,21 @@
+*
+* The act of measuring CRU ticks, takes time by itself.
+* So in the course of measuring time period,
+* or of setting a timer for the next interrupt,
+* we either waste CRU ticks or add more ticks on.
+*
+* At one time I wanted to measure the execution time of 
+* the extra code that was run without being accounted for.
+* I got very different values from the constants that you
+* will see PIXELROW.asm  (see the labels prefixed "ticks_").
+*
+* I don't completely understand all of the discrepencies,
+* but note that before inbetween a timer interrupt and
+* calling timer_ISR, a certain amount of code in console ROM
+* is exeucted. So trying to measure the runtime of the
+* code in this git repo, is not entirely sufficient.
+*
+
        DEF  ADJUST
        DEF  measure_inacurracies
 *
@@ -5,6 +23,21 @@
        REF  get_timer_value
 
        COPY 'EQUVAR.asm'
+
+*
+* Values to adjust the accuracy of timer values
+* These are values we calculated from CPU documentation
+*
+* number of CRU ticks missed getting ready to measure the frame length
+pixel_row_pre_measure          EQU  >A080
+* number of extra CRU ticks trying to get the measured time
+pixel_row_post_measure         EQU  >A082
+* number of CRU ticks occurring @ block_vdp_interrupt's end & restart_timer_loop's start
+skipped_starting_new_frame     EQU  >A084
+* number of CRU ticks occurring between triggering timer_isr & starting next timer
+skipped_timer_isr_ticks        EQU  >A086
+* time that passes when calling set_timer and get_timer_value consecutively
+time_to_measure_time           EQU  >A088
 
 ADJUST
        LWPI WS

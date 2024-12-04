@@ -1,3 +1,8 @@
+*
+* This file listens for some interrupts
+* and writes log messages to the screen based on what it finds
+*
+
        DEF  log_interrupts
 *
        REF  GROMCR                          Ref from GROM
