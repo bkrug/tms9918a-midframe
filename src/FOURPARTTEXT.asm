@@ -37,38 +37,17 @@ bits_indicating_cursor      DATA >2000
 cursor_char                 DATA >6060,>6060,>6060,>6000
 cursor_char_end
 
-byte_126     BYTE >7E
-             EVEN
-
 quarter_text
        LWPI WS
        LI   R10,STACK
        LIMI 0
-* Write cursor pattern
-       LI   R3,cursor_code*8
-cursor_loop
-       MOV  R3,R0
-       BL   @VDPADR
-       LI   R0,cursor_char
-       LI   R1,cursor_char_end-cursor_char
-       BL   @VDPWRT
-       AI   R3,256*8
-       CI   R3,>2000
-       JL   cursor_loop
 * Specify the location of the table of timer ISRs
        LI   R0,pixel_row_interrupts
        LI   R1,pixel_row_interrupts_end
        LI   R2,pattern0_isr
        BL   @coinc_init_timer_loop
-* Enable text mode
-       LI   R0,>01F0
-       BL   @VDPREG
-* Enable white text / blue background
-       LI   R0,>07F4
-       BL   @VDPREG
 *
-       LI   R0,document_text
-       MOV  R0,@doc_cursor_position
+       BL   @init_vdp_ram
 *
        BL   @copy_init_text
        BL   @init_screen_image_table
@@ -104,6 +83,33 @@ while_waiting_for_interrupt
        JEQ  while_waiting_for_interrupt
 *
        JMP  game_loop
+
+init_vdp_ram
+       DECT R10
+       MOV  R11,*R10
+* Write cursor pattern
+       LI   R3,cursor_code*8
+cursor_loop
+       MOV  R3,R0
+       BL   @VDPADR
+       LI   R0,cursor_char
+       LI   R1,cursor_char_end-cursor_char
+       BL   @VDPWRT
+       AI   R3,256*8
+       CI   R3,>2000
+       JL   cursor_loop
+* Enable text mode
+       LI   R0,>01F0
+       BL   @VDPREG
+* Enable white text / blue background
+       LI   R0,>07F4
+       BL   @VDPREG
+*
+       LI   R0,document_text
+       MOV  R0,@doc_cursor_position
+*
+       MOV  *R10+,R11
+       RT
 
 pattern0_isr
        INC  @dropped_frames
@@ -467,7 +473,7 @@ handle_keys
 * Was this a visible key press?
        CB   R0,@SPACE
        JL   fctn_ctrl_key
-       CB   R0,@byte_126
+       CB   R0,@highest_ascii
        JH   fctn_ctrl_key
 * Yes, insert it into the document
        BL   @insert_visible_text

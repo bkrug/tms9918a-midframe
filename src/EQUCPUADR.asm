@@ -1,6 +1,8 @@
 ONE    EQU  >002A        The address of a byte in ROM that always contains "1"
 SPACE  EQU  >0033        The address of a byte in ROM that always contains ">20"
 NEGONE EQU  >0044        The address of a byte in ROM that always contains ">FF"
+highest_ascii:
+       EQU  >0261        The address of a byte in ROM that always contains ">7E"
 *
 FAC    EQU  >834A        GPL parameter (word)
 STATUS EQU  >837C        GPL status (byte)

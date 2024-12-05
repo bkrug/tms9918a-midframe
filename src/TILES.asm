@@ -48,13 +48,13 @@ tiles
        LWPI WS
        LI   R10,STACK
        LIMI 0
-* Initialize graphics
-       BL   @init_graphics
 * Specify the location of the table of timer ISRs
        LI   R0,scan_line_interrupts
        LI   R1,scan_line_interrups_end
        LI   R2,red_color_isr
        BL   @coinc_init_timer_loop
+* Initialize graphics
+       BL   @init_graphics
 *
 game_loop
 * Disable interrupts
