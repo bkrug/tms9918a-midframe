@@ -28,9 +28,13 @@
        COPY 'EQU.asm'
        COPY 'EQUVAR.asm'
 
-* except for the Y-position, these are the sprite-attributes for the COINC sprites
+* These are some of the sprite-attributes for the COINC sprites.
+* The Y-position is only know at runtime.
+* The X-position is intentinally at the far right side of the screen.
+* The sprite code is >00.
+* The color is transparent.
 sprite_attributes
-       BYTE >FF,>02,>00
+       BYTE >FF,>00,>00
        EVEN
 
 top_scan_time           DATA 186
@@ -113,6 +117,11 @@ calc_init_timer_loop
 * Given a table of pixel-row indexes followed by ISR addresses,
 * generates a table of corresponding timer-values followed with the same ISR addresses.
 * The results are stored at @timer_interrupts.
+*
+* IMPORTANT: This routine writes to the VDP RAM
+* and changes VDP registers without your permission.
+* The calling routine should not do its own
+* VDP initialization until after calling this method.
 *
 * Input:
 *   R0 - address of scan-line-ISR-table
@@ -219,9 +228,6 @@ just_return
        RT
 
 char_pattern
-* Patterns used to demonstrate degree of accuracy in the results
-       DATA >F000,>0000,>C000,>0000
-       DATA >F000,>0000,>C000,>0001
 * Pattern used for COINIC detection
        DATA >8080,>8080,>8080,>8080
 end_of_char_patterns
@@ -243,9 +249,6 @@ setup_vdp_for_coinc
        LI   R0,char_pattern
        LI   R1,end_of_char_patterns-char_pattern
        BL   @VDPWRT
-* Specify address of tile pattern table
-       LI   R0,>0401
-       BL   @VDPREG
 * Specify address of sprite pattern table
        LI   R0,>0601
        BL   @VDPREG
