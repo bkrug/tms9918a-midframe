@@ -17,7 +17,6 @@
 * Addresses
 *
        COPY 'EQUCPUADR.asm'
-       COPY 'EQU.asm'
        COPY 'EQUVAR.asm'
 
 SCRN8                 EQU  >2000

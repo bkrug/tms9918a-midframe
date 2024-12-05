@@ -25,7 +25,6 @@
 * Addresses
 *
        COPY 'EQUCPUADR.asm'
-       COPY 'EQU.asm'
        COPY 'EQUVAR.asm'
 
 * These are some of the sprite-attributes for the COINC sprites.

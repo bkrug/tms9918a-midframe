@@ -13,7 +13,6 @@
 * Addresses
 *
        COPY 'EQUCPUADR.asm'
-       COPY 'EQU.asm'
        COPY 'EQUVAR.asm'
 
 * TODO: PIXELROW.asm needs a sprite to be defined,
