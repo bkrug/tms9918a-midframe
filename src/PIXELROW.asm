@@ -7,7 +7,7 @@
        DEF  get_timer_value
        DEF  handle_quit_button
 *
-       REF  VDPADR                          Ref from VDP
+       REF  VDPADR,VDPREG,VDPWRT            Ref from VDP
 
 *
 * All of these routines require R10 to be a stack pointer
@@ -102,6 +102,9 @@ unblock_vdp_interrupt
 *   R2 - end-of-frame interrupt routine
 *      - set to 0, if there is no end-of-frame ISR
 calc_init_timer_loop
+       DECT R10
+       MOV  R11,*R10
+*
        LI   R6,calculate_time_to_reach_pixel_row
        JMP  generic_timer_init
 
@@ -117,14 +120,24 @@ calc_init_timer_loop
 *   R2 - end-of-frame interrupt routine
 *      - set to 0, if there is no end-of-frame ISR
 coinc_init_timer_loop
+       DECT R10
+       MOV  R11,*R10
+*
+       BL   @setup_vdp_for_coinc
+*
        LI   R6,measure_time_to_reach_pixel_row
        JMP  generic_timer_init
 
 *
+* Private:
 * Initialize the timer loop.
 * Given a table of pixel-row indexes followed by ISR addresses,
 * generates a table of corresponding timer-values followed with the same ISR addresses.
 * The results are stored at @timer_interrupts.
+*
+* IMPORTANT: the calling code is required to push
+* a return address to the stack before calling this routine.
+* This routine will pop, but not push, a return address from the stack.
 *
 * Input:
 *   R0 - address of scan-line-ISR-table
@@ -133,8 +146,6 @@ coinc_init_timer_loop
 *      - set to 0, if there is no end-of-frame ISR
 *   R6 - routine for converting a pixel-row to a timer value
 generic_timer_init
-       DECT R10
-       MOV  R11,*R10
 * Let R8 = table start address
 * Let R9 = table end address
        MOV  R0,R8
@@ -205,6 +216,46 @@ timer_difference_end_coinic
 *
        MOV  *R10+,R11
 just_return       
+       RT
+
+char_pattern
+* Patterns used to demonstrate degree of accuracy in the results
+       DATA >F000,>0000,>C000,>0000
+       DATA >F000,>0000,>C000,>0001
+* Pattern used for COINIC detection
+       DATA >8080,>8080,>8080,>8080
+end_of_char_patterns
+
+*
+* In order to detect overlapping sprites,
+* the VDP RAM needs a sprite pattern somewhere.
+*
+setup_vdp_for_coinc
+       DECT R10
+       MOV  R11,*R10
+       DECT R10
+       MOV  R1,*R10
+       DECT R10
+       MOV  R0,*R10
+* Write char & sprite patterns
+       LI   R0,>800
+       BL   @VDPADR
+       LI   R0,char_pattern
+       LI   R1,end_of_char_patterns-char_pattern
+       BL   @VDPWRT
+* Specify address of tile pattern table
+       LI   R0,>0401
+       BL   @VDPREG
+* Specify address of sprite pattern table
+       LI   R0,>0601
+       BL   @VDPREG
+* Specify address of sprite attirbute list
+       LI   R0,>0506
+       BL   @VDPREG
+*
+       MOV  *R10+,R0
+       MOV  *R10+,R1
+       MOV  *R10+,R11
        RT
 
 *

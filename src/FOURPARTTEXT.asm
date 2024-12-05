@@ -37,14 +37,6 @@ bits_indicating_cursor      DATA >2000
 cursor_char                 DATA >6060,>6060,>6060,>6000
 cursor_char_end
 
-char_pattern
-* Patterns used to demonstrate degree of accuracy in the results
-       DATA >F000,>0000,>C000,>0000
-       DATA >F000,>0000,>C000,>0001
-* Pattern used for COINIC detection
-       DATA >8080,>8080,>8080,>8080
-end_of_char_patterns
-
 byte_126     BYTE >7E
              EVEN
 
@@ -52,14 +44,6 @@ quarter_text
        LWPI WS
        LI   R10,STACK
        LIMI 0
-* Write patterns
-       LI   R0,>800
-       BL   @VDPADR
-       LI   R0,char_pattern
-       LI   R1,end_of_char_patterns-char_pattern
-       BL   @VDPWRT
-       LI   R0,>0601
-       BL   @VDPREG
 * Write cursor pattern
        LI   R3,cursor_code*8
 cursor_loop

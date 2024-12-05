@@ -24,8 +24,6 @@ char_pattern
 * Patterns used to demonstrate degree of accuracy in the results
        DATA >F000,>0000,>C000,>0000
        DATA >F000,>0000,>C000,>0001
-* Pattern used for COINIC detection
-       DATA >8080,>8080,>8080,>8080
 end_of_char_patterns
 color  BYTE >10
        EVEN
@@ -137,12 +135,6 @@ init_graphics
        BL   @VDPREG
 * Tile pattern table
        LI   R0,>0401
-       BL   @VDPREG
-* Sprite attribute list
-       LI   R0,>0506
-       BL   @VDPREG
-* Sprite pattern table (occupies same space as tile pattern table)
-       LI   R0,>0601
        BL   @VDPREG
 * Write patterns
        LI   R0,>800
