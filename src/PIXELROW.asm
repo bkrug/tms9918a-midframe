@@ -44,8 +44,8 @@ quit_key_bits           DATA >1100
 * adjustments that need to be made because
 * the act of measuring time takes time
 ticks_calling_timer     EQU  2
-ticks_initializing_loop EQU  15
-ticks_after_interrupt   EQU  11
+ticks_initializing_loop EQU  14
+ticks_after_interrupt   EQU  12
 
 *
 * BLWP:
@@ -501,7 +501,7 @@ timer_isr
        MOV  *R0+,R9
        MOV  *R0+,R1
        MOV  R0,@isr_element_address
-* Subtract 12 CRU ticks from timer value.
+* Subtract a few CRU ticks from timer value.
 * There is a delay between triggering the ISR, and resetting the timer
        AI   R1,-ticks_after_interrupt
 * Configure next interrupt's timer
