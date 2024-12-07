@@ -47,11 +47,14 @@ quarter_text
        BL   @coinc_init_timer_loop
 *
        BL   @init_vdp_ram
+       BL   @init_screen_image_table
 *
        BL   @copy_init_text
-       BL   @init_screen_image_table
+       LI   R0,document_text
+       MOV  R0,@doc_cursor_position
        CLR  @doc_display_index
        CLR  @screen_draw_position
+       CLR  @cursor_screen_location
        CLR  @line_break_index
        SETO @word_wrap_needed
        BL   @init_key_buffer
@@ -103,9 +106,6 @@ cursor_loop
 * Enable white text / blue background
        LI   R0,>07F4
        BL   @VDPREG
-*
-       LI   R0,document_text
-       MOV  R0,@doc_cursor_position
 *
        MOV  *R10+,R11
        RT
@@ -881,9 +881,12 @@ get_line_break_address
        LI   R2,line_breaks+48
 calc_screen_row
        DECT R2
+       CI   R2,line_breaks
+       JEQ  calc_done
        C    *R2,R3
        JH   calc_screen_row
        INCT R2
+calc_done
 *
        RT
 
