@@ -20,8 +20,8 @@
 *
 * Constants
 *
-       COPY 'EQUCPUADR.asm'
-       COPY 'EQUVAR.asm'
+       COPY '..\EQUCPUADR.asm'
+       COPY '..\EQUVAR.asm'
 
 *
 KCOL2  BYTE >02

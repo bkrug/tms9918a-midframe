@@ -32,7 +32,7 @@ def link_main_files(linked_file, object_files):
 #files = os.scandir(".//Src")
 
 #for file_obj in files:
-for subdir, dirs, files in os.walk(".\Src"):
+for subdir, dirs, files in os.walk(".\\Src"):
     for file in files:
         #print os.path.join(subdir, file)
         filepath = subdir + os.sep + file
