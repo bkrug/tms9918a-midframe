@@ -29,15 +29,19 @@ def link_main_files(linked_file, object_files):
     os.system(rpk_link_2)
 
 #Assemble Src and Tests
-files = os.scandir(".//Src")
+#files = os.scandir(".//Src")
 
-for file_obj in files:
-    print("Assembling " + file_obj.path)
-    list_file = get_work_file(file_obj.name.replace(".asm", ".lst"))
-    obj_file = get_work_file(file_obj.name.replace(".asm", ".obj"))
-    assemble_command_1 = "xas99.py {source} -S -R -L {list} -o {object}"
-    assemble_command_2 = assemble_command_1.format(source = file_obj.path, list = list_file, object = obj_file)
-    os.system(assemble_command_2)
+#for file_obj in files:
+for subdir, dirs, files in os.walk(".\Src"):
+    for file in files:
+        #print os.path.join(subdir, file)
+        filepath = subdir + os.sep + file
+        print("Assembling " + filepath)
+        list_file = get_work_file(file.replace(".asm", ".lst"))
+        obj_file = get_work_file(file.replace(".asm", ".obj"))
+        assemble_command_1 = "xas99.py {source} -S -R -L {list} -o {object}"
+        assemble_command_2 = assemble_command_1.format(source = filepath, list = list_file, object = obj_file)
+        os.system(assemble_command_2)
 
 print("Linking Main Program")
 temp_files = [

@@ -8,8 +8,8 @@
 *
 * Addresses
 *
-       COPY 'EQUCPUADR.asm'
-       COPY 'EQUVAR.asm'
+       COPY '..\EQUCPUADR.asm'
+       COPY '..\EQUVAR.asm'
 
 frame_wait EQU  375     * about 8 milliseconds / about half of a video interrupt
 

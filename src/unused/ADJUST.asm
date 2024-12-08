@@ -22,7 +22,7 @@
        REF  set_timer
        REF  get_timer_value
 
-       COPY 'EQUVAR.asm'
+       COPY '..\EQUVAR.asm'
 
 *
 * Values to adjust the accuracy of timer values
