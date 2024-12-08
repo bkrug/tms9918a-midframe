@@ -4,11 +4,6 @@
 WS                        EQU  >8300
 STACK                     EQU  >8320+>10
 
-* MAIN.asm
-COUNT                     EQU  >8332
-swappable_colors          EQU  >8334
-isr_hit_count             EQU  >8336
-
 * PIXELROW.asm
 * >40 bytes - the timer-ISR-table
 * This table has space for >10 entries
@@ -44,36 +39,10 @@ PREVKY        EQU  >A416      * The previously detected key press.
 *                             * Wait a while before letting this key
 *                             * repeat.  (1 byte)
 
-* FOURPARTTEXT.asm
-document_text       EQU  >B000
-document_text_end   EQU  document_text+>400
-document_font       EQU  >B400
-document_font_end   EQU  document_font+>400
-doc_display_index:
-       EQU  >B800
-screen_draw_position:
-       EQU  >B802
-line_break_index:
-       EQU  >B804
-word_wrap_needed:
-       EQU  >B806
-doc_cursor_position:
-       EQU  >B808
-dropped_frames:
-       EQU  >B80A
-line_breaks:
-       EQU  >B810      * 24 words (>18 words)
-request_cursor_display:
-       EQU  >B840
-cursor_screen_location:
-       EQU  >B842
-current_font:
-       EQU  >B844      * 1 byte
 
 * VDP.asm
 screen_copy:
        EQU  >C000      * >300 bytes
-
 
 
 *

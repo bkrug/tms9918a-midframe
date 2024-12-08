@@ -14,6 +14,7 @@
 *
        COPY '..\EQUCPUADR.asm'
        COPY '..\EQUVAR.asm'
+       COPY 'EQUDEMO.asm'       
 
 * TODO: PIXELROW.asm needs a sprite to be defined,
 * and it neeeds to know which sprite to use.
