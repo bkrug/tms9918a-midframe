@@ -29,9 +29,6 @@ def link_main_files(linked_file, object_files):
     os.system(rpk_link_2)
 
 #Assemble Src and Tests
-#files = os.scandir(".//Src")
-
-#for file_obj in files:
 for subdir, dirs, files in os.walk(".\\Src"):
     for file in files:
         #print os.path.join(subdir, file)
@@ -43,18 +40,28 @@ for subdir, dirs, files in os.walk(".\\Src"):
         assemble_command_2 = assemble_command_1.format(source = filepath, list = list_file, object = obj_file)
         os.system(assemble_command_2)
 
-print("Linking Main Program")
+print("Linking 1st Demo Cartridge")
 temp_files = [
     "CART",
-    "MAIN",
     "VDP",
     "PIXELROW",
+    "KEY",
+    "MAIN",
     "TILES",
     "FOURPARTTEXT",
-    "FONTS",
-    "KEY"
+    "FONTS"
 ]
-link_main_files("midFrame.bin", temp_files)
+link_main_files("midFrame.C.bin", temp_files)
+
+print("Linking 2nd Demo Cartridge")
+temp_files2 = [
+    "GAMECART",
+    "VDP",
+    "PIXELROW",
+    "KEY",
+    "GAMELOOP"
+]
+link_main_files("parallaxScrolling.C.bin", temp_files2)
 
 #Clean up
 # for file in glob.glob(WORK_FOLDER + "*.lst"):
