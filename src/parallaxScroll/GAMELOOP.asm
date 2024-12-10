@@ -147,5 +147,32 @@ row_of_tiles_loop
        C    R2,R0
        JL   upper_screen_loop
 *
+* Write lower screen
+*
+* Let R1 = address of tile map
+       LI   R1,lower_tile_map
+* Let R2 = end of map
+       MOV  R1,R2
+       AI   R2,4*8+6
+* Let R3 = row within tile map
+       MOV  R1,R3
+       AI   R3,6
+lower_screen_loop
+* Let R4 = number of repetitions per screen
+       LI   R4,32/4
+* Write one row of repeating tiles
+repeating_tiles_loop
+       MOVB *R3+,@VDPWD
+       MOVB *R3+,@VDPWD
+       MOVB *R3+,@VDPWD
+       MOVB *R3+,@VDPWD
+       AI   R3,-4
+       DEC  R4
+       JNE  repeating_tiles_loop
+* Advance to next row
+       AI   R3,4
+       C    R3,R2
+       JL   lower_screen_loop
+*
        MOV  *R10+,R11
        RT
