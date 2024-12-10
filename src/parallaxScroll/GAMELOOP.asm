@@ -5,6 +5,7 @@
        REF  unscrolled_patterns
        REF  upper_tile_map
        REF  lower_tile_map
+       REF  color_groups
 
        COPY '..\EQUVAR.asm'
        COPY '..\EQUCPUADR.asm'
@@ -13,13 +14,17 @@ parallax_demo
        LWPI WS
        LI   R10,STACK
 * Pattern table
-       LI   R0,>0400
+       LI   R0,>0401
        BL   @VDPREG
 * Screen Image table
        LI   R0,>0209
        BL   @VDPREG
+* Color table
+       LI   R0,>0310
+       BL   @VDPREG
 *
        BL   @write_patterns_to_vdp
+       BL   @write_colors
        BL   @write_part_of_screen
 *
 JMP    JMP  JMP
@@ -40,6 +45,7 @@ pattern_table_loop:
 * Let R3 = end of transition_chars
        LI   R2,transition_chars
        MOV  @-2(R2),R3
+       SLA  R3,1
        A    R2,R3
 * Let R0 = shift amount
 * Determine this by dividing the pattern table's address by >800
@@ -65,7 +71,10 @@ bit_shift_loop:
        SRL  R8,8
        MOVB *R5+,R8
 * Shift
+       MOV  R0,R0
+       JEQ  !
        SLA  R8,0
+!
 * Write to VDP RAM
        MOVB R8,@VDPWD
 * Is this the end of one pattern?
@@ -85,6 +94,32 @@ bit_shift_loop:
        MOV  *R10+,R11
        RT
 
+*
+*
+*
+write_colors
+       DECT R10
+       MOV  R11,*R10
+* Let R1 = address within color table
+* Let R2 = end of color table in ROM
+       LI   R1,color_groups
+       MOV  @-2(R1),R2
+       A    R1,R2
+* Set VDP address
+       LI   R0,>0400
+       BL   @VDPADR
+*
+color_loop
+       MOVB *R1+,@VDPWD
+       C    R1,R2
+       JL   color_loop
+*
+       MOV  *R10+,R11
+       RT
+
+*
+*
+*
 write_part_of_screen
        DECT R10
        MOV  R11,*R10

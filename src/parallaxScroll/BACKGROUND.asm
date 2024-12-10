@@ -1,5 +1,5 @@
        DEF  unscrolled_patterns
-       DEF  color_gropus
+       DEF  color_groups
        DEF  transition_chars
        DEF  inverted_chars
        DEF  upper_tile_map
@@ -22,7 +22,7 @@
        COPY 'BACKGROUNDMAP.asm'
 
 unscrolled_patterns     EQU  PAT0
-color_gropus            EQU  CLRSET
+color_groups            EQU  CLRSET
 transition_chars        EQU  TCHARS
 inverted_chars          EQU  ICHARS
 upper_tile_map          EQU  MS0
