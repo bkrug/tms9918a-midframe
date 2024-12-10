@@ -27,7 +27,7 @@ parallax_demo
        BL   @write_colors
        BL   @write_part_of_screen
 *
-JMP    JMP  JMP
+END    JMP  END
 
 *
 * Shift patterns and copy them to VDP RAM
@@ -80,8 +80,6 @@ bit_shift_loop:
 * Is this the end of one pattern?
        C    R5,R7
        JL   bit_shift_loop
-* Yes, advance to next transition pairs
-       INCT R2
 * Was that the last transition pair?
        C    R2,R3
        JL   transition_pair_loop
