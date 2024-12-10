@@ -56,9 +56,9 @@ link_main_files("midFrame.C.bin", temp_files)
 print("Linking 2nd Demo Cartridge")
 temp_files2 = [
     "GAMECART",
-    "VDP",
     "PIXELROW",
-    "KEY",
+    "VDP",
+    "BACKGROUND",
     "GAMELOOP"
 ]
 link_main_files("parallaxScrolling.C.bin", temp_files2)
