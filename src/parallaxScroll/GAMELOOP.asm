@@ -1,8 +1,10 @@
        DEF  parallax_demo
 *
-       REF  VDPADR
+       REF  VDPADR,VDPREG
        REF  transition_chars
        REF  unscrolled_patterns
+       REF  upper_tile_map
+       REF  lower_tile_map
 
        COPY '..\EQUVAR.asm'
        COPY '..\EQUCPUADR.asm'
@@ -10,8 +12,15 @@
 parallax_demo
        LWPI WS
        LI   R10,STACK
+* Pattern table
+       LI   R0,>0400
+       BL   @VDPREG
+* Screen Image table
+       LI   R0,>0209
+       BL   @VDPREG
 *
        BL   @write_patterns_to_vdp
+       BL   @write_part_of_screen
 *
 JMP    JMP  JMP
 
@@ -73,5 +82,37 @@ bit_shift_loop:
        CI   R4,>4000
        JL   pattern_table_loop
 * Yes, return to caller
+       MOV  *R10+,R11
+       RT
+
+write_part_of_screen
+       DECT R10
+       MOV  R11,*R10
+*
+       LI   R0,>2400
+       BL   @VDPADR
+* Let R1 = address of tile map
+       LI   R1,upper_tile_map
+* Let R2 = row within tile map
+       MOV  R1,R2
+       AI   R2,6
+upper_screen_loop
+* Let R3 = after the point we can fit on screen
+       MOV  R2,R3
+       AI   R3,32
+* Write bytes to VDP RAM
+row_of_tiles_loop
+       MOVB *R2+,@VDPWD
+       C    R2,R3
+       JL   row_of_tiles_loop
+* Advance to next row
+       AI   R2,-32
+       A    *R1,R2
+* Was that the last row?
+       MOV  R1,R0
+       AI   R0,>40*>10+6
+       C    R2,R0
+       JL   upper_screen_loop
+*
        MOV  *R10+,R11
        RT
