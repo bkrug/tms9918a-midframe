@@ -365,7 +365,7 @@ MD0    DATA >5858,>5858,>5858,>5858    ;
        DATA >0A0A,>0A0A,>0A0A,>0A0A    ;
        DATA >0A0A,>0A0F,>100D,>0E0A    ;
        DATA >0A0A,>0A0A,>0A0A,>0A0A    ;
-       DATA >0F11,>7E48,>497E,>7E12    ;
+       DATA >0F11,>7E7E,>4849,>7E12    ;
 * -- Map Row 13 --                      
        DATA >4A38,>393A,>3A3A,>3A3A    ;
        DATA >4B7E,>3018,>191A,>1A1A    ;
@@ -374,7 +374,7 @@ MD0    DATA >5858,>5858,>5858,>5858    ;
        DATA >3A3A,>3A3A,>3A3A,>3A3A    ;
        DATA >3A3A,>3A4B,>7E30,>1819    ;
        DATA >1A1A,>1A1A,>1A1A,>1A1A    ;
-       DATA >317E,>7E13,>147E,>7E7E    ;
+       DATA >317E,>7E7E,>1314,>7E7E    ;
 * -- Map Row 14 --                      
        DATA >4A38,>3B3C,>3D3E,>3F40    ;
        DATA >4B7E,>3018,>1B1C,>1D1E    ;
@@ -383,7 +383,7 @@ MD0    DATA >5858,>5858,>5858,>5858    ;
        DATA >3F40,>413C,>3D3E,>3F40    ;
        DATA >413C,>3D4B,>7E30,>181B    ;
        DATA >2223,>241D,>1E1F,>2526    ;
-       DATA >317E,>7E15,>167E,>7E7E    ;
+       DATA >317E,>7E7E,>1516,>7E7E    ;
 * -- Map Row 15 --                      
        DATA >4A38,>4243,>443E,>4546    ;
        DATA >4B7E,>3018,>2728,>291E    ;
@@ -392,7 +392,7 @@ MD0    DATA >5858,>5858,>5858,>5858    ;
        DATA >4546,>4743,>443E,>4546    ;
        DATA >4743,>444B,>7E30,>1827    ;
        DATA >2D2E,>2F29,>1E2A,>2B1A    ;
-       DATA >317E,>7E15,>167E,>7E7E    ;
+       DATA >317E,>7E7E,>1516,>7E7E    ;
 * == Map #1 ==                          
 MC1    DATA 0                          ;
 MS1    DATA >0004,>0008,>0020          ; Width, Height, Size
