@@ -62,12 +62,15 @@ PAT57  DATA >FF01,>FDFD,>FDFD,>FDFD    ; #39 (53)
 PAT58  DATA >EDDD,>FDFD,>0000,>FFFF    ; #3A (54)
 PAT59  DATA >0303,>0303,>0303,>0303    ; #3B (56)
 PAT60  DATA >0303,>0323,>7323,>0303    ; #3C (57)
-PAT61  DATA >FF00,>FFFF,>FFF7,>EFFF    ; #3D (78)
-PAT62  DATA >FFFF,>FFFF,>0000,>FFFF    ; #3E (79)
-PAT63  DATA >E3DD,>BEBE,>BEDD,>E3FF    ; #3F (7A)
-PAT64  DATA >7F7F,>7F7F,>7F7F,>7F7F    ; #40 (7B)
-PAT65  DATA >0000,>0000,>0000,>0000    ; #41 (7C)
-PAT66  DATA >0000,>0000,>0000,>0000    ; #42 (80)
+PAT61  DATA >0000,>0018,>3C3C,>3C18    ; #3D (58)
+PAT62  DATA >FF00,>FFFF,>FFF7,>EFFF    ; #3E (78)
+PAT63  DATA >FFFF,>FFFF,>0000,>FFFF    ; #3F (79)
+PAT64  DATA >E3DD,>BEBE,>BEDD,>E3FF    ; #40 (7A)
+PAT65  DATA >7F7F,>7F7F,>7F7F,>7F7F    ; #41 (7B)
+PAT66  DATA >0000,>0000,>0000,>0000    ; #42 (7C)
+PAT67  DATA >0000,>0000,>0000,>0000    ; #43 (80)
+PAT68  DATA >2418,>1818,>1818,>1818    ; #44 (89)
+PAT69  DATA >1818,>1818,>1818,>1818    ; #45 (8A)
 ****************************************
 * Colorset Definitions                  
 ****************************************
@@ -100,35 +103,35 @@ TCHARS BYTE >00,>00                    ; #00 color 1/6
        BYTE >30,>35                    ; #10 color 1/C
        BYTE >30,>2B                    ; #11 color 1/C
        BYTE >2B,>35                    ; #12 color 1/C
-       BYTE >FF,>FF                    ; #13 unused
-       BYTE >FF,>FF                    ; #14 unused
-       BYTE >FF,>FF                    ; #15 unused
-       BYTE >FF,>FF                    ; #16 unused
+       BYTE >2B,>44                    ; #13 color 1/C
+       BYTE >44,>2B                    ; #14 color 1/C
+       BYTE >2B,>45                    ; #15 color 1/C
+       BYTE >45,>2B                    ; #16 color 1/C
        BYTE >FF,>FF                    ; #17 unused
-       BYTE >36,>40                    ; #18 color 4/1
-       BYTE >40,>36                    ; #19 color 4/1
+       BYTE >36,>41                    ; #18 color 4/1
+       BYTE >41,>36                    ; #19 color 4/1
        BYTE >36,>36                    ; #1A color 4/1
-       BYTE >40,>37                    ; #1B color 4/1
+       BYTE >41,>37                    ; #1B color 4/1
        BYTE >37,>39                    ; #1C color 4/1
        BYTE >39,>36                    ; #1D color 4/1
-       BYTE >36,>41                    ; #1E color 4/1
-       BYTE >41,>3B                    ; #1F color 4/1
+       BYTE >36,>42                    ; #1E color 4/1
+       BYTE >42,>3B                    ; #1F color 4/1
        BYTE >3B,>36                    ; #20 color 4/1
        BYTE >36,>37                    ; #21 color 4/1
-       BYTE >37,>3D                    ; #22 color 4/1
-       BYTE >3D,>3D                    ; #23 color 4/1
-       BYTE >3D,>39                    ; #24 color 4/1
-       BYTE >3B,>3F                    ; #25 color 4/1
-       BYTE >3F,>36                    ; #26 color 4/1
-       BYTE >40,>38                    ; #27 color 4/1
+       BYTE >37,>3E                    ; #22 color 4/1
+       BYTE >3E,>3E                    ; #23 color 4/1
+       BYTE >3E,>39                    ; #24 color 4/1
+       BYTE >3B,>40                    ; #25 color 4/1
+       BYTE >40,>36                    ; #26 color 4/1
+       BYTE >41,>38                    ; #27 color 4/1
        BYTE >38,>3A                    ; #28 color 4/1
        BYTE >3A,>36                    ; #29 color 4/1
-       BYTE >41,>3C                    ; #2A color 4/1
+       BYTE >42,>3C                    ; #2A color 4/1
        BYTE >3C,>36                    ; #2B color 4/1
        BYTE >36,>38                    ; #2C color 4/1
-       BYTE >38,>3E                    ; #2D color 4/1
-       BYTE >3E,>3E                    ; #2E color 4/1
-       BYTE >3E,>3A                    ; #2F color 4/1
+       BYTE >38,>3F                    ; #2D color 4/1
+       BYTE >3F,>3F                    ; #2E color 4/1
+       BYTE >3F,>3A                    ; #2F color 4/1
        BYTE >2B,>36                    ; #30 color 4/C
        BYTE >36,>2B                    ; #31 color 4/C
        BYTE >FF,>FF                    ; #32 unused
@@ -143,20 +146,20 @@ TCHARS BYTE >00,>00                    ; #00 color 1/6
        BYTE >0C,>08                    ; #3B color B/1
        BYTE >08,>0A                    ; #3C color B/1
        BYTE >0A,>07                    ; #3D color B/1
-       BYTE >07,>42                    ; #3E color B/1
-       BYTE >42,>0D                    ; #3F color B/1
+       BYTE >07,>43                    ; #3E color B/1
+       BYTE >43,>0D                    ; #3F color B/1
        BYTE >0D,>07                    ; #40 color B/1
        BYTE >07,>08                    ; #41 color B/1
        BYTE >0C,>09                    ; #42 color B/1
        BYTE >09,>0B                    ; #43 color B/1
        BYTE >0B,>07                    ; #44 color B/1
-       BYTE >42,>0E                    ; #45 color B/1
+       BYTE >43,>0E                    ; #45 color B/1
        BYTE >0E,>07                    ; #46 color B/1
        BYTE >07,>09                    ; #47 color B/1
-       BYTE >2B,>07                    ; #48 color B/C
-       BYTE >07,>2B                    ; #49 color B/C
-       BYTE >FF,>FF                    ; #4A unused
-       BYTE >FF,>FF                    ; #4B unused
+       BYTE >2B,>3D                    ; #48 color B/C
+       BYTE >3D,>2B                    ; #49 color B/C
+       BYTE >2B,>07                    ; #4A color B/C
+       BYTE >07,>2B                    ; #4B color B/C
        BYTE >FF,>FF                    ; #4C unused
        BYTE >FF,>FF                    ; #4D unused
        BYTE >FF,>FF                    ; #4E unused
@@ -349,47 +352,47 @@ MD0    DATA >5858,>5858,>5858,>5858    ;
        DATA >0809,>0A0A,>0A0A,>0A0B    ;
        DATA >0C7E,>0809,>0A0A,>0A0A    ;
        DATA >0A0A,>0A0A,>0B0C,>7E7E    ;
-       DATA >7E7E,>7E7E,>7E7E,>7E7E    ;
-       DATA >7E08,>090A,>0A0A,>0A0A    ;
+       DATA >7E7E,>7E7E,>0809,>0A0A    ;
+       DATA >0A0A,>0A0A,>0A0A,>0A0A    ;
+       DATA >0A0A,>0B0C,>7E08,>090A    ;
        DATA >0A0A,>0A0A,>0A0A,>0A0B    ;
-       DATA >0C7E,>0809,>0A0A,>0A0A    ;
-       DATA >0A0A,>0A0A,>0B0C,>7E7E    ;
+       DATA >0C7E,>7E7E,>7E7E,>7E7E    ;
 * -- Map Row 12 --                      
        DATA >0D0E,>0A0A,>0A0A,>0A0A    ;
        DATA >0F10,>0D0E,>0A0A,>0A0A    ;
        DATA >0A0A,>0A0A,>0A0F,>117E    ;
-       DATA >7E7E,>7E7E,>7E7E,>7E7E    ;
-       DATA >120D,>0E0A,>0A0A,>0A0A    ;
+       DATA >4849,>7E12,>0D0E,>0A0A    ;
        DATA >0A0A,>0A0A,>0A0A,>0A0A    ;
-       DATA >0F10,>0D0E,>0A0A,>0A0A    ;
-       DATA >0A0A,>0A0A,>0A0F,>1112    ;
+       DATA >0A0A,>0A0F,>100D,>0E0A    ;
+       DATA >0A0A,>0A0A,>0A0A,>0A0A    ;
+       DATA >0F11,>7E48,>497E,>7E12    ;
 * -- Map Row 13 --                      
-       DATA >4838,>393A,>3A3A,>3A3A    ;
-       DATA >497E,>3018,>191A,>1A1A    ;
+       DATA >4A38,>393A,>3A3A,>3A3A    ;
+       DATA >4B7E,>3018,>191A,>1A1A    ;
        DATA >1A1A,>1A1A,>1A31,>7E7E    ;
-       DATA >7E7E,>7E7E,>7E7E,>7E7E    ;
-       DATA >7E48,>3839,>3A3A,>3A3A    ;
+       DATA >1314,>7E7E,>4A38,>393A    ;
        DATA >3A3A,>3A3A,>3A3A,>3A3A    ;
-       DATA >497E,>3018,>191A,>1A1A    ;
-       DATA >1A1A,>1A1A,>1A31,>7E7E    ;
+       DATA >3A3A,>3A4B,>7E30,>1819    ;
+       DATA >1A1A,>1A1A,>1A1A,>1A1A    ;
+       DATA >317E,>7E13,>147E,>7E7E    ;
 * -- Map Row 14 --                      
-       DATA >4838,>3B3C,>3D3E,>3F40    ;
-       DATA >497E,>3018,>1B1C,>1D1E    ;
+       DATA >4A38,>3B3C,>3D3E,>3F40    ;
+       DATA >4B7E,>3018,>1B1C,>1D1E    ;
        DATA >1F20,>211C,>1D31,>7E7E    ;
-       DATA >7E7E,>7E7E,>7E7E,>7E7E    ;
-       DATA >7E48,>3839,>3E3F,>4041    ;
-       DATA >3C3D,>3E3F,>4041,>3C3D    ;
-       DATA >497E,>3018,>1B22,>2324    ;
-       DATA >1D1E,>1F25,>2631,>7E7E    ;
+       DATA >1516,>7E7E,>4A38,>393E    ;
+       DATA >3F40,>413C,>3D3E,>3F40    ;
+       DATA >413C,>3D4B,>7E30,>181B    ;
+       DATA >2223,>241D,>1E1F,>2526    ;
+       DATA >317E,>7E15,>167E,>7E7E    ;
 * -- Map Row 15 --                      
-       DATA >4838,>4243,>443E,>4546    ;
-       DATA >497E,>3018,>2728,>291E    ;
+       DATA >4A38,>4243,>443E,>4546    ;
+       DATA >4B7E,>3018,>2728,>291E    ;
        DATA >2A2B,>2C28,>2931,>7E7E    ;
-       DATA >7E7E,>7E7E,>7E7E,>7E7E    ;
-       DATA >7E48,>3839,>3E45,>4647    ;
-       DATA >4344,>3E45,>4647,>4344    ;
-       DATA >497E,>3018,>272D,>2E2F    ;
-       DATA >291E,>2A2B,>1A31,>7E7E    ;
+       DATA >1516,>7E7E,>4A38,>393E    ;
+       DATA >4546,>4743,>443E,>4546    ;
+       DATA >4743,>444B,>7E30,>1827    ;
+       DATA >2D2E,>2F29,>1E2A,>2B1A    ;
+       DATA >317E,>7E15,>167E,>7E7E    ;
 * == Map #1 ==                          
 MC1    DATA 0                          ;
 MS1    DATA >0004,>0008,>0020          ; Width, Height, Size
