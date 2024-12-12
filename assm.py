@@ -31,14 +31,14 @@ def link_main_files(linked_file, object_files):
 #Assemble Src and Tests
 for subdir, dirs, files in os.walk(".\\Src"):
     for file in files:
-        #print os.path.join(subdir, file)
-        filepath = subdir + os.sep + file
-        print("Assembling " + filepath)
-        list_file = get_work_file(file.replace(".asm", ".lst"))
-        obj_file = get_work_file(file.replace(".asm", ".obj"))
-        assemble_command_1 = "xas99.py {source} -S -R -L {list} -o {object}"
-        assemble_command_2 = assemble_command_1.format(source = filepath, list = list_file, object = obj_file)
-        os.system(assemble_command_2)
+        if file.startswith('EQU') == False and file.endswith('MAP.asm') == False:
+            filepath = subdir + os.sep + file
+            print("Assembling " + filepath)
+            list_file = get_work_file(file.replace(".asm", ".lst"))
+            obj_file = get_work_file(file.replace(".asm", ".obj"))
+            assemble_command_1 = "xas99.py {source} -S -R -L {list} -o {object}"
+            assemble_command_2 = assemble_command_1.format(source = filepath, list = list_file, object = obj_file)
+            os.system(assemble_command_2)
 
 print("Linking 1st Demo Cartridge")
 temp_files = [

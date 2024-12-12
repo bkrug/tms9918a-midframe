@@ -24,6 +24,5 @@
 unscrolled_patterns     EQU  PAT0
 color_groups            EQU  CLRSET
 transition_chars        EQU  TCHARS
-inverted_chars          EQU  ICHARS
 upper_tile_map          EQU  MS0
 lower_tile_map          EQU  MS1
