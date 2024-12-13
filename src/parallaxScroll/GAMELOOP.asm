@@ -32,7 +32,8 @@ parallax_demo
        BL   @write_patterns_to_vdp
        BL   @write_colors
        BL   @write_part_of_screen
-*
+       BL   @write_lower_screen
+* Write empty sprite atrribute list
        LI   R0,>80
        BL   @VDPADR
        LI   R0,>D000
@@ -162,8 +163,21 @@ row_of_tiles_loop
        C    R2,R0
        JL   upper_screen_loop
 *
+       MOV  *R10+,R11
+       RT
+
+*
 * Write lower screen
 *
+write_lower_screen
+       DECT R10
+       MOV  R11,*R10
+* Let R6 = address within VDP RAM
+       LI   R6,>2000+(16*32)
+lower_screen_table_loop
+* Set address within screen image table
+       MOV  R6,R0
+       BL   @VDPADR
 * Let R1 = address of tile map
        LI   R1,lower_tile_map
 * Let R2 = end of map
@@ -203,6 +217,10 @@ repeating_tiles_loop
        AI   R3,4
        C    R3,R2
        JL   lower_screen_loop
+* Avance to next screen image table
+       AI   R6,>800
+       CI   R6,>4000
+       JL   lower_screen_table_loop
 *
        MOV  *R10+,R11
        RT
