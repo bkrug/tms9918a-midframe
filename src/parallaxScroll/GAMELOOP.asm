@@ -10,6 +10,9 @@
        COPY '..\EQUVAR.asm'
        COPY '..\EQUCPUADR.asm'
 
+tile_code_offset   EQU  >60
+pattern_offset     EQU  8*tile_code_offset
+
 parallax_demo
        LWPI WS
        LI   R10,STACK
@@ -17,15 +20,23 @@ parallax_demo
        LI   R0,>0401
        BL   @VDPREG
 * Screen Image table
-       LI   R0,>0209
+       LI   R0,>0208
        BL   @VDPREG
 * Color table
-       LI   R0,>0310
+       LI   R0,>0300
+       BL   @VDPREG
+* Sprite Attribute Table
+       LI   R0,>0501
        BL   @VDPREG
 *
        BL   @write_patterns_to_vdp
        BL   @write_colors
        BL   @write_part_of_screen
+*
+       LI   R0,>80
+       BL   @VDPADR
+       LI   R0,>D000
+       MOVB R0,@VDPWD
 *
 END    JMP  END
 
@@ -36,7 +47,7 @@ write_patterns_to_vdp
        DECT R0
        MOV  R11,*R10
 * Let R4 = address of current pattern table
-       CLR  R4
+       LI   R4,pattern_offset
 pattern_table_loop:
 * Set VDP write address
        MOV  R4,R0
@@ -104,7 +115,7 @@ write_colors
        MOV  @-2(R1),R2
        A    R1,R2
 * Set VDP address
-       LI   R0,>0400
+       LI   R0,tile_code_offset/8
        BL   @VDPADR
 *
 color_loop
@@ -122,7 +133,7 @@ write_part_of_screen
        DECT R10
        MOV  R11,*R10
 *
-       LI   R0,>2400
+       LI   R0,>2000
        BL   @VDPADR
 * Let R1 = address of tile map
        LI   R1,upper_tile_map
@@ -133,9 +144,13 @@ upper_screen_loop
 * Let R3 = after the point we can fit on screen
        MOV  R2,R3
        AI   R3,32
+* Let R5 = a constant
+       LI   R5,tile_code_offset*>100
 * Write bytes to VDP RAM
 row_of_tiles_loop
-       MOVB *R2+,@VDPWD
+       MOVB *R2+,R0
+       AB   R5,R0
+       MOVB R0,@VDPWD
        C    R2,R3
        JL   row_of_tiles_loop
 * Advance to next row
@@ -160,12 +175,27 @@ row_of_tiles_loop
 lower_screen_loop
 * Let R4 = number of repetitions per screen
        LI   R4,32/4
+* Let R5 = a constant
+       LI   R5,tile_code_offset*>100
 * Write one row of repeating tiles
 repeating_tiles_loop
-       MOVB *R3+,@VDPWD
-       MOVB *R3+,@VDPWD
-       MOVB *R3+,@VDPWD
-       MOVB *R3+,@VDPWD
+*
+       MOVB *R3+,R0
+       AB   R5,R0
+       MOVB R0,@VDPWD
+*
+       MOVB *R3+,R0
+       AB   R5,R0
+       MOVB R0,@VDPWD
+*
+       MOVB *R3+,R0
+       AB   R5,R0
+       MOVB R0,@VDPWD
+*
+       MOVB *R3+,R0
+       AB   R5,R0
+       MOVB R0,@VDPWD
+*
        AI   R3,-4
        DEC  R4
        JNE  repeating_tiles_loop
