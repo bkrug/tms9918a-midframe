@@ -1,21 +1,38 @@
        DEF  parallax_demo
 *
        REF  VDPADR,VDPREG
+*
        REF  transition_chars
        REF  unscrolled_patterns
        REF  upper_tile_map
        REF  lower_tile_map
        REF  color_groups
+*
+       REF  coinc_init_timer_loop
+       REF  block_vdp_interrupt
+       REF  restart_timer_loop
 
+       COPY '.\EQUGAME.asm'
        COPY '..\EQUVAR.asm'
        COPY '..\EQUCPUADR.asm'
 
 tile_code_offset   EQU  >60
 pattern_offset     EQU  8*tile_code_offset
 
+scan_line_interrupts
+       DATA 16*8+0,config_region_4
+scan_line_interrups_end
+
+
 parallax_demo
        LWPI WS
        LI   R10,STACK
+       LIMI 0
+* Specify the location of the table of timer ISRs
+       LI   R0,scan_line_interrupts
+       LI   R1,scan_line_interrups_end
+       LI   R2,config_region_0
+       BL   @coinc_init_timer_loop
 * Pattern table
        LI   R0,>0401
        BL   @VDPREG
@@ -39,7 +56,48 @@ parallax_demo
        LI   R0,>D000
        MOVB R0,@VDPWD
 *
-END    JMP  END
+game_loop
+* Disable interrupts
+       LIMI 0
+* Block thread until then end of a frame
+* Fool TI-99/4a into thinking that later interrupts are VDP interrupts.
+       BLWP @block_vdp_interrupt
+* Tell timer_isr to look at the begging of the table again
+       BL   @restart_timer_loop
+* Enable interrupts
+       LIMI 2
+* Increase scroll amount
+       LI   R0,16
+       A    R0,@x_pos_4
+       LI   R0,8
+       A    R0,@x_pos_3
+       LI   R0,4
+       A    R0,@x_pos_2
+       LI   R0,2
+       A    R0,@x_pos_1
+* Don't end game loop until all timer-interrupts have been triggered
+!      MOV  @all_lines_scanned,R0
+       JEQ  -!
+*
+       JMP  game_loop
+
+*
+config_region_0
+       DECT R10
+       MOV  R11,*R10
+* Set Pattern table
+*
+       MOV  *R10+,R11
+       RT
+
+config_region_4
+       DECT R10
+       MOV  R11,*R10
+* Set Pattern table
+*
+       MOV  *R10+,R11
+       RT
+
 
 *
 * Shift patterns and copy them to VDP RAM
