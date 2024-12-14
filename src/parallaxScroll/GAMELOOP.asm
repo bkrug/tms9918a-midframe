@@ -73,7 +73,7 @@ game_loop
        A    R0,@x_pos_3
        LI   R0,4
        A    R0,@x_pos_2
-       LI   R0,2
+       LI   R0,1
        A    R0,@x_pos_1
 * Don't end game loop until all timer-interrupts have been triggered
 !      MOV  @all_lines_scanned,R0
@@ -86,6 +86,11 @@ config_region_0
        DECT R10
        MOV  R11,*R10
 * Set Pattern table
+       LI   R0,>0400
+       BL   @VDPREG
+* Set screen image table
+       LI   R0,>0208
+       BL   @VDPREG
 *
        MOV  *R10+,R11
        RT
@@ -93,7 +98,22 @@ config_region_0
 config_region_4
        DECT R10
        MOV  R11,*R10
+*
+       LIMI 0
 * Set Pattern table
+       MOV  @x_pos_4,R0
+       ANDI R0,>0070
+       SRL  R0,4
+       AI   R0,>0400
+       BL   @VDPREG
+* Set screen image table
+       MOV  @x_pos_4,R0
+       ANDI R0,>0180
+       SRL  R0,3+4-1
+       AI   R0,>0208
+       BL   @VDPREG
+*
+       LIMI 2
 *
        MOV  *R10+,R11
        RT
