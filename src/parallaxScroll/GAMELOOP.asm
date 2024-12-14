@@ -172,55 +172,72 @@ row_of_tiles_loop
 write_lower_screen
        DECT R10
        MOV  R11,*R10
-* Let R6 = address within VDP RAM
-       LI   R6,>2000+(16*32)
-lower_screen_table_loop
+* Let R1 = address within VDP RAM
+* Let R2 = left-most column of screen
+       LI   R1,>2000+(16*32)
+       CLR  R2
+lower_screen_image_loop
 * Set address within screen image table
-       MOV  R6,R0
+       MOV  R1,R0
        BL   @VDPADR
-* Let R1 = address of tile map
+* Draw one screen image table
+       MOV  R2,R0
+       BL   @write_one_screen_table
+* Continue with next screen image table
+       AI   R1,>800
+       INC  R2
+       CI   R2,4
+       JL   lower_screen_image_loop
+*
+       MOV  *R10+,R11
+       RT
+
+*
+* Input:
+*   R0 - left-most column
+*   VDP RAM address already set
+write_one_screen_table
+       DECT R10
+       MOV  R11,*R10
+       DECT R10
+       MOV  R2,*R10
+       DECT R10
+       MOV  R1,*R10
+* Let R1 = address of left-most character in the current row
        LI   R1,lower_tile_map
-* Let R2 = end of map
+       AI   R1,6
+* Let R2 = end of row in map (but the row is supposed to get repeated several times)
        MOV  R1,R2
-       AI   R2,4*8+6
-* Let R3 = row within tile map
+       AI   R2,4
+lower_table_loop
+* Let R3 = address of current character in the row
+* Let R4 = number of characters to write in this row
        MOV  R1,R3
-       AI   R3,6
-lower_screen_loop
-* Let R4 = number of repetitions per screen
-       LI   R4,32/4
-* Let R5 = a constant
-       LI   R5,tile_code_offset*>100
-* Write one row of repeating tiles
-repeating_tiles_loop
-*
-       MOVB *R3+,R0
-       AB   R5,R0
-       MOVB R0,@VDPWD
-*
-       MOVB *R3+,R0
-       AB   R5,R0
-       MOVB R0,@VDPWD
-*
-       MOVB *R3+,R0
-       AB   R5,R0
-       MOVB R0,@VDPWD
-*
-       MOVB *R3+,R0
-       AB   R5,R0
-       MOVB R0,@VDPWD
-*
-       AI   R3,-4
-       DEC  R4
-       JNE  repeating_tiles_loop
-* Advance to next row
-       AI   R3,4
+       A    R0,R3
+       LI   R4,32
+lower_row_loop
+* Write one character
+       MOVB *R3+,R5
+       AI   R5,tile_code_offset*>100
+       MOVB R5,@VDPWD
+* Select next character
        C    R3,R2
-       JL   lower_screen_loop
-* Avance to next screen image table
-       AI   R6,>800
-       CI   R6,>4000
-       JL   lower_screen_table_loop
-*
+       JL   !
+       MOV  R1,R3
+!
+* Was this the last character in the row?
+       DEC  R4
+       JNE  lower_row_loop
+* Yes, advance to next row
+       MOV  R2,R1
+       AI   R2,4
+* Was this the last row?
+       LI   R5,lower_tile_map
+       AI   R5,8*4+6
+       C    R1,R5
+       JL   lower_table_loop
+* Yes, return
+       MOV  *R10+,R1
+       MOV  *R10+,R2
        MOV  *R10+,R11
        RT
