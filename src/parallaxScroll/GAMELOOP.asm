@@ -35,6 +35,11 @@ parallax_demo
        LWPI WS
        LI   R10,STACK
        LIMI 0
+* Set everything to zero
+       LI   R0,>A000
+!      CLR  *R0+
+       MOV  R0,R0
+       JNE  -!
 * Specify the location of the table of timer ISRs
        LI   R0,scan_line_interrupts
        LI   R1,scan_line_interrups_end
