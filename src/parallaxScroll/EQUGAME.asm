@@ -4,18 +4,21 @@
 * Any non-scrolling portions are omitted.
 *
 x_pos_1                  EQU  >B000
-x_pos_2                  EQU  >B002
-x_pos_3                  EQU  >B004
-x_pos_4                  EQU  >B006
+x_pos_2                  EQU  x_pos_1+2
+x_pos_3                  EQU  x_pos_1+4
+x_pos_4                  EQU  x_pos_1+6
 *
 * Selected pattern table for different portions of screen
 *
 patt_1                   EQU  >B008
-patt_2                   EQU  >B009
-patt_3                   EQU  >B00A
-patt_4                   EQU  >B00B
+patt_2                   EQU  patt_1+2
+patt_3                   EQU  patt_1+4
+patt_4                   EQU  patt_1+6
 *
-* Next screen image table
+* Screen image table
 * >08,>0A,>0C, or >0E
 *
-next_screen_image_table  EQU  >B00C
+current_upper_screen  EQU  >B010
+next_upper_screen     EQU  current_upper_screen+2
+current_lower_screen  EQU  current_upper_screen+4
+next_lower_screen     EQU  current_upper_screen+6

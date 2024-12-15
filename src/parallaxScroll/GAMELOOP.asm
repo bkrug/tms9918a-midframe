@@ -56,6 +56,10 @@ parallax_demo
        LI   R0,>D000
        MOVB R0,@VDPWD
 *
+       LI   R0,>0208
+       MOV  R0,@current_upper_screen
+       MOV  R0,@current_lower_screen
+*
 game_loop
 * Disable interrupts
        LIMI 0
@@ -75,9 +79,21 @@ game_loop
        A    R0,@x_pos_2
        LI   R0,1
        A    R0,@x_pos_1
+* Calculate screen image table register values
+       LI   R0,>0208
+       MOV  R0,@next_upper_screen
+*
+       MOV  @x_pos_4,R0
+       ANDI R0,>0180
+       SRL  R0,3+4-1
+       AI   R0,>0208
+       MOV  R0,@next_lower_screen
 * Don't end game loop until all timer-interrupts have been triggered
 !      MOV  @all_lines_scanned,R0
        JEQ  -!
+* Update VDP register Values
+       MOV  @next_upper_screen,@current_upper_screen
+       MOV  @next_lower_screen,@current_lower_screen
 *
        JMP  game_loop
 
@@ -89,7 +105,7 @@ config_region_0
        LI   R0,>0400
        BL   @VDPREG
 * Set screen image table
-       LI   R0,>0208
+       MOV  @current_upper_screen,@LBR0
        BL   @VDPREG
 *
        MOV  *R10+,R11
@@ -107,10 +123,7 @@ config_region_4
        AI   R0,>0400
        BL   @VDPREG
 * Set screen image table
-       MOV  @x_pos_4,R0
-       ANDI R0,>0180
-       SRL  R0,3+4-1
-       AI   R0,>0208
+       MOV  @current_lower_screen,R0
        BL   @VDPREG
 *
        LIMI 2
