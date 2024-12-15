@@ -25,6 +25,11 @@ scan_line_interrupts
        DATA 128,config_region_4
 scan_line_interrups_end
 
+speed_1      DATA 1
+speed_2      DATA 4
+speed_3      DATA 8
+speed_4      DATA 16
+
 
 parallax_demo
        LWPI WS
@@ -68,8 +73,7 @@ parallax_demo
        MOV  R0,@current_pattern_3
        MOV  R0,@current_pattern_4
 * Request that the second screen image table be drawn to
-       LI   R0,>2800
-       MOV  R0,@address_of_draw_request
+       BL   @request_upper_redraw
 *
 game_loop
 * Disable interrupts
@@ -170,14 +174,10 @@ config_region_4
 *
 scroll_by_one_pixel
 * Increase scroll amount
-       LI   R0,16
-       A    R0,@x_pos_4
-       LI   R0,8
-       A    R0,@x_pos_3
-       LI   R0,4
-       A    R0,@x_pos_2
-       LI   R0,1
-       A    R0,@x_pos_1
+       A    @speed_4,@x_pos_4
+       A    @speed_3,@x_pos_3
+       A    @speed_2,@x_pos_2
+       A    @speed_1,@x_pos_1
 * Calculate pattern table register values
        MOV  @x_pos_1,R0
        ANDI R0,>0070
@@ -222,6 +222,8 @@ dont_change_upper_screen
 
 *
 * Request that the upcoming screen image table be redrawn
+* This method should be called on the first frame
+* after changing the screen image table for the upper screen.
 *
 request_upper_redraw
 * Let @address_of_draw_request = beginning of a screen image table
@@ -234,13 +236,35 @@ request_upper_redraw
 * Let @address_of_tile_data = beginning of the tile map
        LI   R0,upper_tile_map
        MOV  R0,@address_of_tile_data
+* Calculate the expected x-position of each scroll region,
+* for the next time that we change the screen image table of the upper screen.
+       MOV  @x_pos_1,@expected_1
+       MOV  @x_pos_2,@expected_2
+       MOV  @x_pos_3,@expected_3
+       MOV  @x_pos_4,@expected_4
+*
+       MOV  @speed_1,R0
+       SLA  R0,4
+       A    R0,@expected_1
+       MOV  @speed_2,R0
+       SLA  R0,4
+       A    R0,@expected_2
+       MOV  @speed_3,R0
+       SLA  R0,4
+       A    R0,@expected_3
+       MOV  @speed_4,R0
+       SLA  R0,4
+       A    R0,@expected_4
 *
        RT
 
 *
 * If the upper screen image table is defined by VDP Reg 4 = >08,
-* then the current VDP address is >2000,
-* and the next address will be >2800.
+* then the VDP address of the current table is at >2000.
+* We don't use the screen image table at >2400 because it overlaps tile patterns.
+* So the next screen image table is at >2800.
+* The same pattern is repeated 3 more times.
+*
 vdp_address_for_next_screen
        DATA >2800,>3000,>3800,>2000
 
@@ -325,23 +349,23 @@ row_within_next_screen_loop
 * the left most column
 *
 x_pos_by_row
-       DATA x_pos_1
-       DATA x_pos_1
-       DATA x_pos_1
-       DATA x_pos_1
-       DATA x_pos_1
-       DATA x_pos_1
-       DATA x_pos_1
-       DATA x_pos_1
+       DATA expected_1
+       DATA expected_1
+       DATA expected_1
+       DATA expected_1
+       DATA expected_1
+       DATA expected_1
+       DATA expected_1
+       DATA expected_1
 *
-       DATA x_pos_2
-       DATA x_pos_2
-       DATA x_pos_2
-       DATA x_pos_3
-       DATA x_pos_3
-       DATA x_pos_3
-       DATA x_pos_3
-       DATA x_pos_3
+       DATA expected_2
+       DATA expected_2
+       DATA expected_2
+       DATA expected_3
+       DATA expected_3
+       DATA expected_3
+       DATA expected_3
+       DATA expected_3
 
 *
 * Shift patterns and copy them to VDP RAM
