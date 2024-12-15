@@ -252,7 +252,7 @@ draw_one_upper_row
 * Set VDP write address.
        BL   @VDPADR
 * Set VDP address for next game loop iteration.
-       MOV  @address_of_draw_request,R0
+       MOV  R1,R0
        AI   R0,32
        MOV  R0,@address_of_draw_request
 * Let R0 = screen position relative to top-left of screen
@@ -283,12 +283,27 @@ draw_one_upper_row
        LI   R2,upper_tile_map
        AI   R2,6
        A    R0,R2
+       A    R1,R2
 * Let R3 = address past edge of the map
        LI   R3,upper_tile_map
-       AI   R3,6+64
        A    R0,R3
+       AI   R3,6+64
 * Let R4 = number of tiles left to write
        LI   R4,32
+*
+row_within_next_screen_loop
+       MOVB *R2+,R5
+       AI   R5,tile_code_offset*>100
+       MOVB R5,@VDPWD
+* Map is round.
+* If we reached the right edge, next tile is on left edge.
+       C    R2,R3
+       JL   !
+       AI   R2,-64
+!
+* If we have not drawn 32 tiles, continue with next tile.
+       DEC  R4
+       JNE  row_within_next_screen_loop
 *
        MOV  *R10+,R11
        RT
