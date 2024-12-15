@@ -1,7 +1,7 @@
        DEF  GROMCR
        REF  VDPADR
 
-       COPY 'EQUCPUADR.asm'
+       COPY '..\EQUCPUADR.asm'
 
 WRZERO DATA 7
 

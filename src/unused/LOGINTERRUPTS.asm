@@ -16,9 +16,8 @@
 *
 * Addresses
 *
-       COPY 'EQUCPUADR.asm'
-       COPY 'EQUVAR.asm'
-       COPY 'EQU.asm'
+       COPY '..\EQUCPUADR.asm'
+       COPY '..\EQUVAR.asm'
 
 OLDR12                    EQU  >8330
 

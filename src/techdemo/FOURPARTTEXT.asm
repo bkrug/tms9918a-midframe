@@ -16,8 +16,9 @@
 *
 * Addresses
 *
-       COPY 'EQUCPUADR.asm'
-       COPY 'EQUVAR.asm'
+       COPY '..\EQUCPUADR.asm'
+       COPY '..\EQUVAR.asm'
+       COPY 'EQUDEMO.asm'
 
 SCRN8                 EQU  >2000
 char_draw_per_frame   EQU  20
