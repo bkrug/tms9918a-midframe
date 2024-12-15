@@ -79,8 +79,6 @@ game_loop
        BLWP @block_vdp_interrupt
 * Tell timer_isr to look at the begging of the table again
        BL   @restart_timer_loop
-*
-       BL   @scroll_by_one_pixel
 * If the upper screen image table wil change in the next video frame,
 * then request a redraw of the next screen image table.
        MOV  @x_pos_3,R0
@@ -90,6 +88,8 @@ game_loop
 !
 * If a re-draw request is incomplete, draw one row of it now
        BL   @draw_one_upper_row
+*
+       BL   @scroll_by_one_pixel
 * Enable interrupts
        LIMI 2
 * Don't end game loop until all timer-interrupts have been triggered
@@ -225,16 +225,24 @@ dont_change_upper_screen
 *
 request_upper_redraw
 * Let @address_of_draw_request = beginning of a screen image table
-       MOV  @next_upper_screen,R0
-       INCT R0
+* Given the current screen image table,
+* get the address of the screen image table that has an address >800 bytes higher
+       MOV  @current_upper_screen,R0
        ANDI R0,>000F
-       SLA  R0,10
-       MOV  R0,@address_of_draw_request
+       AI   R0,vdp_address_for_next_screen-8
+       MOV  *R0,@address_of_draw_request
 * Let @address_of_tile_data = beginning of the tile map
        LI   R0,upper_tile_map
        MOV  R0,@address_of_tile_data
 *
        RT
+
+*
+* If the upper screen image table is defined by VDP Reg 4 = >08,
+* then the current VDP address is >2000,
+* and the next address will be >2800.
+vdp_address_for_next_screen
+       DATA >2800,>3000,>3800,>2000
 
 *
 * Draw one row in the upcoming screen image table
