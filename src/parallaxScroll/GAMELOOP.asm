@@ -67,8 +67,9 @@ parallax_demo
        MOV  R0,@current_pattern_2
        MOV  R0,@current_pattern_3
        MOV  R0,@current_pattern_4
-* There is currently no request to redraw a screen image table
-       SETO @address_of_draw_request
+* Request that the second screen image table be drawn to
+       LI   R0,>2800
+       MOV  R0,@address_of_draw_request
 *
 game_loop
 * Disable interrupts
@@ -82,8 +83,9 @@ game_loop
        BL   @scroll_by_one_pixel
 * If the upper screen image table wil change in the next video frame,
 * then request a redraw of the next screen image table.
-       C    @next_upper_screen,@current_upper_screen
-       JEQ  !
+       MOV  @x_pos_3,R0
+       ANDI R0,>007F
+       JNE  !
        BL   @request_upper_redraw
 !
 * If a re-draw request is incomplete, draw one row of it now
@@ -224,6 +226,7 @@ dont_change_upper_screen
 request_upper_redraw
 * Let @address_of_draw_request = beginning of a screen image table
        MOV  @next_upper_screen,R0
+       INCT R0
        ANDI R0,>000F
        SLA  R0,10
        MOV  R0,@address_of_draw_request
