@@ -20,7 +20,9 @@ tile_code_offset   EQU  >60
 pattern_offset     EQU  8*tile_code_offset
 
 scan_line_interrupts
-       DATA 16*8+0,config_region_4
+       DATA 60,config_region_2
+       DATA 84,config_region_3
+       DATA 128,config_region_4
 scan_line_interrups_end
 
 
@@ -31,7 +33,7 @@ parallax_demo
 * Specify the location of the table of timer ISRs
        LI   R0,scan_line_interrupts
        LI   R1,scan_line_interrups_end
-       LI   R2,config_region_0
+       LI   R2,config_region_1
        BL   @coinc_init_timer_loop
 * Pattern table
        LI   R0,>0401
@@ -95,8 +97,23 @@ game_loop
        AI   R0,>0208
        MOV  R0,@next_lower_screen
 * Calculate pattern table register values
-       LI   R0,>0400
+       MOV  @x_pos_1,R0
+       ANDI R0,>0070
+       SRL  R0,4
+       AI   R0,>0400
        MOV  R0,@next_pattern_1
+*
+       MOV  @x_pos_2,R0
+       ANDI R0,>0070
+       SRL  R0,4
+       AI   R0,>0400
+       MOV  R0,@next_pattern_2
+*
+       MOV  @x_pos_3,R0
+       ANDI R0,>0070
+       SRL  R0,4
+       AI   R0,>0400
+       MOV  R0,@next_pattern_3
 *
        MOV  @x_pos_4,R0
        ANDI R0,>0070
@@ -118,7 +135,7 @@ game_loop
        JMP  game_loop
 
 *
-config_region_0
+config_region_1
        DECT R10
        MOV  R11,*R10
 * Set Pattern table
@@ -127,6 +144,34 @@ config_region_0
 * Set screen image table
        MOV  @current_upper_screen,R0
        BL   @VDPREG
+*
+       MOV  *R10+,R11
+       RT
+
+config_region_2
+       DECT R10
+       MOV  R11,*R10
+*
+       LIMI 0
+* Set Pattern table
+       MOV  @current_pattern_2,R0
+       BL   @VDPREG
+*
+       LIMI 2
+*
+       MOV  *R10+,R11
+       RT
+
+config_region_3
+       DECT R10
+       MOV  R11,*R10
+*
+       LIMI 0
+* Set Pattern table
+       MOV  @current_pattern_3,R0
+       BL   @VDPREG
+*
+       LIMI 2
 *
        MOV  *R10+,R11
        RT
