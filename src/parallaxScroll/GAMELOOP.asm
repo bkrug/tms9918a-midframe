@@ -60,6 +60,12 @@ parallax_demo
        MOV  R0,@current_upper_screen
        MOV  R0,@current_lower_screen
 *
+       LI   R0,>0400
+       MOV  R0,@current_pattern_1
+       MOV  R0,@current_pattern_2
+       MOV  R0,@current_pattern_3
+       MOV  R0,@current_pattern_4
+*
 game_loop
 * Disable interrupts
        LIMI 0
@@ -88,12 +94,26 @@ game_loop
        SRL  R0,3+4-1
        AI   R0,>0208
        MOV  R0,@next_lower_screen
+* Calculate pattern table register values
+       LI   R0,>0400
+       MOV  R0,@next_pattern_1
+*
+       MOV  @x_pos_4,R0
+       ANDI R0,>0070
+       SRL  R0,4
+       AI   R0,>0400
+       MOV  R0,@next_pattern_4
 * Don't end game loop until all timer-interrupts have been triggered
 !      MOV  @all_lines_scanned,R0
        JEQ  -!
 * Update VDP register Values
        MOV  @next_upper_screen,@current_upper_screen
        MOV  @next_lower_screen,@current_lower_screen
+*
+       MOV  @next_pattern_1,@current_pattern_1
+       MOV  @next_pattern_2,@current_pattern_2
+       MOV  @next_pattern_3,@current_pattern_3
+       MOV  @next_pattern_4,@current_pattern_4
 *
        JMP  game_loop
 
@@ -102,10 +122,10 @@ config_region_0
        DECT R10
        MOV  R11,*R10
 * Set Pattern table
-       LI   R0,>0400
+       MOV  @current_pattern_1,R0
        BL   @VDPREG
 * Set screen image table
-       MOV  @current_upper_screen,@LBR0
+       MOV  @current_upper_screen,R0
        BL   @VDPREG
 *
        MOV  *R10+,R11
@@ -117,10 +137,7 @@ config_region_4
 *
        LIMI 0
 * Set Pattern table
-       MOV  @x_pos_4,R0
-       ANDI R0,>0070
-       SRL  R0,4
-       AI   R0,>0400
+       MOV  @current_pattern_4,R0
        BL   @VDPREG
 * Set screen image table
        MOV  @current_lower_screen,R0
