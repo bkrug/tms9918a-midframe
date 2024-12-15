@@ -233,9 +233,6 @@ request_upper_redraw
        ANDI R0,>000F
        AI   R0,vdp_address_for_next_screen-8
        MOV  *R0,@address_of_draw_request
-* Let @address_of_tile_data = beginning of the tile map
-       LI   R0,upper_tile_map
-       MOV  R0,@address_of_tile_data
 * Calculate the expected x-position of each scroll region,
 * for the next time that we change the screen image table of the upper screen.
        MOV  @x_pos_1,@expected_1
