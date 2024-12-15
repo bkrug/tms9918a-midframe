@@ -67,6 +67,8 @@ parallax_demo
        MOV  R0,@current_pattern_2
        MOV  R0,@current_pattern_3
        MOV  R0,@current_pattern_4
+* There is currently no request to redraw a screen image table
+       SETO @address_of_draw_request
 *
 game_loop
 * Disable interrupts
@@ -78,48 +80,16 @@ game_loop
        BL   @restart_timer_loop
 * Enable interrupts
        LIMI 2
-* Increase scroll amount
-       LI   R0,16
-       A    R0,@x_pos_4
-       LI   R0,8
-       A    R0,@x_pos_3
-       LI   R0,4
-       A    R0,@x_pos_2
-       LI   R0,1
-       A    R0,@x_pos_1
-* Calculate screen image table register values
-       LI   R0,>0208
-       MOV  R0,@next_upper_screen
 *
-       MOV  @x_pos_4,R0
-       ANDI R0,>0180
-       SRL  R0,3+4-1
-       AI   R0,>0208
-       MOV  R0,@next_lower_screen
-* Calculate pattern table register values
-       MOV  @x_pos_1,R0
-       ANDI R0,>0070
-       SRL  R0,4
-       AI   R0,>0400
-       MOV  R0,@next_pattern_1
-*
-       MOV  @x_pos_2,R0
-       ANDI R0,>0070
-       SRL  R0,4
-       AI   R0,>0400
-       MOV  R0,@next_pattern_2
-*
-       MOV  @x_pos_3,R0
-       ANDI R0,>0070
-       SRL  R0,4
-       AI   R0,>0400
-       MOV  R0,@next_pattern_3
-*
-       MOV  @x_pos_4,R0
-       ANDI R0,>0070
-       SRL  R0,4
-       AI   R0,>0400
-       MOV  R0,@next_pattern_4
+       BL   @scroll_by_one_pixel
+* If the upper screen image table wil change in the next video frame,
+* then request a redraw of the next screen image table.
+       C    @next_upper_screen,@current_upper_screen
+       JEQ  !
+       BL   @request_upper_redraw
+!
+* If a re-draw request is incomplete, draw one row of it now
+       BL   @draw_one_upper_row
 * Don't end game loop until all timer-interrupts have been triggered
 !      MOV  @all_lines_scanned,R0
        JEQ  -!
@@ -193,6 +163,95 @@ config_region_4
        MOV  *R10+,R11
        RT
 
+*
+* Scroll the screen such that the lowest portion moves by 1 pixel
+*
+scroll_by_one_pixel
+* Increase scroll amount
+       LI   R0,16
+       A    R0,@x_pos_4
+       LI   R0,8
+       A    R0,@x_pos_3
+       LI   R0,4
+       A    R0,@x_pos_2
+       LI   R0,1
+       A    R0,@x_pos_1
+* Calculate pattern table register values
+       MOV  @x_pos_1,R0
+       ANDI R0,>0070
+       SRL  R0,4
+       AI   R0,>0400
+       MOV  R0,@next_pattern_1
+*
+       MOV  @x_pos_2,R0
+       ANDI R0,>0070
+       SRL  R0,4
+       AI   R0,>0400
+       MOV  R0,@next_pattern_2
+*
+       MOV  @x_pos_3,R0
+       ANDI R0,>0070
+       SRL  R0,4
+       AI   R0,>0400
+       MOV  R0,@next_pattern_3
+*
+       MOV  @x_pos_4,R0
+       ANDI R0,>0070
+       SRL  R0,4
+       AI   R0,>0400
+       MOV  R0,@next_pattern_4
+* Calculate lower screen image table register value
+       MOV  @x_pos_4,R0
+       ANDI R0,>0180
+       SRL  R0,3+4-1
+       AI   R0,>0208
+       MOV  R0,@next_lower_screen
+* Screen region 3, is the fastest moving region in the upper screen.
+* Did the pattern table change for screen region 3?
+       C    @current_pattern_3,@next_pattern_3
+       JEQ  dont_change_upper_screen
+* Yes, select the next screen image table.
+* VDP Reg 2, will always contain >08,>0A,>0C, or >0E.
+       MOV  @current_upper_screen,R0
+       INCT R0
+       ANDI R0,>0006
+       AI   R0,>0208
+       MOV  R0,@next_upper_screen
+*
+dont_change_upper_screen
+       RT
+
+*
+* Request that the upcoming screen image table be redrawn
+*
+request_upper_redraw
+* Let @address_of_draw_request = beginning of a screen image table
+       MOV  @next_upper_screen,R0
+       ANDI R0,>000F
+       SLA  R0,10
+       MOV  R0,@address_of_draw_request
+* Let @address_of_tile_data = beginning of the tile map
+       LI   R0,upper_tile_map
+       MOV  R0,@address_of_tile_data
+*
+       RT
+
+*
+* Draw one row in the upcoming screen image table
+*
+draw_one_upper_row
+* If the requested VDP address is <= 0, then there is no re-draw request.
+* If there is no request for a screen redraw, then return.
+       MOV  @address_of_draw_request,R0
+       JGT  !
+       RT
+!
+* There is a redraw request
+       DECT R10
+       MOV  R11,*R10
+*
+       MOV  *R10+,R11
+       RT
 
 *
 * Shift patterns and copy them to VDP RAM
