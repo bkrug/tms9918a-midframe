@@ -78,8 +78,6 @@ game_loop
        BLWP @block_vdp_interrupt
 * Tell timer_isr to look at the begging of the table again
        BL   @restart_timer_loop
-* Enable interrupts
-       LIMI 2
 *
        BL   @scroll_by_one_pixel
 * If the upper screen image table wil change in the next video frame,
@@ -90,6 +88,8 @@ game_loop
 !
 * If a re-draw request is incomplete, draw one row of it now
        BL   @draw_one_upper_row
+* Enable interrupts
+       LIMI 2
 * Don't end game loop until all timer-interrupts have been triggered
 !      MOV  @all_lines_scanned,R0
        JEQ  -!
@@ -206,15 +206,12 @@ scroll_by_one_pixel
        SRL  R0,3+4-1
        AI   R0,>0208
        MOV  R0,@next_lower_screen
-* Screen region 3, is the fastest moving region in the upper screen.
-* Did the pattern table change for screen region 3?
-       C    @current_pattern_3,@next_pattern_3
-       JEQ  dont_change_upper_screen
-* Yes, select the next screen image table.
-* VDP Reg 2, will always contain >08,>0A,>0C, or >0E.
-       MOV  @current_upper_screen,R0
-       INCT R0
-       ANDI R0,>0006
+* Calculate upper screen image table register value.
+* Base it on scroll region 3, because it is the fastest moving in the upper screen.
+       MOV  @x_pos_3,R0
+       SRL  R0,4+3
+       ANDI R0,>0003
+       SLA  R0,1
        AI   R0,>0208
        MOV  R0,@next_upper_screen
 *
@@ -249,9 +246,76 @@ draw_one_upper_row
 * There is a redraw request
        DECT R10
        MOV  R11,*R10
+* Let R1 = copy of R0
+       MOV  R0,R1
+* R0 already contains VDP address for writing.
+* Set VDP write address.
+       BL   @VDPADR
+* Set VDP address for next game loop iteration.
+       MOV  @address_of_draw_request,R0
+       AI   R0,32
+       MOV  R0,@address_of_draw_request
+* Let R0 = screen position relative to top-left of screen
+       MOV  R1,R0
+       ANDI R0,>03FF
+* If we finished drawing the top 16 rows,
+* then remove the draw request for next game loop iteration.
+       CI   R0,16*32
+       JL   !
+       SETO @address_of_draw_request
+!
+* Let R0 = current row
+       SRL  R0,5
+* Let R1 = address within x_pos_by_row
+       MOV  R0,R1
+       SLA  R1,1
+       AI   R1,x_pos_by_row
+* Let R1 = address of either x_pos_1 or x_pos_2 or x_pos_3
+       MOV  *R1,R1
+* Let R1 = current x-position of this scroll region
+       MOV  *R1,R1
+* Let R1 = left-most column from map displayed on screen
+       SRL  R1,4+3
+       ANDI R1,>003F
+* Let R0 = current row * 64 (map width = 64)
+       SLA  R0,6
+* Let R2 = address in tile map to read from
+       LI   R2,upper_tile_map
+       AI   R2,6
+       A    R0,R2
+* Let R3 = address past edge of the map
+       LI   R3,upper_tile_map
+       AI   R3,6+64
+       A    R0,R3
+* Let R4 = number of tiles left to write
+       LI   R4,32
 *
        MOV  *R10+,R11
        RT
+
+*
+* For each row in the upper screen,
+* A different x position can be used to determine
+* the left most column
+*
+x_pos_by_row
+       DATA x_pos_1
+       DATA x_pos_1
+       DATA x_pos_1
+       DATA x_pos_1
+       DATA x_pos_1
+       DATA x_pos_1
+       DATA x_pos_1
+       DATA x_pos_1
+*
+       DATA x_pos_2
+       DATA x_pos_2
+       DATA x_pos_2
+       DATA x_pos_3
+       DATA x_pos_3
+       DATA x_pos_3
+       DATA x_pos_3
+       DATA x_pos_3
 
 *
 * Shift patterns and copy them to VDP RAM
