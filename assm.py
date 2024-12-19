@@ -59,6 +59,7 @@ temp_files2 = [
     "PIXELROW",
     "VDP",
     "BACKGROUND",
+    "SPRITE",
     "GAMELOOP"
 ]
 link_main_files("parallaxScrolling.C.bin", temp_files2)
