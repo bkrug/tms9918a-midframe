@@ -233,6 +233,9 @@ init_tile_layer
 * Pattern table
        LI   R0,>0401
        BL   @VDPREG
+* Background color
+       LI   R0,>0715
+       BL   @VDPREG
 *
        BL   @write_patterns_to_vdp
        BL   @write_colors

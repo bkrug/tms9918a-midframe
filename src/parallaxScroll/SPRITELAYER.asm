@@ -42,6 +42,11 @@ sprite_pattern_loop
        MOV  *R10+,R11
        RT
 
+cycles_per_sprite_frame     DATA 9
+
+* There are only 3 sprite frames, but this is used as an offset among 16-bit addresses
+player_sprite_frames        DATA 3*2
+
 display_sprites
        DECT R10
        MOV  R11,*R10
@@ -50,19 +55,17 @@ display_sprites
        BL   @VDPADR
 *
        INC  @sprite_frame_delay
-       LI   R0,9
-       C    @sprite_frame_delay,R0
+       C    @sprite_frame_delay,@cycles_per_sprite_frame
        JL   !
        CLR  @sprite_frame_delay
        INCT @sprite_frame
-       LI   R0,6
-       C    @sprite_frame,R0
+       C    @sprite_frame,@player_sprite_frames
        JL   !
        CLR  @sprite_frame
 !
 *
        MOV  @sprite_frame,R0
-       AI   R0,test_sprite
+       AI   R0,walking_player
        MOV  *R0,R0
 *
        MOV  R0,R1
@@ -75,22 +78,22 @@ sprite_attribute_loop
        MOV  *R10+,R11
        RT
 
-test_sprite
-       DATA test_sprite_1,test_sprite_2,test_sprite_3
+walking_player
+       DATA walking_player_1,standing_player,walking_player_2
 
-test_sprite_1
+walking_player_1
        DATA >7010,>2009
        DATA >9010,>3009
        DATA >7010,>0007
        DATA >9010,>1007
        DATA >D000,0
-test_sprite_2
+standing_player
        DATA >7010,>2409
        DATA >9010,>3409
        DATA >7010,>0407
        DATA >9010,>1407
        DATA >D000,0
-test_sprite_3
+walking_player_2
        DATA >7010,>2809
        DATA >9010,>3809
        DATA >7010,>0807
