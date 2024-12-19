@@ -50,7 +50,7 @@ display_sprites
        BL   @VDPADR
 *
        INC  @sprite_frame_delay
-       LI   R0,5
+       LI   R0,9
        C    @sprite_frame_delay,R0
        JL   !
        CLR  @sprite_frame_delay
