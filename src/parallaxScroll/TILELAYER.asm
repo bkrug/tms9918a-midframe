@@ -224,6 +224,15 @@ x_pos_by_row
 init_tile_layer
        DECT R10
        MOV  R11,*R10
+* Screen Image table
+       LI   R0,>0208
+       BL   @VDPREG
+* Color table
+       LI   R0,>0302
+       BL   @VDPREG
+* Pattern table
+       LI   R0,>0401
+       BL   @VDPREG
 *
        BL   @write_patterns_to_vdp
        BL   @write_colors
@@ -308,7 +317,7 @@ write_colors
        MOV  @-2(R1),R2
        A    R1,R2
 * Set VDP address
-       LI   R0,tile_code_offset/8
+       LI   R0,tile_code_offset/8+>80
        BL   @VDPADR
 *
 color_loop

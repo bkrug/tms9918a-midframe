@@ -37,7 +37,7 @@ parallax_demo
        LWPI WS
        LI   R10,STACK
        LIMI 0
-* Set everything to zero
+* Set all addresses in upper memory expansion to zero
        LI   R0,>A000
 !      CLR  *R0+
        MOV  R0,R0
@@ -47,28 +47,11 @@ parallax_demo
        LI   R1,scan_line_interrups_end
        LI   R2,config_region_1
        BL   @coinc_init_timer_loop
-* Pattern table
-       LI   R0,>0401
-       BL   @VDPREG
-* Screen Image table
-       LI   R0,>0208
-       BL   @VDPREG
-* Color table
-       LI   R0,>0300
-       BL   @VDPREG
-* Sprite Attribute Table
-       LI   R0,>0501
-       BL   @VDPREG
 * Write tiles and colors to VDP RAM.
 * Draw first screen image table.
        BL   @init_tile_layer
-*
+* Write sprite patterns
        BL   @init_sprite_layer
-* Write empty sprite atrribute list
-       LI   R0,>80
-       BL   @VDPADR
-       LI   R0,>D000
-       MOVB R0,@VDPWD
 *
        LI   R0,>0208
        MOV  R0,@current_upper_screen
