@@ -37,4 +37,9 @@ next_lower_screen        EQU  current_upper_screen+6
 *
 * Redrawing the next frame
 *
-address_of_draw_request   EQU  >B028    * VDP address at which to draw one row of upper screen
+address_of_draw_request  EQU  >B028    * VDP address at which to draw one row of upper screen
+*
+* Sprite frame
+*
+sprite_frame_delay       EQU  >B02A
+sprite_frame             EQU  >B02C

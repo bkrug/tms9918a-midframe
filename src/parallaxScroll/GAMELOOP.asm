@@ -18,6 +18,7 @@
        REF  init_tile_layer
 *
        REF  init_sprite_layer
+       REF  display_sprites
 
        COPY '.\EQUGAME.asm'
        COPY '..\EQUVAR.asm'
@@ -82,6 +83,8 @@ game_loop
 !
 * If a re-draw request is incomplete, draw one row of it now
        BL   @draw_single_upper_row
+*
+       BL   @display_sprites
 *
        BL   @smooth_scroll_one_pixel
 * Enable interrupts
