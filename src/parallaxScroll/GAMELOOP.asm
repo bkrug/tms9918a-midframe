@@ -16,6 +16,8 @@
        REF  request_upper_redraw
        REF  draw_single_upper_row
        REF  init_tile_layer
+*
+       REF  init_sprite_layer
 
        COPY '.\EQUGAME.asm'
        COPY '..\EQUVAR.asm'
@@ -57,8 +59,11 @@ parallax_demo
 * Sprite Attribute Table
        LI   R0,>0501
        BL   @VDPREG
-*
+* Write tiles and colors to VDP RAM.
+* Draw first screen image table.
        BL   @init_tile_layer
+*
+       BL   @init_sprite_layer
 * Write empty sprite atrribute list
        LI   R0,>80
        BL   @VDPADR
