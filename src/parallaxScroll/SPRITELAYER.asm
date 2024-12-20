@@ -53,7 +53,16 @@ display_sprites
 *
        CLR  R0
        BL   @VDPADR
+* Is right-key being pressed?
+       MOVB @KEYCOD,R0
+       LI   R1,right_flag*>100
+       COC  R1,R0
+       JEQ  display_walking_player
+* Display standing player sprite
+       LI   R0,standing_player
+       JMP  display_any_player_sprites
 *
+display_walking_player
        INC  @sprite_frame_delay
        C    @sprite_frame_delay,@cycles_per_sprite_frame
        JL   !
@@ -68,6 +77,7 @@ display_sprites
        AI   R0,walking_player
        MOV  *R0,R0
 *
+display_any_player_sprites
        MOV  R0,R1
        AI   R1,4*4+1
 sprite_attribute_loop

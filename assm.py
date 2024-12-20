@@ -58,6 +58,7 @@ temp_files2 = [
     "GAMECART",
     "PIXELROW",
     "VDP",
+    "BSCAN",
     "BACKGROUND",
     "SPRITE",
     "GAMELOOP",

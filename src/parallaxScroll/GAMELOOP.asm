@@ -19,6 +19,8 @@
 *
        REF  init_sprite_layer
        REF  display_sprites
+*
+       REF  BSCAN
 
        COPY '.\EQUGAME.asm'
        COPY '..\EQUVAR.asm'
@@ -89,6 +91,8 @@ game_loop
        BL   @smooth_scroll_one_pixel
 * Enable interrupts
        LIMI 2
+* Load KEYCOD with value
+       BL   @BSCAN
 * Don't end game loop until all timer-interrupts have been triggered
 !      MOV  @all_lines_scanned,R0
        JEQ  -!
