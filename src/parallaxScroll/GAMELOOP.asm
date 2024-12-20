@@ -66,6 +66,7 @@ parallax_demo
        MOV  R0,@current_pattern_3
        MOV  R0,@current_pattern_4
 * Request that the second screen image table be drawn to
+       MOV  @current_upper_screen,@next_upper_screen
        BL   @request_upper_redraw
 *
 game_loop
@@ -76,19 +77,17 @@ game_loop
        BLWP @block_vdp_interrupt
 * Tell timer_isr to look at the begging of the table again
        BL   @restart_timer_loop
-* If the upper screen image table wil change in the next video frame,
-* then request a redraw of the next screen image table.
-       MOV  @x_pos_3,R0
-       ANDI R0,>007F
-       JNE  !
-       BL   @request_upper_redraw
-!
 * If a re-draw request is incomplete, draw one row of it now
        BL   @draw_single_upper_row
 *
        BL   @display_sprites
 *
+       MOVB @KEYCOD,R0
+       LI   R1,right_flag*>100
+       COC  R1,R0
+       JNE  !
        BL   @smooth_scroll_one_pixel
+!
 * Enable interrupts
        LIMI 2
 * Load KEYCOD with value

@@ -27,6 +27,8 @@ speed_4      DATA 16
 * Scroll the screen such that the lowest portion moves by 1 pixel
 *
 smooth_scroll_one_pixel
+       DECT R10
+       MOV  R11,*R10
 * Increase scroll amount
        A    @speed_4,@x_pos_4
        A    @speed_3,@x_pos_3
@@ -71,7 +73,12 @@ smooth_scroll_one_pixel
        AI   R0,>0208
        MOV  R0,@next_upper_screen
 *
-dont_change_upper_screen
+       C    @next_upper_screen,@current_upper_screen
+       JEQ  !
+       BL   @request_upper_redraw
+!
+*
+       MOV  *R10+,R11
        RT
 
 *
@@ -83,7 +90,7 @@ request_upper_redraw
 * Let @address_of_draw_request = beginning of a screen image table
 * Given the current screen image table,
 * get the address of the screen image table that has an address >800 bytes higher
-       MOV  @current_upper_screen,R0
+       MOV  @next_upper_screen,R0
        ANDI R0,>000F
        AI   R0,vdp_address_for_next_screen-8
        MOV  *R0,@address_of_draw_request
@@ -144,9 +151,9 @@ draw_single_upper_row
 * Let R0 = screen position relative to top-left of screen
        MOV  R1,R0
        ANDI R0,>03FF
-* If we finished drawing the top 16 rows,
+* If this will be the last of the top 16 rows,
 * then remove the draw request for next game loop iteration.
-       CI   R0,16*32
+       CI   R0,15*32
        JL   !
        SETO @address_of_draw_request
 !
