@@ -34,7 +34,7 @@ pattern_offset     EQU  8*tile_code_offset
 scan_line_interrupts
        DATA 60,config_region_2
        DATA 84,config_region_3
-       DATA 128,config_region_4
+       DATA 129,config_region_4
 scan_line_interrups_end
 
 
