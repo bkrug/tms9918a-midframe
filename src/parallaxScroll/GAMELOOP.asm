@@ -21,6 +21,8 @@
        REF  display_sprites
 *
        REF  BSCAN
+*
+       REF  process_input
 
        COPY '.\EQUGAME.asm'
        COPY '..\EQUVAR.asm'
@@ -92,6 +94,8 @@ game_loop
        LIMI 2
 * Load KEYCOD with value
        BL   @BSCAN
+* Process player input
+       BL   @process_input
 * Don't end game loop until all timer-interrupts have been triggered
 !      MOV  @all_lines_scanned,R0
        JEQ  -!

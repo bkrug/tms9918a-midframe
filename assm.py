@@ -63,7 +63,8 @@ temp_files2 = [
     "SPRITE",
     "GAMELOOP",
     "TILELAYER",
-    "SPRITELAYER"
+    "SPRITELAYER",
+    "INPUT"
 ]
 link_main_files("parallaxScrolling.C.bin", temp_files2)
 

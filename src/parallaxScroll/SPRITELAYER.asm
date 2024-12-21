@@ -42,11 +42,9 @@ sprite_pattern_loop
        MOV  *R10+,R11
        RT
 
-cycles_per_sprite_frame     DATA 9
-
-* There are only 3 sprite frames, but this is used as an offset among 16-bit addresses
-player_sprite_frames        DATA 3*2
-
+*
+*
+*
 display_sprites
        DECT R10
        MOV  R11,*R10
@@ -57,27 +55,8 @@ display_sprites
 * Let R2 = address of player chars
 * Let R3 = address of player colors
        LI   R1,player_offsets
-       LI   R2,standing_player_chars
+       MOV  @player_char_address,R2
        LI   R3,player_colors
-* Is right-key being pressed?
-       MOVB @KEYCOD,R0
-       LI   R4,right_flag*>100
-       COC  R4,R0
-       JNE  sprite_attribute_loop
-* Yes, update walking frame
-       INC  @sprite_frame_delay
-       C    @sprite_frame_delay,@cycles_per_sprite_frame
-       JL   !
-       CLR  @sprite_frame_delay
-       INCT @sprite_frame
-       C    @sprite_frame,@player_sprite_frames
-       JL   !
-       CLR  @sprite_frame
-!
-* Let R2 = address of sprite chars
-       MOV  @sprite_frame,R2
-       AI   R2,walking_player
-       MOV  *R2,R2
 * Write sprites for player character
 sprite_attribute_loop
        LI   R0,>7000
@@ -96,19 +75,6 @@ sprite_attribute_loop
 *
        MOV  *R10+,R11
        RT
-
-walking_player
-       DATA walking_player_chars_1
-       DATA standing_player_chars
-       DATA walking_player_chars_2
-walking_player_chars_1
-       BYTE >20,>30,>00,>10
-standing_player_chars
-       BYTE >24,>34,>04,>14
-walking_player_chars_2
-       BYTE >28,>38,>08,>18
-jumping_player_chars
-       BYTE >2C,>3C,>0C,>1C
 
 player_offsets
        DATA >0000

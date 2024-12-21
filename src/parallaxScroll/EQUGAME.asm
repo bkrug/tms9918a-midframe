@@ -43,6 +43,7 @@ address_of_draw_request  EQU  >B028    * VDP address at which to draw one row of
 *
 sprite_frame_delay       EQU  >B02A
 sprite_frame             EQU  >B02C
+player_char_address      EQU  >B02E    * Address of four sprite codes for the current player sprite animation frame
 
 
 
@@ -51,3 +52,4 @@ sprite_frame             EQU  >B02C
 *
 right_flag     EQU  >04
 jump_flag      EQU  >02
+sword_flag     EQU  >10
