@@ -53,16 +53,18 @@ display_sprites
 *
        CLR  R0
        BL   @VDPADR
+* Let R1 = address of player player_offsets
+* Let R2 = address of player chars
+* Let R3 = address of player colors
+       LI   R1,player_offsets
+       LI   R2,standing_player_chars
+       LI   R3,player_colors
 * Is right-key being pressed?
        MOVB @KEYCOD,R0
-       LI   R1,right_flag*>100
-       COC  R1,R0
-       JEQ  display_walking_player
-* Display standing player sprite
-       LI   R0,standing_player
-       JMP  display_any_player_sprites
-*
-display_walking_player
+       LI   R4,right_flag*>100
+       COC  R4,R0
+       JNE  sprite_attribute_loop
+* Yes, update walking frame
        INC  @sprite_frame_delay
        C    @sprite_frame_delay,@cycles_per_sprite_frame
        JL   !
@@ -72,40 +74,46 @@ display_walking_player
        JL   !
        CLR  @sprite_frame
 !
-*
-       MOV  @sprite_frame,R0
-       AI   R0,walking_player
-       MOV  *R0,R0
-*
-display_any_player_sprites
-       MOV  R0,R1
-       AI   R1,4*4+1
+* Let R2 = address of sprite chars
+       MOV  @sprite_frame,R2
+       AI   R2,walking_player
+       MOV  *R2,R2
+* Write sprites for player character
 sprite_attribute_loop
-       MOVB *R0+,@VDPWD
-       C    R0,R1
+       LI   R0,>7000
+       AB   *R1+,R0
+       MOVB R0,@VDPWD
+       LI   R0,>1000
+       AB   *R1+,R0
+       MOVB R0,@VDPWD
+       MOVB *R2+,@VDPWD
+       MOVB *R3+,@VDPWD
+       CI   R3,player_colors+4
        JL   sprite_attribute_loop
+* End the sprite list
+       LI   R0,>D000
+       MOVB R0,@VDPWD
 *
        MOV  *R10+,R11
        RT
 
 walking_player
-       DATA walking_player_1,standing_player,walking_player_2
+       DATA walking_player_chars_1
+       DATA standing_player_chars
+       DATA walking_player_chars_2
+walking_player_chars_1
+       BYTE >20,>30,>00,>10
+standing_player_chars
+       BYTE >24,>34,>04,>14
+walking_player_chars_2
+       BYTE >28,>38,>08,>18
+jumping_player_chars
+       BYTE >2C,>3C,>0C,>1C
 
-walking_player_1
-       DATA >7010,>2009
-       DATA >9010,>3009
-       DATA >7010,>0007
-       DATA >9010,>1007
-       DATA >D000,0
-standing_player
-       DATA >7010,>2409
-       DATA >9010,>3409
-       DATA >7010,>0407
-       DATA >9010,>1407
-       DATA >D000,0
-walking_player_2
-       DATA >7010,>2809
-       DATA >9010,>3809
-       DATA >7010,>0807
-       DATA >9010,>1807
-       DATA >D000,0
+player_offsets
+       DATA >0000
+       DATA >2000
+       DATA >0000
+       DATA >2000
+player_colors
+       BYTE >09,>09,>07,>07
