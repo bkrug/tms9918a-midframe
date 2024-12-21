@@ -36,6 +36,14 @@ process_input
 * No, set standing frame
        LI   R2,standing_player_chars
        MOV  R2,@player_char_address
+* Let sprite_pattern_vdp_reg = sword is extended ? >0603 : >0602
+       LI   R1,>0602
+       LI   R4,sword_flag*>100
+       COC  R4,R0
+       JNE  !
+       INC  R1
+!
+       MOV  R1,@sprite_pattern_vdp_reg
 *
        RT
 

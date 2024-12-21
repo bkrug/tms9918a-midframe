@@ -35,15 +35,19 @@ next_upper_screen        EQU  current_upper_screen+2
 current_lower_screen     EQU  current_upper_screen+4
 next_lower_screen        EQU  current_upper_screen+6
 *
+* Sprite Pattern VDP Reg value
+*
+sprite_pattern_vdp_reg   EQU  >B028
+*
 * Redrawing the next frame
 *
-address_of_draw_request  EQU  >B028    * VDP address at which to draw one row of upper screen
+address_of_draw_request  EQU  >B02A    * VDP address at which to draw one row of upper screen
 *
 * Sprite frame
 *
-sprite_frame_delay       EQU  >B02A
-sprite_frame             EQU  >B02C
-player_char_address      EQU  >B02E    * Address of four sprite codes for the current player sprite animation frame
+sprite_frame_delay       EQU  >B030
+sprite_frame             EQU  address_of_draw_request+2
+player_char_address      EQU  address_of_draw_request+4       * Address of four sprite codes for the current player sprite animation frame
 
 
 

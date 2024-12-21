@@ -19,6 +19,7 @@ init_sprite_layer
        BL   @VDPREG
 * Sprite Pattern Definition Table
        LI   R0,>0602
+       MOV  R0,@sprite_pattern_vdp_reg
        BL   @VDPREG
 * Write empty sprite atrribute list
        CLR  R0
@@ -72,6 +73,9 @@ sprite_attribute_loop
 * End the sprite list
        LI   R0,>D000
        MOVB R0,@VDPWD
+*
+       MOV  @sprite_pattern_vdp_reg,R0
+       BL   @VDPREG
 *
        MOV  *R10+,R11
        RT
