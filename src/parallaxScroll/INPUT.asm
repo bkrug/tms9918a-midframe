@@ -223,13 +223,15 @@ smooth_scroll_one_pixel
        AI   R0,>0400
        MOV  R0,@next_pattern_4
 * Calculate lower screen image table register value
+* The selected screen image table must be an even number no less than 8.
        MOV  @x_pos_4,R0
-       ANDI R0,>0180
        SRL  R0,tile_power+pixel_power-1
+       ANDI R0,>0006
        AI   R0,>0208
        MOV  R0,@next_lower_screen
 * Calculate upper screen image table register value.
 * Base it on scroll region 3, because it is the fastest moving in the upper screen.
+* The selected screen image table must be an even number no less than 8.
        MOV  @x_pos_3,R0
        SRL  R0,tile_power+pixel_power-1
        ANDI R0,>0006
