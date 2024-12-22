@@ -52,9 +52,13 @@ jump_button_down            BYTE jump_flag,0
 right_button_down           BYTE right_flag,0
 
 player_max_y                DATA >70*pixel_size
+deceleration_from_gravity   DATA 3
+deceleration_when_button    DATA 2                    * Vertical deceleration when jump button still pressed
+initial_jump_speed          DATA -3*pixel_size-8
 
 player_init
        MOV  @player_max_y,@player_y_pos
+       MOV  @deceleration_from_gravity,@player_y_speed
        RT
 
 *
@@ -180,6 +184,13 @@ select_sprite_pattern_table
 *
 *
 update_player_y_pos
+       A    @deceleration_from_gravity,@player_y_speed
+       A    @player_y_speed,@player_y_pos
+       C    @player_y_pos,@player_max_y
+       JL   !
+       CLR  @player_y_speed
+       MOV  @player_max_y,@player_y_pos
+!
        RT
 
 speed_1      DATA 1
