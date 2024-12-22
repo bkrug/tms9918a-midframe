@@ -184,6 +184,16 @@ select_sprite_pattern_table
 *
 *
 update_player_y_pos
+       C    @player_y_pos,@player_max_y
+       JL   fall_now
+*
+       MOVB @KEYCOD,R0
+       COC  @jump_button_down,R0
+       JNE  fall_now
+*
+       MOV  @initial_jump_speed,@player_y_speed
+*
+fall_now
        A    @deceleration_from_gravity,@player_y_speed
        A    @player_y_speed,@player_y_pos
        C    @player_y_pos,@player_max_y
