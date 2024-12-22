@@ -184,17 +184,40 @@ select_sprite_pattern_table
 *
 *
 update_player_y_pos
-       C    @player_y_pos,@player_max_y
-       JL   fall_now
-*
-       MOVB @KEYCOD,R0
-       COC  @jump_button_down,R0
-       JNE  fall_now
-*
+* Is the jump button down?
+       MOVB @KEYCOD,R1
+       COC  @jump_button_down,R1
+       JEQ  !
+* No, accelerate down at normal rate
+       MOV  @deceleration_from_gravity,R0
+       JMP  fall_now
+* Jump button down, is the player on thre ground?
+!      C    @player_y_pos,@player_max_y
+       JL   !
+* Yes, let the player begin jumping
        MOV  @initial_jump_speed,@player_y_speed
+       CLR  R0
+       JMP  fall_now
+* Player is already mid-air.
+* Is the player still moving upwards?
+!      MOV  @player_y_speed,R0
+       JGT  !
+* Yes, slow the player down, but not by the normal deceleartion amount
+       MOV  @deceleration_when_button,R0
+       JMP  fall_now
+* The player has begun to fall again, so ignore the jump button
+* and accelerate downwards normally.
+!      MOV  @deceleration_from_gravity,R0
+       JMP  fall_now
+
+*
+* Fall down
+*
+* Input:
+*   R0 - acceleration downwards
 *
 fall_now
-       A    @deceleration_from_gravity,@player_y_speed
+       A    R0,@player_y_speed
        A    @player_y_speed,@player_y_pos
        C    @player_y_pos,@player_max_y
        JL   !
