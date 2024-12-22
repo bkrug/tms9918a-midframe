@@ -35,6 +35,11 @@ sword_player_offsets_2
        DATA >2000
        DATA >0002
        DATA >2000
+jump_sword_player_offsets
+       DATA >0004
+       DATA >2000
+       DATA >0000
+       DATA >2000
 
 cycles_per_sprite_frame     DATA 9
 * There are only 3 sprite frames, but this is used as an offset among 16-bit addresses
@@ -86,8 +91,12 @@ animation_return
 * Select correct list of sprite chars for animation
 *
 set_player_sprite_chars
-* Is right-key being pressed?
        MOVB @KEYCOD,R0
+* Is jump-key being pressed?
+       LI   R4,jump_flag*>100
+       COC  R4,R0
+       JEQ  set_jump_frame
+* Is right-key being pressed?
        LI   R4,right_flag*>100
        COC  R4,R0
        JEQ  set_walk_frame
@@ -95,10 +104,6 @@ set_player_sprite_chars
        LI   R4,sword_flag*>100
        COC  R4,R0
        JEQ  set_walk_frame
-* Is jump-key being pressed?
-       LI   R4,jump_flag*>100
-       COC  R4,R0
-       JEQ  set_jump_frame
 * No, set standing frame
        LI   R2,standing_player_chars
        MOV  R2,@player_char_address
@@ -126,8 +131,9 @@ set_player_offsets
 *
        LI   R2,normal_player_offsets
        MOV  R2,@player_offset_address
-* Is sword key being pressed?
+*
        MOVB @KEYCOD,R0
+* Is sword key being pressed?
        LI   R4,sword_flag*>100
        COC  R4,R0
        JNE  offsets_return
@@ -135,6 +141,13 @@ set_player_offsets
        MOV  @sprite_frame,R2
        AI   R2,sword_player
        MOV  *R2,@player_offset_address
+* Is jump-key being pressed?
+       LI   R4,jump_flag*>100
+       COC  R4,R0
+       JNE  offsets_return
+* Yes, set offsets based on animation frame
+       LI   R2,jump_sword_player_offsets
+       MOV  R2,@player_offset_address
 *
 offsets_return
        RT
