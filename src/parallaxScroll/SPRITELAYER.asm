@@ -68,25 +68,27 @@ display_sprites
 * Let R1 = address of player normal_player_offsets
 * Let R2 = address of player chars
 * Let R3 = address of player colors
+* Let R4 = VDPWD
        MOV  @player_offset_address,R1
        MOV  @player_char_address,R2
        LI   R3,player_colors
+       LI   R4,VDPWD
 * Write sprites for player character
 sprite_attribute_loop
        MOV  @player_y_pos,R0
        SLA  R0,8-pixel_power
        AB   *R1+,R0
-       MOVB R0,@VDPWD
+       MOVB R0,*R4
        LI   R0,>1000
        AB   *R1+,R0
-       MOVB R0,@VDPWD
-       MOVB *R2+,@VDPWD
-       MOVB *R3+,@VDPWD
+       MOVB R0,*R4
+       MOVB *R2+,*R4
+       MOVB *R3+,*R4
        CI   R3,player_colors+4
        JL   sprite_attribute_loop
 * End the sprite list
        LI   R0,>D000
-       MOVB R0,@VDPWD
+       MOVB R0,*R4
 *
        MOV  @sprite_pattern_vdp_reg,R0
        BL   @VDPREG
