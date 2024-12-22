@@ -1,4 +1,5 @@
        DEF  process_input
+       DEF  player_init
 
        COPY '.\EQUGAME.asm'
        COPY '..\EQUCPUADR.asm'
@@ -49,6 +50,11 @@ sword_button_down           BYTE sword_flag,0
 jump_button_down            BYTE jump_flag,0
 right_button_down           BYTE right_flag,0
 
+player_max_y                DATA >70*pixel_size
+
+player_init
+       MOV  @player_max_y,@player_y_pos
+       RT
 
 *
 *
@@ -61,6 +67,7 @@ process_input
        BL   @set_player_sprite_chars
        BL   @set_player_offsets
        BL   @select_sprite_pattern_table
+       BL   @update_player_y_pos
 *
        MOV  *R10+,R11
        RT
@@ -160,4 +167,10 @@ select_sprite_pattern_table
        INC  R1
 !      MOV  R1,@sprite_pattern_vdp_reg
 *
+       RT
+
+*
+*
+*
+update_player_y_pos
        RT

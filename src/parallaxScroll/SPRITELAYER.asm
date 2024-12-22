@@ -73,7 +73,8 @@ display_sprites
        LI   R3,player_colors
 * Write sprites for player character
 sprite_attribute_loop
-       LI   R0,>7000
+       MOV  @player_y_pos,R0
+       SLA  R0,8-pixel_power
        AB   *R1+,R0
        MOVB R0,@VDPWD
        LI   R0,>1000

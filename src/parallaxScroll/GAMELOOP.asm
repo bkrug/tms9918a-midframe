@@ -22,6 +22,7 @@
 *
        REF  BSCAN
 *
+       REF  player_init
        REF  process_input
 
        COPY '.\EQUGAME.asm'
@@ -57,6 +58,8 @@ parallax_demo
        BL   @init_tile_layer
 * Write sprite patterns
        BL   @init_sprite_layer
+*
+       BL   @player_init
 *
        LI   R0,>0208
        MOV  R0,@current_upper_screen

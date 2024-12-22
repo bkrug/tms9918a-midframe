@@ -46,6 +46,7 @@ address_of_draw_request  EQU  >B02A    * VDP address at which to draw one row of
 * Player position
 *
 player_y_pos             EQU  >B02C
+player_y_speed           EQU  player_y_pos+2
 *
 * Sprite frame
 *
@@ -62,3 +63,10 @@ player_offset_address    EQU  sprite_frame_delay+6       * Address of eight valu
 right_flag     EQU  >04
 jump_flag      EQU  >02
 sword_flag     EQU  >10
+*
+* Player positions are measured to the nearest 16th of a pixel.
+* 16 = 2^4
+*
+pixel_size     EQU  16
+pixel_power    EQU  4
+tile_power     EQU  3
