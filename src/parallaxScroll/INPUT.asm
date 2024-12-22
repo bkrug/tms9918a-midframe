@@ -191,12 +191,11 @@ update_player_y_pos
 * No, accelerate down at normal rate
        MOV  @deceleration_from_gravity,R0
        JMP  fall_now
-* Jump button down, is the player on thre ground?
+* Jump button down, is the player on the ground?
 !      C    @player_y_pos,@player_max_y
        JL   !
 * Yes, let the player begin jumping
-       MOV  @initial_jump_speed,@player_y_speed
-       CLR  R0
+       MOV  @initial_jump_speed,R0
        JMP  fall_now
 * Player is already mid-air.
 * Is the player still moving upwards?
