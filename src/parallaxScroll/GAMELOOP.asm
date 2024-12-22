@@ -12,7 +12,6 @@
        REF  block_vdp_interrupt
        REF  restart_timer_loop
 *
-       REF  smooth_scroll_one_pixel
        REF  request_upper_redraw
        REF  draw_single_upper_row
        REF  init_tile_layer
@@ -86,13 +85,6 @@ game_loop
        BL   @draw_single_upper_row
 *
        BL   @display_sprites
-*
-       MOVB @KEYCOD,R0
-       LI   R1,right_flag*>100
-       COC  R1,R0
-       JNE  !
-       BL   @smooth_scroll_one_pixel
-!
 * Enable interrupts
        LIMI 2
 * Load KEYCOD with value

@@ -1,5 +1,7 @@
        DEF  process_input
        DEF  player_init
+*
+       REF  smooth_scroll_one_pixel
 
        COPY '.\EQUGAME.asm'
        COPY '..\EQUCPUADR.asm'
@@ -68,6 +70,12 @@ process_input
        BL   @set_player_offsets
        BL   @select_sprite_pattern_table
        BL   @update_player_y_pos
+*
+       MOVB @KEYCOD,R0
+       COC  @right_button_down,R0
+       JNE  !
+       BL   @smooth_scroll_one_pixel
+!
 *
        MOV  *R10+,R11
        RT
