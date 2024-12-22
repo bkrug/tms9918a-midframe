@@ -60,13 +60,7 @@ process_input
        BL   @set_player_animation_frames
        BL   @set_player_sprite_chars
        BL   @set_player_offsets
-* Let sprite_pattern_vdp_reg = sword is extended ? >0603 : >0602
-       LI   R1,>0602
-       MOVB @KEYCOD,R0
-       COC  @sword_button_down,R0
-       JNE  !
-       INC  R1
-!      MOV  R1,@sprite_pattern_vdp_reg
+       BL   @select_sprite_pattern_table
 *
        MOV  *R10+,R11
        RT
@@ -153,4 +147,17 @@ set_player_offsets
        MOV  R2,@player_offset_address
 *
 offsets_return
+       RT
+
+*
+* Let sprite_pattern_vdp_reg = sword is extended ? >0603 : >0602
+*
+select_sprite_pattern_table
+       LI   R1,>0602
+       MOVB @KEYCOD,R0
+       COC  @sword_button_down,R0
+       JNE  !
+       INC  R1
+!      MOV  R1,@sprite_pattern_vdp_reg
+*
        RT
