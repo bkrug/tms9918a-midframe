@@ -225,15 +225,14 @@ smooth_scroll_one_pixel
 * Calculate lower screen image table register value
        MOV  @x_pos_4,R0
        ANDI R0,>0180
-       SRL  R0,3+4-1
+       SRL  R0,tile_power+pixel_power-1
        AI   R0,>0208
        MOV  R0,@next_lower_screen
 * Calculate upper screen image table register value.
 * Base it on scroll region 3, because it is the fastest moving in the upper screen.
        MOV  @x_pos_3,R0
-       SRL  R0,4+3
-       ANDI R0,>0003
-       SLA  R0,1
+       SRL  R0,tile_power+pixel_power-1
+       ANDI R0,>0006
        AI   R0,>0208
        MOV  R0,@next_upper_screen
 *
@@ -264,7 +263,8 @@ request_upper_redraw
        MOV  @x_pos_2,@expected_2
        MOV  @x_pos_3,@expected_3
        MOV  @x_pos_4,@expected_4
-*
+* Assuming that "smooth_scroll_one_pixel" is called 16 times total,
+* calculate what the scroll positions _will_ be.
        MOV  @speed_1,R0
        SLA  R0,4
        A    R0,@expected_1
