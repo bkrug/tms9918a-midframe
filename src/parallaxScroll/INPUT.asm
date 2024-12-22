@@ -80,14 +80,17 @@ set_player_animation_frames
        ANDI R0,(right_flag+sword_flag)*>100
        JEQ  animation_return
 * Set animation frame for either walking or sword swinging
-       INC  @sprite_frame_delay
-       C    @sprite_frame_delay,@cycles_per_sprite_frame
+       LI   R1,sprite_frame_delay
+       INC  *R1
+       C    *R1,@cycles_per_sprite_frame
        JL   !
-       CLR  @sprite_frame_delay
-       INCT @sprite_frame
-       C    @sprite_frame,@player_sprite_frames
+       CLR  *R1
+*
+       LI   R2,sprite_frame
+       INCT *R2
+       C    *R2,@player_sprite_frames
        JL   !
-       CLR  @sprite_frame
+       CLR  *R2
 !
 animation_return
        RT
