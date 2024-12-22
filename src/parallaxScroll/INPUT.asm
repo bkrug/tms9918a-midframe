@@ -15,6 +15,26 @@ walking_player_chars_2
        BYTE >28,>38,>08,>18
 jumping_player_chars
        BYTE >2C,>3C,>0C,>1C
+*
+sword_player
+       DATA normal_player_offsets
+       DATA sword_player_offsets_1
+       DATA sword_player_offsets_2
+normal_player_offsets
+       DATA >0000
+       DATA >2000
+       DATA >0000
+       DATA >2000
+sword_player_offsets_1
+       DATA >0006
+       DATA >2002
+       DATA >0002
+       DATA >2002
+sword_player_offsets_2
+       DATA >0008
+       DATA >2008
+       DATA >0008
+       DATA >2008
 
 cycles_per_sprite_frame     DATA 9
 * There are only 3 sprite frames, but this is used as an offset among 16-bit addresses
@@ -24,6 +44,9 @@ player_sprite_frames        DATA 3*2
 *
 *
 process_input
+* No, set standing frame
+       LI   R2,normal_player_offsets
+       MOV  R2,@player_offset_address
 * Is right-key being pressed?
        MOVB @KEYCOD,R0
        LI   R4,right_flag*>100

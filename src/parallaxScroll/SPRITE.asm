@@ -1,5 +1,7 @@
-       DEF  spr_definitions
+       DEF  normal_player_patterns
+       DEF  sword_player_patterns
 
        COPY '.\SPRITEMAP.asm'
 
-spr_definitions     EQU  SPR0
+normal_player_patterns   EQU  SPR0
+sword_player_patterns    EQU  SPR16

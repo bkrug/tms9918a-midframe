@@ -3,7 +3,8 @@
 *
        REF  VDPADR,VDPREG
 *
-       REF  spr_definitions
+       REF  normal_player_patterns
+       REF  sword_player_patterns
 
        COPY '..\EQUCPUADR.asm'
        COPY '.\EQUGAME.asm'
@@ -30,18 +31,30 @@ init_sprite_layer
        LI   R0,>1000
        BL   @VDPADR
 *
-       LI   R0,spr_definitions
+       LI   R0,normal_player_patterns
+       BL   @write_player_patterns
+*
+       LI   R0,>1800
+       BL   @VDPADR
+*
+       LI   R0,sword_player_patterns
+       BL   @write_player_patterns
+*
+       BL   @display_sprites
+*
+       MOV  *R10+,R11
+       RT
+
+*
+*
+*
+write_player_patterns
        MOV  R0,R1
        AI   R1,16*32
 sprite_pattern_loop
        MOVB *R0+,@VDPWD
        C    R0,R1
        JL   sprite_pattern_loop
-*
-       BL   @display_sprites
-*
-       MOV  *R10+,R11
-       RT
 
 *
 *
@@ -52,10 +65,10 @@ display_sprites
 *
        CLR  R0
        BL   @VDPADR
-* Let R1 = address of player player_offsets
+* Let R1 = address of player normal_player_offsets
 * Let R2 = address of player chars
 * Let R3 = address of player colors
-       LI   R1,player_offsets
+       MOV  @player_offset_address,R1
        MOV  @player_char_address,R2
        LI   R3,player_colors
 * Write sprites for player character
@@ -80,10 +93,12 @@ sprite_attribute_loop
        MOV  *R10+,R11
        RT
 
-player_offsets
-       DATA >0000
-       DATA >2000
-       DATA >0000
-       DATA >2000
 player_colors
        BYTE >09,>09,>07,>07
+
+
+normal_player_offsets
+       DATA >0000
+       DATA >2000
+       DATA >0000
+       DATA >2000

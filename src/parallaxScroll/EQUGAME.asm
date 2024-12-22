@@ -46,8 +46,9 @@ address_of_draw_request  EQU  >B02A    * VDP address at which to draw one row of
 * Sprite frame
 *
 sprite_frame_delay       EQU  >B030
-sprite_frame             EQU  address_of_draw_request+2
-player_char_address      EQU  address_of_draw_request+4       * Address of four sprite codes for the current player sprite animation frame
+sprite_frame             EQU  sprite_frame_delay+2
+player_char_address      EQU  sprite_frame_delay+4       * Address of four sprite codes for the current player sprite animation frame
+player_offset_address    EQU  sprite_frame_delay+6       * Address of eight values for the player sprite's x/y positions
 
 
 
