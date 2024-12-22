@@ -32,9 +32,9 @@ sword_player_offsets_1
        DATA >2002
 sword_player_offsets_2
        DATA >0008
-       DATA >2008
-       DATA >0008
-       DATA >2008
+       DATA >2000
+       DATA >0002
+       DATA >2000
 
 cycles_per_sprite_frame     DATA 9
 * There are only 3 sprite frames, but this is used as an offset among 16-bit addresses
@@ -44,12 +44,34 @@ player_sprite_frames        DATA 3*2
 *
 *
 process_input
-* No, set standing frame
-       LI   R2,normal_player_offsets
-       MOV  R2,@player_offset_address
+       DECT R10
+       MOV  R11,*R10
+*
+       BL   @set_player_animation_frames
+*
+       BL   @set_player_offsets
+* Let sprite_pattern_vdp_reg = sword is extended ? >0603 : >0602
+       LI   R1,>0602
+       LI   R4,sword_flag*>100
+       COC  R4,R0
+       JNE  !
+       INC  R1
+!      MOV  R1,@sprite_pattern_vdp_reg
+*
+       MOV  *R10+,R11
+       RT
+
+*
+* Select correct list of sprite chars for animation
+*
+set_player_animation_frames
 * Is right-key being pressed?
        MOVB @KEYCOD,R0
        LI   R4,right_flag*>100
+       COC  R4,R0
+       JEQ  set_walk_frame
+* Is sword key being pressed?
+       LI   R4,sword_flag*>100
        COC  R4,R0
        JEQ  set_walk_frame
 * Is jump-key being pressed?
@@ -59,14 +81,6 @@ process_input
 * No, set standing frame
        LI   R2,standing_player_chars
        MOV  R2,@player_char_address
-* Let sprite_pattern_vdp_reg = sword is extended ? >0603 : >0602
-       LI   R1,>0602
-       LI   R4,sword_flag*>100
-       COC  R4,R0
-       JNE  !
-       INC  R1
-!
-       MOV  R1,@sprite_pattern_vdp_reg
 *
        RT
 
@@ -92,4 +106,24 @@ set_jump_frame
        LI   R2,jumping_player_chars
        MOV  R2,@player_char_address
 *
+       RT
+
+*
+* Select correct list of relative x/y positions for the animation frame
+*
+set_player_offsets
+*
+       LI   R2,normal_player_offsets
+       MOV  R2,@player_offset_address
+* Is sword key being pressed?
+       MOVB @KEYCOD,R0
+       LI   R4,sword_flag*>100
+       COC  R4,R0
+       JNE  offsets_return
+* Yes, set offsets based on animation frame
+       MOV  @sprite_frame,R2
+       AI   R2,sword_player
+       MOV  *R2,@player_offset_address
+*
+offsets_return
        RT

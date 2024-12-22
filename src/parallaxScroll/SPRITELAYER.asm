@@ -95,10 +95,3 @@ sprite_attribute_loop
 
 player_colors
        BYTE >09,>09,>07,>07
-
-
-normal_player_offsets
-       DATA >0000
-       DATA >2000
-       DATA >0000
-       DATA >2000
