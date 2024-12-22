@@ -48,7 +48,7 @@ process_input
        MOV  R11,*R10
 *
        BL   @set_player_animation_frames
-*
+       BL   @set_player_sprite_chars
        BL   @set_player_offsets
 * Let sprite_pattern_vdp_reg = sword is extended ? >0603 : >0602
        LI   R1,>0602
@@ -62,9 +62,30 @@ process_input
        RT
 
 *
-* Select correct list of sprite chars for animation
+*
 *
 set_player_animation_frames
+* Is right-key being pressed?
+       MOVB @KEYCOD,R0
+       ANDI R0,(right_flag+sword_flag)*>100
+       JEQ  animation_return
+* Set animation frame for either walking or sword swinging
+       INC  @sprite_frame_delay
+       C    @sprite_frame_delay,@cycles_per_sprite_frame
+       JL   !
+       CLR  @sprite_frame_delay
+       INCT @sprite_frame
+       C    @sprite_frame,@player_sprite_frames
+       JL   !
+       CLR  @sprite_frame
+!
+animation_return
+       RT
+
+*
+* Select correct list of sprite chars for animation
+*
+set_player_sprite_chars
 * Is right-key being pressed?
        MOVB @KEYCOD,R0
        LI   R4,right_flag*>100
@@ -85,16 +106,6 @@ set_player_animation_frames
        RT
 
 set_walk_frame
-* Animate the player walking
-       INC  @sprite_frame_delay
-       C    @sprite_frame_delay,@cycles_per_sprite_frame
-       JL   !
-       CLR  @sprite_frame_delay
-       INCT @sprite_frame
-       C    @sprite_frame,@player_sprite_frames
-       JL   !
-       CLR  @sprite_frame
-!
 * Let player_char_address = address chars for this frame of animatioon
        MOV  @sprite_frame,R2
        AI   R2,walking_player
