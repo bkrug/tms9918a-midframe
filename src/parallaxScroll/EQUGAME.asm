@@ -43,6 +43,10 @@ sprite_pattern_vdp_reg   EQU  >B028
 *
 address_of_draw_request  EQU  >B02A    * VDP address at which to draw one row of upper screen
 *
+* Player position
+*
+player_y_pos             EQU  >B02C
+*
 * Sprite frame
 *
 sprite_frame_delay       EQU  >B030

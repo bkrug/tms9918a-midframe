@@ -45,6 +45,11 @@ cycles_per_sprite_frame     DATA 9
 * There are only 3 sprite frames, but this is used as an offset among 16-bit addresses
 player_sprite_frames        DATA 3*2
 
+sword_button_down           BYTE sword_flag,0
+jump_button_down            BYTE jump_flag,0
+right_button_down           BYTE right_flag,0
+
+
 *
 *
 *
@@ -57,8 +62,8 @@ process_input
        BL   @set_player_offsets
 * Let sprite_pattern_vdp_reg = sword is extended ? >0603 : >0602
        LI   R1,>0602
-       LI   R4,sword_flag*>100
-       COC  R4,R0
+       MOVB @KEYCOD,R0
+       COC  @sword_button_down,R0
        JNE  !
        INC  R1
 !      MOV  R1,@sprite_pattern_vdp_reg
@@ -93,16 +98,13 @@ animation_return
 set_player_sprite_chars
        MOVB @KEYCOD,R0
 * Is jump-key being pressed?
-       LI   R4,jump_flag*>100
-       COC  R4,R0
+       COC  @jump_button_down,R0
        JEQ  set_jump_frame
 * Is right-key being pressed?
-       LI   R4,right_flag*>100
-       COC  R4,R0
+       COC  @right_button_down,R0
        JEQ  set_walk_frame
 * Is sword key being pressed?
-       LI   R4,sword_flag*>100
-       COC  R4,R0
+       COC  @sword_button_down,R0
        JEQ  set_walk_frame
 * No, set standing frame
        LI   R2,standing_player_chars
@@ -134,16 +136,14 @@ set_player_offsets
 *
        MOVB @KEYCOD,R0
 * Is sword key being pressed?
-       LI   R4,sword_flag*>100
-       COC  R4,R0
+       COC  @sword_button_down,R0
        JNE  offsets_return
 * Yes, set offsets based on animation frame
        MOV  @sprite_frame,R2
        AI   R2,sword_player
        MOV  *R2,@player_offset_address
 * Is jump-key being pressed?
-       LI   R4,jump_flag*>100
-       COC  R4,R0
+       COC  @jump_button_down,R0
        JNE  offsets_return
 * Yes, set offsets based on animation frame
        LI   R2,jump_sword_player_offsets
