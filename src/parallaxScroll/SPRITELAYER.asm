@@ -97,4 +97,4 @@ sprite_attribute_loop
        RT
 
 player_colors
-       BYTE >0E,>0A,>09,>09
+       BYTE >0E,>05,>09,>09
