@@ -39,6 +39,7 @@ draw_single_upper_row
        MOV  R1,R0
        AI   R0,32
        MOV  R0,@address_of_draw_request
+* TODO: R0 can be changed to a map row from here
 * Let R0 = screen position relative to top-left of screen
        MOV  R1,R0
        ANDI R0,>03FF
@@ -48,7 +49,7 @@ draw_single_upper_row
        JL   !
        SETO @address_of_draw_request
 !
-* Let R0 = current row
+* Let R0 = current screen row
        SRL  R0,5
 * Let R1 = address within x_pos_by_row
        MOV  R0,R1
@@ -61,7 +62,9 @@ draw_single_upper_row
 * Let R1 = left-most column from map displayed on screen
        SRL  R1,4+3
        ANDI R1,>003F
-* Let R0 = current row * 64 (map width = 64)
+* Let R0 = map row instead of screen row
+       DECT R0
+* Let R0 = current map row * 64 (map width = 64)
        SLA  R0,6
 * Let R2 = address in tile map to read from
        LI   R2,upper_tile_map
@@ -98,8 +101,8 @@ row_within_next_screen_loop
 * the left most column
 *
 x_pos_by_row
-       DATA expected_1
-       DATA expected_1
+       DATA 0
+       DATA 0
        DATA expected_1
        DATA expected_1
        DATA expected_1
@@ -236,7 +239,7 @@ write_part_of_screen
        DECT R10
        MOV  R11,*R10
 *
-       LI   R0,>2000
+       LI   R0,>2040
        BL   @VDPADR
 * Let R1 = address of tile map
        LI   R1,upper_tile_map
@@ -261,7 +264,7 @@ row_of_tiles_loop
        A    *R1,R2
 * Was that the last row?
        MOV  R1,R0
-       AI   R0,>40*>10+6
+       AI   R0,64*14+6
        C    R2,R0
        JL   upper_screen_loop
 *

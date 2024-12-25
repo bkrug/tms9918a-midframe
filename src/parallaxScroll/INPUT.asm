@@ -337,4 +337,4 @@ request_upper_redraw
 * The same pattern is repeated 3 more times.
 *
 vdp_address_for_next_screen
-       DATA >2800,>3000,>3800,>2000
+       DATA >2840,>3040,>3840,>2040

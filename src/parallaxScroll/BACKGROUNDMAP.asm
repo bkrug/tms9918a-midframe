@@ -230,19 +230,19 @@ TCHARS BYTE >02,>02                    ; #00 color 1/6
        BYTE >FF,>FF                    ; #8D unused
        BYTE >FF,>FF                    ; #8E unused
        BYTE >FF,>FF                    ; #8F unused
-       BYTE >10,>26                    ; #90 color F/5
-       BYTE >26,>27                    ; #91 color F/5
-       BYTE >27,>28                    ; #92 color F/5
-       BYTE >28,>10                    ; #93 color F/5
-       BYTE >10,>17                    ; #94 color F/5
-       BYTE >17,>18                    ; #95 color F/5
-       BYTE >18,>19                    ; #96 color F/5
-       BYTE >19,>10                    ; #97 color F/5
-       BYTE >10,>1A                    ; #98 color F/5
-       BYTE >1A,>1B                    ; #99 color F/5
-       BYTE >1B,>10                    ; #9A color F/5
-       BYTE >10,>1C                    ; #9B color F/5
-       BYTE >1C,>10                    ; #9C color F/5
+       BYTE >10,>17                    ; #90 color F/5
+       BYTE >17,>18                    ; #91 color F/5
+       BYTE >18,>19                    ; #92 color F/5
+       BYTE >19,>10                    ; #93 color F/5
+       BYTE >10,>1A                    ; #94 color F/5
+       BYTE >1A,>1B                    ; #95 color F/5
+       BYTE >1B,>10                    ; #96 color F/5
+       BYTE >10,>1C                    ; #97 color F/5
+       BYTE >1C,>10                    ; #98 color F/5
+       BYTE >27,>28                    ; #99 color F/5
+       BYTE >28,>10                    ; #9A color F/5
+       BYTE >10,>26                    ; #9B color F/5
+       BYTE >26,>27                    ; #9C color F/5
        BYTE >10,>1D                    ; #9D color F/5
        BYTE >1D,>10                    ; #9E color F/5
 ****************************************
@@ -250,53 +250,35 @@ TCHARS BYTE >02,>02                    ; #00 color 1/6
 ****************************************
 * == Map #0 ==                          
 MC0    DATA 0                          ;
-MS0    DATA >0040,>0010,>0400          ; Width, Height, Size
+MS0    DATA >0040,>000E,>0380          ; Width, Height, Size
 * -- Map Row 0 --                       
-MD0    DATA >5858,>5858,>5858,>5858    ;
+MD0    DATA >5858,>5858,>5858,>5890    ;
+       DATA >9192,>9358,>5858,>5858    ;
+       DATA >9495,>9658,>5858,>5858    ;
        DATA >5858,>5858,>5858,>5858    ;
+       DATA >5858,>5858,>9798,>5858    ;
        DATA >5858,>5858,>5858,>5858    ;
-       DATA >5858,>5858,>5858,>5858    ;
-       DATA >5858,>5858,>5858,>5858    ;
-       DATA >5858,>5858,>5858,>5858    ;
-       DATA >5858,>5858,>5858,>5858    ;
+       DATA >9495,>9658,>5858,>5858    ;
        DATA >5858,>5858,>5858,>5858    ;
 * -- Map Row 1 --                       
-       DATA >5858,>5858,>5858,>5858    ;
-       DATA >5858,>5858,>5858,>5858    ;
-       DATA >5858,>5858,>5858,>9091    ;
-       DATA >9293,>5858,>5858,>5858    ;
-       DATA >5858,>5858,>5858,>5858    ;
-       DATA >5858,>5858,>5858,>5858    ;
-       DATA >5858,>5858,>5858,>5858    ;
-       DATA >5858,>5890,>9192,>9358    ;
-* -- Map Row 2 --                       
-       DATA >5858,>5858,>5858,>5894    ;
-       DATA >9596,>9758,>5858,>5858    ;
-       DATA >9899,>9A58,>5858,>5858    ;
-       DATA >5858,>5858,>5858,>5858    ;
-       DATA >5858,>5858,>9B9C,>5858    ;
-       DATA >5858,>5858,>5858,>5858    ;
-       DATA >9899,>9A58,>5858,>5858    ;
-       DATA >5858,>5858,>5858,>5858    ;
-* -- Map Row 3 --                       
-       DATA >5858,>5858,>5858,>595A    ;
+       DATA >999A,>5858,>5858,>595A    ;
        DATA >5B5B,>5C5D,>5858,>5859    ;
-       DATA >5A5B,>5E5F,>5858,>5858    ;
-       DATA >5858,>5860,>615B,>5E5F    ;
+       DATA >5A5B,>5E5F,>589B,>9C99    ;
+       DATA >9A58,>5860,>615B,>5E5F    ;
        DATA >5858,>5860,>615E,>5F58    ;
        DATA >5858,>5858,>5858,>5860    ;
        DATA >615B,>5E5F,>5858,>5858    ;
-       DATA >5858,>5858,>5858,>5858    ;
-* -- Map Row 4 --                       
+       DATA >5858,>5858,>5858,>9B9C    ;
+* -- Map Row 2 --                       
        DATA >5858,>6263,>6465,>665B    ;
        DATA >5B5B,>5B67,>6858,>696A    ;
        DATA >5B5B,>5B5E,>5F58,>5858    ;
        DATA >586B,>6C6D,>5B5B,>5B5E    ;
        DATA >5F58,>6061,>5B5B,>5E5F    ;
-       DATA >5858,>5858,>5858,>6061    ;
+       DATA >589B,>9C99,>9A58,>6061    ;
        DATA >5B5B,>5B5E,>5F58,>5858    ;
-       DATA >9B9C,>589D,>9E58,>5858    ;
-* -- Map Row 5 --                       
+       DATA >9798,>589D,>9E58,>5858    ;
+* -- Map Row 3 --                       
        DATA >5860,>615B,>5B5B,>5B5B    ;
        DATA >5B5B,>5B5B,>6E6F,>6D5B    ;
        DATA >5B5B,>5B5B,>5E5F,>6B6C    ;
@@ -305,7 +287,7 @@ MD0    DATA >5858,>5858,>5858,>5858    ;
        DATA >5F58,>5858,>5860,>615B    ;
        DATA >5B5B,>5B5B,>5E5F,>5860    ;
        DATA >615E,>7061,>5E5F,>5858    ;
-* -- Map Row 6 --                       
+* -- Map Row 4 --                       
        DATA >6C6D,>5B5B,>5B5B,>5B5B    ;
        DATA >5B5B,>5B5B,>5B5B,>5B5B    ;
        DATA >5B5B,>5B5B,>5B5B,>5B5B    ;
@@ -314,7 +296,7 @@ MD0    DATA >5858,>5858,>5858,>5858    ;
        DATA >6E71,>726B,>6C6D,>5B5B    ;
        DATA >5B5B,>5B5B,>5B6E,>6F6D    ;
        DATA >5B5B,>5B5B,>5B5E,>5F6B    ;
-* -- Map Row 7 --                       
+* -- Map Row 5 --                       
        DATA >5B5B,>5B5B,>5B5B,>5B5B    ;
        DATA >5B5B,>5B5B,>5B5B,>5B5B    ;
        DATA >5B5B,>5B5B,>5B5B,>5B5B    ;
@@ -323,7 +305,7 @@ MD0    DATA >5858,>5858,>5858,>5858    ;
        DATA >5B5B,>5B5B,>5B5B,>5B5B    ;
        DATA >5B5B,>5B5B,>5B5B,>5B5B    ;
        DATA >5B5B,>5B5B,>5B5B,>5B5B    ;
-* -- Map Row 8 --                       
+* -- Map Row 6 --                       
        DATA >7879,>7A5B,>5B5B,>5B7B    ;
        DATA >7879,>7A5B,>5B5B,>5B7B    ;
        DATA >7879,>7C7D,>7879,>7A5B    ;
@@ -332,7 +314,7 @@ MD0    DATA >5858,>5858,>5858,>5858    ;
        DATA >7879,>7A5B,>5B5B,>5B5B    ;
        DATA >5B5B,>5B7B,>7879,>7A5B    ;
        DATA >5B5B,>5B7B,>7879,>7A7B    ;
-* -- Map Row 9 --                       
+* -- Map Row 7 --                       
        DATA >7E7E,>7F80,>8182,>8384    ;
        DATA >7E7E,>7F80,>8182,>8384    ;
        DATA >7E7E,>7E7E,>7E7E,>7F80    ;
@@ -341,7 +323,7 @@ MD0    DATA >5858,>5858,>5858,>5858    ;
        DATA >7E7E,>7F80,>8182,>8182    ;
        DATA >8182,>8384,>7E7E,>7F80    ;
        DATA >8182,>8384,>7E7E,>7F85    ;
-* -- Map Row 10 --                      
+* -- Map Row 8 --                       
        DATA >7E7E,>7E7E,>7E7E,>7E7E    ;
        DATA >7E7E,>7E7E,>7E7E,>7E7E    ;
        DATA >7E7E,>7E7E,>7E7E,>7E7E    ;
@@ -350,7 +332,7 @@ MD0    DATA >5858,>5858,>5858,>5858    ;
        DATA >7E7E,>7E7E,>7E7E,>7E7E    ;
        DATA >7E7E,>7E7E,>7E7E,>7E7E    ;
        DATA >7E7E,>7E7E,>7E7E,>7E7E    ;
-* -- Map Row 11 --                      
+* -- Map Row 9 --                       
        DATA >0809,>0A0A,>0A0A,>0A0B    ;
        DATA >0C7E,>0809,>0A0A,>0A0A    ;
        DATA >0A0A,>0A0A,>0B0C,>7E7E    ;
@@ -359,7 +341,7 @@ MD0    DATA >5858,>5858,>5858,>5858    ;
        DATA >0A0A,>0B0C,>7E08,>090A    ;
        DATA >0A0A,>0A0A,>0A0A,>0A0B    ;
        DATA >0C7E,>7E7E,>0D0E,>7E7E    ;
-* -- Map Row 12 --                      
+* -- Map Row 10 --                      
        DATA >0F10,>0A0A,>0A0A,>0A0A    ;
        DATA >1112,>0F10,>0A0A,>0A0A    ;
        DATA >0A0A,>0A0A,>0A11,>137E    ;
@@ -368,7 +350,7 @@ MD0    DATA >5858,>5858,>5858,>5858    ;
        DATA >0A0A,>0A11,>120F,>100A    ;
        DATA >0A0A,>0A0A,>0A0A,>0A0A    ;
        DATA >1113,>7E7E,>5051,>7E14    ;
-* -- Map Row 13 --                      
+* -- Map Row 11 --                      
        DATA >5240,>4142,>4242,>4242    ;
        DATA >537E,>3820,>2122,>2222    ;
        DATA >2222,>2222,>2239,>7E7E    ;
@@ -377,7 +359,7 @@ MD0    DATA >5858,>5858,>5858,>5858    ;
        DATA >4242,>4253,>7E38,>2021    ;
        DATA >2222,>2222,>2222,>2222    ;
        DATA >397E,>7E7E,>1516,>7E7E    ;
-* -- Map Row 14 --                      
+* -- Map Row 12 --                      
        DATA >5240,>4344,>4546,>4748    ;
        DATA >537E,>3820,>2324,>2526    ;
        DATA >2728,>2924,>2539,>7E7E    ;
@@ -386,7 +368,7 @@ MD0    DATA >5858,>5858,>5858,>5858    ;
        DATA >4944,>4553,>7E38,>2023    ;
        DATA >2A2B,>2C25,>2627,>2D2E    ;
        DATA >397E,>7E7E,>1718,>7E7E    ;
-* -- Map Row 15 --                      
+* -- Map Row 13 --                      
        DATA >5240,>4A4B,>4C46,>4D4E    ;
        DATA >537E,>3820,>2F30,>3126    ;
        DATA >3233,>3430,>3139,>7E7E    ;
@@ -452,6 +434,50 @@ MC5    DATA 0                          ;
 MS5    DATA >0004,>0004,>0010          ; Width, Height, Size
 * -- Map Row 0 --                       
 MD5    DATA >5858,>5858                ;
+* -- Map Row 1 --                       
+       DATA >5858,>5858                ;
+* -- Map Row 2 --                       
+       DATA >5858,>5858                ;
+* -- Map Row 3 --                       
+       DATA >5858,>5858                ;
+* == Map #6 ==                          
+MC6    DATA 0                          ;
+MS6    DATA >0004,>0004,>0010          ; Width, Height, Size
+* -- Map Row 0 --                       
+MD6    DATA >5858,>5858                ;
+* -- Map Row 1 --                       
+       DATA >5858,>5858                ;
+* -- Map Row 2 --                       
+       DATA >5858,>5858                ;
+* -- Map Row 3 --                       
+       DATA >5858,>5858                ;
+* == Map #7 ==                          
+MC7    DATA 0                          ;
+MS7    DATA >0004,>0004,>0010          ; Width, Height, Size
+* -- Map Row 0 --                       
+MD7    DATA >5858,>5858                ;
+* -- Map Row 1 --                       
+       DATA >5858,>5858                ;
+* -- Map Row 2 --                       
+       DATA >5858,>5858                ;
+* -- Map Row 3 --                       
+       DATA >5858,>5858                ;
+* == Map #8 ==                          
+MC8    DATA 0                          ;
+MS8    DATA >0004,>0004,>0010          ; Width, Height, Size
+* -- Map Row 0 --                       
+MD8    DATA >5858,>5858                ;
+* -- Map Row 1 --                       
+       DATA >5858,>5858                ;
+* -- Map Row 2 --                       
+       DATA >5858,>5858                ;
+* -- Map Row 3 --                       
+       DATA >5858,>5858                ;
+* == Map #9 ==                          
+MC9    DATA 0                          ;
+MS9    DATA >0004,>0004,>0010          ; Width, Height, Size
+* -- Map Row 0 --                       
+MD9    DATA >5858,>5858                ;
 * -- Map Row 1 --                       
        DATA >5858,>5858                ;
 * -- Map Row 2 --                       
