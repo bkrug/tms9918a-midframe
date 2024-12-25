@@ -39,18 +39,18 @@ draw_single_upper_row
        MOV  R1,R0
        AI   R0,32
        MOV  R0,@address_of_draw_request
-* TODO: R0 can be changed to a map row from here
-* Let R0 = screen position relative to top-left of screen
+* Let R0 = current screen row
        MOV  R1,R0
        ANDI R0,>03FF
-* If this will be the last of the top 16 rows,
+       SRL  R0,5
+* Let R0 = current map row
+       DECT R0
+* If this will be the last of the 14 rows in the upper map,
 * then remove the draw request for next game loop iteration.
-       CI   R0,15*32
+       CI   R0,13
        JL   !
        SETO @address_of_draw_request
 !
-* Let R0 = current screen row
-       SRL  R0,5
 * Let R1 = address within x_pos_by_row
        MOV  R0,R1
        SLA  R1,1
@@ -62,8 +62,6 @@ draw_single_upper_row
 * Let R1 = left-most column from map displayed on screen
        SRL  R1,4+3
        ANDI R1,>003F
-* Let R0 = map row instead of screen row
-       DECT R0
 * Let R0 = current map row * 64 (map width = 64)
        SLA  R0,6
 * Let R2 = address in tile map to read from
@@ -101,8 +99,6 @@ row_within_next_screen_loop
 * the left most column
 *
 x_pos_by_row
-       DATA 0
-       DATA 0
        DATA expected_1
        DATA expected_1
        DATA expected_1
