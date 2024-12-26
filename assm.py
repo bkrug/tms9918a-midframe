@@ -64,12 +64,13 @@ temp_files2 = [
     "GAMELOOP",
     "TILELAYER",
     "SPRITELAYER",
+    "STATUSLINE",
     "INPUT"
 ]
 link_main_files("parallaxScrolling.C.bin", temp_files2)
 
 #Clean up
-# for file in glob.glob(WORK_FOLDER + "*.lst"):
-#     os.remove(file)
+for file in glob.glob(WORK_FOLDER + "*.lst"):
+    os.remove(file)
 for file in glob.glob(WORK_FOLDER + "*.obj"):
     os.remove(file)

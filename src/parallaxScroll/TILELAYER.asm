@@ -8,6 +8,7 @@
        REF  upper_tile_map
        REF  lower_tile_map
        REF  color_groups
+       REF  mult_spaces
 
        COPY '.\EQUGAME.asm'
        COPY '..\EQUVAR.asm'
@@ -138,6 +139,7 @@ init_tile_layer
        BL   @write_colors
        BL   @write_part_of_screen
        BL   @write_lower_screen
+       BL   @init_status_line
 *
        MOV  *R10+,R11
        RT
@@ -211,15 +213,22 @@ bit_shift_loop:
 write_colors
        DECT R10
        MOV  R11,*R10
+* Set VDP address
+       LI   R0,>80
+       BL   @VDPADR
+* Set color for the colors that display text
+       LI   R0,>F500
+       LI   R1,tile_code_offset/8
+text_loop
+       MOVB R0,@VDPWD
+       DEC  R1
+       JNE  text_loop
 * Let R1 = address within color table
 * Let R2 = end of color table in ROM
        LI   R1,color_groups
        MOV  @-2(R1),R2
        A    R1,R2
-* Set VDP address
-       LI   R0,tile_code_offset/8+>80
-       BL   @VDPADR
-*
+* Set color for the background image
 color_loop
        MOVB *R1+,@VDPWD
        C    R1,R2
@@ -340,5 +349,21 @@ lower_row_loop
 * Yes, return
        MOV  *R10+,R1
        MOV  *R10+,R2
+       MOV  *R10+,R11
+       RT
+
+*
+* Write spaces to status line
+*
+init_status_line
+       DECT R10
+       MOV  R11,*R10
+*
+       LI   R0,>2000
+       BL   @VDPADR
+*
+       LI   R0,2*32
+       BL   @mult_spaces
+*
        MOV  *R10+,R11
        RT

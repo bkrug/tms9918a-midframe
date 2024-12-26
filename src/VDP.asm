@@ -3,6 +3,7 @@
        DEF  set_vdp_read_address
        DEF  read_multiple_vdp_bytes
        DEF  scroll_and_print
+       DEF  mult_spaces
 *
 
        COPY 'EQUCPUADR.asm'
@@ -100,7 +101,7 @@ found_string_end:
 * R0 - number of spaces to write
 * Output:
 * R0 - 0
-write_spaces:
+mult_spaces:
        CI   R0,1
        JLT  write_space_end
 write_space_loop:
@@ -180,7 +181,7 @@ scroll_and_print:
        S    *R10+,R0
        NEG  R0
        AI   R0,32+1
-       BL   @write_spaces
+       BL   @mult_spaces
 *
        MOV  *R10+,R11
        RT

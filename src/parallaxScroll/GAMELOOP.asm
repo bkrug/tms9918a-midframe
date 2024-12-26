@@ -23,6 +23,8 @@
 *
        REF  player_init
        REF  process_input
+*
+       REF  status_print
 
        COPY '.\EQUGAME.asm'
        COPY '..\EQUVAR.asm'
@@ -86,6 +88,8 @@ game_loop
        BL   @draw_single_upper_row
 *
        BL   @display_sprites
+*
+       BL   @status_print
 * Enable interrupts
        LIMI 2
 * Load KEYCOD with value
@@ -114,7 +118,7 @@ config_region_0
        LI   R0,>0208
        BL   @VDPREG
 * Set Pattern table
-       LI   R0,>0400
+       LI   R0,>0401
        BL   @VDPREG
 *
        MOV  *R10+,R11
