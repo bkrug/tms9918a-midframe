@@ -135,7 +135,7 @@ init_tile_layer
 *
        BL   @write_patterns_to_vdp
        BL   @write_colors
-       BL   @write_part_of_screen
+       BL   @write_upper_screen
        BL   @write_lower_screen
        BL   @init_status_line
 *
@@ -236,40 +236,24 @@ color_loop
        RT
 
 *
+* Write upper screen
 *
-*
-write_part_of_screen
+write_upper_screen
        DECT R10
        MOV  R11,*R10
-*
+* Set Redraw request
        LI   R0,>2000
-       BL   @VDPADR
-* Let R1 = address of tile map
-       LI   R1,upper_tile_map
-* Let R2 = row within tile map
-       MOV  R1,R2
-       AI   R2,6
-upper_screen_loop
-* Let R3 = after the point we can fit on screen
-       MOV  R2,R3
-       AI   R3,32
-* Let R5 = a constant
-       LI   R5,tile_code_offset*>100
-* Write bytes to VDP RAM
-row_of_tiles_loop
-       MOVB *R2+,R0
-       AB   R5,R0
-       MOVB R0,@VDPWD
-       C    R2,R3
-       JL   row_of_tiles_loop
-* Advance to next row
-       AI   R2,-32
-       A    *R1,R2
-* Was that the last row?
-       MOV  R1,R0
-       AI   R0,64*14+6
-       C    R2,R0
-       JL   upper_screen_loop
+       MOV  R0,@address_of_draw_request
+       LI   R0,expected_1
+       CLR  *R0+
+       CLR  *R0+
+       CLR  *R0+
+       CLR  *R0+
+* Draw 14 rows of the upper screen
+       LI   R9,14
+!      BL   @draw_single_upper_row
+       DEC  R9
+       JNE  -!
 *
        MOV  *R10+,R11
        RT
