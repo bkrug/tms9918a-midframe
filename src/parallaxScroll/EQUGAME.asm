@@ -77,6 +77,7 @@ screen_image_table_i     EQU  >2000
 screen_image_table_ii    EQU  >2800
 screen_image_table_iii   EQU  >3000
 screen_image_table_iv    EQU  >3800
+color_table_address      EQU  >0080
 *
 * VDP Reg values
 *
@@ -84,6 +85,7 @@ vdp_reg_2_screen_i       EQU  >0200+(screen_image_table_i/>400)
 vdp_reg_2_screen_ii      EQU  >0200+(screen_image_table_ii/>400)
 vdp_reg_2_screen_iii     EQU  >0200+(screen_image_table_iii/>400)
 vdp_reg_2_screen_iv      EQU  >0200+(screen_image_table_iv/>400)
+vdp_reg_3_color_table    EQU  >0300+(color_table_address/>40)
 vdp_reg_4_text_patterns  EQU  >0401
 vdp_reg_6_sprite_i       EQU  >0602
 vdp_reg_6_sprite_ii      EQU  >0603

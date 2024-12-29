@@ -120,18 +120,6 @@ x_pos_by_row
 init_tile_layer
        DECT R10
        MOV  R11,*R10
-* Screen Image table
-       LI   R0,vdp_reg_2_screen_i
-       BL   @VDPREG
-* Color table
-       LI   R0,>0302
-       BL   @VDPREG
-* Pattern table
-       LI   R0,vdp_reg_4_text_patterns
-       BL   @VDPREG
-* Background color
-       LI   R0,>0715
-       BL   @VDPREG
 *
        BL   @write_patterns_to_vdp
        BL   @write_colors
@@ -211,8 +199,14 @@ bit_shift_loop:
 write_colors
        DECT R10
        MOV  R11,*R10
+* Color table
+       LI   R0,vdp_reg_3_color_table
+       BL   @VDPREG
+* Background color
+       LI   R0,>0715
+       BL   @VDPREG
 * Set VDP address
-       LI   R0,>80
+       LI   R0,color_table_address
        BL   @VDPADR
 * Set color for the colors that display text
        LI   R0,>1C00
