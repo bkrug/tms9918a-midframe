@@ -28,13 +28,13 @@ init_sprite_layer
        LI   R0,>D000
        MOVB R0,@VDPWD
 *
-       LI   R0,>1000
+       LI   R0,sprite_pattern_table_i
        BL   @VDPADR
 *
        LI   R0,normal_player_patterns
        BL   @write_player_patterns
 *
-       LI   R0,>1800
+       LI   R0,sprite_pattern_table_ii
        BL   @VDPADR
 *
        LI   R0,sword_player_patterns
