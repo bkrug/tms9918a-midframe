@@ -48,7 +48,7 @@ SPR10  DATA >0307,>070F,>1D0C,>0C1E    ; Color 9
 SPR11  DATA >070F,>0E1E,>3A18,>183C    ; Color 9
        DATA >0F01,>3844,>428C,>908F    ; 
        DATA >C0E0,>2000,>8000,>0001    ; 
-       DATA >C206,>0404,>1408,>14C0    ; 
+       DATA >C307,>0626,>1C0C,>14C2    ; 
 SPR12  DATA >090F,>070F,>3F3F,>7F7F    ; Color 9
        DATA >7F7D,>8980,>C0E1,>7139    ; 
        DATA >0000,>0000,>0080,>80C0    ; 
