@@ -70,3 +70,10 @@ sword_flag     EQU  >10
 pixel_size     EQU  16
 pixel_power    EQU  4
 tile_power     EQU  3
+*
+* VDP Addresses
+*
+screen_image_table_i     EQU  >2000
+screen_image_table_ii    EQU  >2800
+screen_image_table_iii   EQU  >3000
+screen_image_table_iv    EQU  >3800

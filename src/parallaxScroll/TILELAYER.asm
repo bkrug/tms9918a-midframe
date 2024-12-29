@@ -242,7 +242,7 @@ write_upper_screen
        DECT R10
        MOV  R11,*R10
 * Set Redraw request
-       LI   R0,>2000
+       LI   R0,screen_image_table_i
        MOV  R0,@address_of_draw_request
        LI   R0,expected_1
        CLR  *R0+
@@ -266,7 +266,7 @@ write_lower_screen
        MOV  R11,*R10
 * Let R1 = address within VDP RAM
 * Let R2 = left-most column of screen
-       LI   R1,>2000+(14*32)
+       LI   R1,screen_image_table_i+(14*32)
        CLR  R2
 lower_screen_image_loop
 * Set address within screen image table
@@ -341,7 +341,7 @@ init_status_line
        DECT R10
        MOV  R11,*R10
 *
-       LI   R0,>2000+(22*32)
+       LI   R0,screen_image_table_i+(22*32)
        BL   @VDPADR
 *
        LI   R0,2*32
