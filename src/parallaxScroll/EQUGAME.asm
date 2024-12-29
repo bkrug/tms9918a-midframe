@@ -77,3 +77,8 @@ screen_image_table_i     EQU  >2000
 screen_image_table_ii    EQU  >2800
 screen_image_table_iii   EQU  >3000
 screen_image_table_iv    EQU  >3800
+*
+* Screen sizes
+*
+upper_screen_rows        EQU  14
+lower_screen_rows        EQU  8

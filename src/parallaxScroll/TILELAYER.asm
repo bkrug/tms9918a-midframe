@@ -46,7 +46,7 @@ draw_single_upper_row
        SRL  R0,5
 * If this will be the last of the 14 rows in the upper map,
 * then remove the draw request for next game loop iteration.
-       CI   R0,13
+       CI   R0,upper_screen_rows-1
        JL   !
        SETO @address_of_draw_request
 !
@@ -250,7 +250,7 @@ write_upper_screen
        CLR  *R0+
        CLR  *R0+
 * Draw 14 rows of the upper screen
-       LI   R9,14
+       LI   R9,upper_screen_rows
 !      BL   @draw_single_upper_row
        DEC  R9
        JNE  -!
@@ -266,7 +266,7 @@ write_lower_screen
        MOV  R11,*R10
 * Let R1 = address within VDP RAM
 * Let R2 = left-most column of screen
-       LI   R1,screen_image_table_i+(14*32)
+       LI   R1,screen_image_table_i+(upper_screen_rows*32)
        CLR  R2
 lower_screen_image_loop
 * Set address within screen image table
