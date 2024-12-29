@@ -171,7 +171,7 @@ offsets_return
 * Let sprite_pattern_vdp_reg = sword is extended ? >0603 : >0602
 *
 select_sprite_pattern_table
-       LI   R1,>0602
+       LI   R1,vdp_reg_6_sprite_i
        MOVB @KEYCOD,R0
        COC  @sword_button_down,R0
        JNE  !
@@ -273,7 +273,7 @@ smooth_scroll_one_pixel
        MOV  @x_pos_4,R0
        SRL  R0,tile_power+pixel_power-1
        ANDI R0,>0006
-       AI   R0,>0208
+       AI   R0,vdp_reg_2_screen_i
        MOV  R0,@next_lower_screen
 * Calculate upper screen image table register value.
 * Base it on scroll region 3, because it is the fastest moving in the upper screen.
@@ -282,7 +282,7 @@ smooth_scroll_one_pixel
        MOV  @x_pos_3,R0
        SRL  R0,tile_power+pixel_power-1
        ANDI R0,>0006
-       AI   R0,>0208
+       AI   R0,vdp_reg_2_screen_i
        MOV  R0,@next_upper_screen
 *
        C    @next_upper_screen,@current_upper_screen

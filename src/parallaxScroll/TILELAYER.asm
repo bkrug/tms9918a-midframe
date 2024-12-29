@@ -121,13 +121,13 @@ init_tile_layer
        DECT R10
        MOV  R11,*R10
 * Screen Image table
-       LI   R0,>0208
+       LI   R0,vdp_reg_2_screen_i
        BL   @VDPREG
 * Color table
        LI   R0,>0302
        BL   @VDPREG
 * Pattern table
-       LI   R0,>0401
+       LI   R0,vdp_reg_4_text_patterns
        BL   @VDPREG
 * Background color
        LI   R0,>0715

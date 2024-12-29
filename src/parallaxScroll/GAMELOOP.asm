@@ -63,7 +63,7 @@ parallax_demo
 *
        BL   @player_init
 *
-       LI   R0,>0208
+       LI   R0,vdp_reg_2_screen_i
        MOV  R0,@current_upper_screen
        MOV  R0,@current_lower_screen
 *
@@ -117,10 +117,10 @@ config_region_5
 *
        LIMI 0
 * Set screen image table
-       LI   R0,>0208
+       LI   R0,vdp_reg_2_screen_i
        BL   @VDPREG
-* Set Pattern table
-       LI   R0,>0401
+* Select Pattern table that contains ASCII patterns
+       LI   R0,vdp_reg_4_text_patterns
        BL   @VDPREG
 *
        LIMI 2

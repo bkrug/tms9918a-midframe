@@ -19,7 +19,7 @@ init_sprite_layer
        LI   R0,>0500
        BL   @VDPREG
 * Sprite Pattern Definition Table
-       LI   R0,>0602
+       LI   R0,vdp_reg_6_sprite_i
        MOV  R0,@sprite_pattern_vdp_reg
        BL   @VDPREG
 * Write empty sprite atrribute list
