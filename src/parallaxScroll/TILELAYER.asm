@@ -215,7 +215,7 @@ write_colors
        LI   R0,>80
        BL   @VDPADR
 * Set color for the colors that display text
-       LI   R0,>F500
+       LI   R0,>1C00
        LI   R1,tile_code_offset/8
 text_loop
        MOVB R0,@VDPWD
@@ -357,7 +357,7 @@ init_status_line
        DECT R10
        MOV  R11,*R10
 *
-       LI   R0,>2000
+       LI   R0,>2000+(22*32)
        BL   @VDPADR
 *
        LI   R0,2*32
