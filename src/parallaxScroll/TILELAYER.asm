@@ -40,12 +40,10 @@ draw_single_upper_row
        MOV  R1,R0
        AI   R0,32
        MOV  R0,@address_of_draw_request
-* Let R0 = current screen row
+* Let R0 = current screen or map row
        MOV  R1,R0
        ANDI R0,>03FF
        SRL  R0,5
-* Let R0 = current map row
-       DECT R0
 * If this will be the last of the 14 rows in the upper map,
 * then remove the draw request for next game loop iteration.
        CI   R0,13
@@ -244,7 +242,7 @@ write_part_of_screen
        DECT R10
        MOV  R11,*R10
 *
-       LI   R0,>2040
+       LI   R0,>2000
        BL   @VDPADR
 * Let R1 = address of tile map
        LI   R1,upper_tile_map
@@ -284,7 +282,7 @@ write_lower_screen
        MOV  R11,*R10
 * Let R1 = address within VDP RAM
 * Let R2 = left-most column of screen
-       LI   R1,>2000+(16*32)
+       LI   R1,>2000+(14*32)
        CLR  R2
 lower_screen_image_loop
 * Set address within screen image table

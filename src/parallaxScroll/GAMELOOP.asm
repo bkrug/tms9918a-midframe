@@ -34,10 +34,10 @@ tile_code_offset   EQU  >60
 pattern_offset     EQU  8*tile_code_offset
 
 scan_line_interrupts
-       DATA 14,config_region_1
-       DATA 60,config_region_2
-       DATA 84,config_region_3
-       DATA 129,config_region_4
+       DATA 5*8+4,config_region_2
+       DATA 8*8+4,config_region_3
+       DATA 14*8+1,config_region_4
+       DATA 22*8+0,config_region_5
 scan_line_interrups_end
 
 
@@ -53,7 +53,7 @@ parallax_demo
 * Specify the location of the table of timer ISRs
        LI   R0,scan_line_interrupts
        LI   R1,scan_line_interrups_end
-       LI   R2,config_region_0
+       LI   R2,config_region_1
        BL   @coinc_init_timer_loop
 * Write tiles and colors to VDP RAM.
 * Draw first screen image table.
@@ -111,15 +111,19 @@ game_loop
        JMP  game_loop
 
 *
-config_region_0
+config_region_5
        DECT R10
        MOV  R11,*R10
+*
+       LIMI 0
 * Set screen image table
        LI   R0,>0208
        BL   @VDPREG
 * Set Pattern table
        LI   R0,>0401
        BL   @VDPREG
+*
+       LIMI 2
 *
        MOV  *R10+,R11
        RT
@@ -128,16 +132,12 @@ config_region_0
 config_region_1
        DECT R10
        MOV  R11,*R10
-*
-       LIMI 0
 * Set screen image table
        MOV  @current_upper_screen,R0
        BL   @VDPREG
 * Set Pattern table
        MOV  @current_pattern_1,R0
        BL   @VDPREG
-*
-       LIMI 2
 *
        MOV  *R10+,R11
        RT

@@ -12,7 +12,7 @@ status_print
        DECT R10
        MOV  R11,*R10
 *
-       LI   R0,>2020
+       LI   R0,>2000+(22*32)
        BL   @VDPADR
 *
        LI   R0,status_message

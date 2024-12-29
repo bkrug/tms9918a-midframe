@@ -51,7 +51,7 @@ sword_button_down           BYTE sword_flag,0
 jump_button_down            BYTE jump_flag,0
 right_button_down           BYTE right_flag,0
 
-player_max_y                DATA >70*pixel_size
+player_max_y                DATA >60*pixel_size
 deceleration_from_gravity   DATA 3
 deceleration_when_button    DATA 2                    * Vertical deceleration when jump button still pressed
 initial_jump_speed          DATA -3*pixel_size-8
@@ -337,4 +337,4 @@ request_upper_redraw
 * The same pattern is repeated 3 more times.
 *
 vdp_address_for_next_screen
-       DATA >2840,>3040,>3840,>2040
+       DATA >2800,>3000,>3800,>2000
