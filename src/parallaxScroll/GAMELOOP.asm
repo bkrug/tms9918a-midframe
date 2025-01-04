@@ -25,6 +25,8 @@
        REF  process_input
 *
        REF  status_print
+*
+       REF  ent_init
 
        COPY '.\EQUGAME.asm'
        COPY '..\EQUVAR.asm'
@@ -62,6 +64,7 @@ parallax_demo
        BL   @init_sprite_layer
 *
        BL   @player_init
+       BL   @ent_init
 *
        LI   R0,vdp_reg_2_screen_i
        MOV  R0,@current_upper_screen

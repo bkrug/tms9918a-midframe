@@ -54,7 +54,10 @@ sprite_frame_delay       EQU  >B030
 sprite_frame             EQU  sprite_frame_delay+2
 player_char_address      EQU  sprite_frame_delay+4       * Address of four sprite codes for the current player sprite animation frame
 player_offset_address    EQU  sprite_frame_delay+6       * Address of eight values for the player sprite's x/y positions
-
+*
+* Entities
+*
+entity_list              EQU  >B038
 
 
 *
@@ -96,3 +99,13 @@ vdp_reg_6_sprite_ii      EQU  >0600+(sprite_pattern_table_ii/>800)
 *
 upper_screen_rows        EQU  14
 lower_screen_rows        EQU  8
+*
+* Entities offsets
+*
+entity_movement          EQU  0  (word)
+entity_y_pos             EQU  2  (word)
+entity_x_pos             EQU  4  (word)
+entity_char_and_color    EQU  5  (byte)
+* Size of an entity entry measured as 2^x power
+entity_length            EQU  8
+entity_power             EQU  3
