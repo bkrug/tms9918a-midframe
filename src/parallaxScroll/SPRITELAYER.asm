@@ -33,13 +33,13 @@ init_sprite_layer
        BL   @VDPADR
 *
        LI   R0,normal_player_patterns
-       BL   @write_player_patterns
+       BL   @write_one_pattern_table
 *
        LI   R0,sprite_pattern_table_ii
        BL   @VDPADR
 *
        LI   R0,sword_player_patterns
-       BL   @write_player_patterns
+       BL   @write_one_pattern_table
 *
        BL   @display_sprites
 *
@@ -49,7 +49,7 @@ init_sprite_layer
 *
 *
 *
-write_player_patterns
+write_one_pattern_table
        MOV  R0,R1
        AI   R1,16*32
        LI   R2,VDPWD
@@ -59,6 +59,7 @@ sprite_pattern_loop
        JL   sprite_pattern_loop
 *
        LI   R0,entity_sprite_patterns
+       MOV  R0,R1
        AI   R1,8*32
 entity_pattern_loop
        MOVB *R0+,*R2
@@ -97,6 +98,31 @@ sprite_attribute_loop
        MOVB *R3+,*R4
        CI   R3,player_colors+4
        JL   sprite_attribute_loop
+* Display entities
+       LI   R0,entity_list+entity_y_pos
+       MOV  *R0+,R1
+       SRL  R1,pixel_power
+       SLA  R1,8
+*
+       MOV  *R0+,R2
+       SRL  R2,pixel_power
+       SLA  R2,8
+*
+       MOV  *R0,R0
+*
+       MOVB R1,*R4
+       MOVB R2,*R4
+       MOVB *R0+,*R4
+       MOVB *R0+,R3
+       AB   *R0+,R3
+       MOVB R3,*R4
+*
+       MOVB R1,*R4
+       MOVB R2,*R4
+       MOVB *R0+,*R4
+       MOVB *R0+,R3
+       AB   *R0+,R3
+       MOVB R3,*R4
 * End the sprite list
        LI   R0,>D000
        MOVB R0,*R4
