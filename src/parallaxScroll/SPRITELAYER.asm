@@ -5,6 +5,7 @@
 *
        REF  normal_player_patterns
        REF  sword_player_patterns
+       REF  entity_sprite_patterns
 
        COPY '..\EQUCPUADR.asm'
        COPY '.\EQUGAME.asm'
@@ -51,10 +52,20 @@ init_sprite_layer
 write_player_patterns
        MOV  R0,R1
        AI   R1,16*32
+       LI   R2,VDPWD
 sprite_pattern_loop
-       MOVB *R0+,@VDPWD
+       MOVB *R0+,*R2
        C    R0,R1
        JL   sprite_pattern_loop
+*
+       LI   R0,entity_sprite_patterns
+       AI   R1,8*32
+entity_pattern_loop
+       MOVB *R0+,*R2
+       C    R0,R1
+       JL   entity_pattern_loop
+*
+       RT
 
 *
 *
