@@ -99,30 +99,22 @@ sprite_attribute_loop
        CI   R3,player_colors+4
        JL   sprite_attribute_loop
 * Display entities
+* Let R0 = address within the first item in the entity list
+*          (the y-pos rather than beginning of the item)
        LI   R0,entity_list+entity_y_pos
+* Let R1 = y-position rounded to a pixel
        MOV  *R0+,R1
        SRL  R1,pixel_power
        SLA  R1,8
-*
+* Let R2 = x-position rounded to a pixel
        MOV  *R0+,R2
        SRL  R2,pixel_power
        SLA  R2,8
-*
+* Let R0 = address in char/color list
        MOV  *R0,R0
 *
-       MOVB R1,*R4
-       MOVB R2,*R4
-       MOVB *R0+,*R4
-       MOVB *R0+,R3
-       AB   *R0+,R3
-       MOVB R3,*R4
-*
-       MOVB R1,*R4
-       MOVB R2,*R4
-       MOVB *R0+,*R4
-       MOVB *R0+,R3
-       AB   *R0+,R3
-       MOVB R3,*R4
+       BL   @draw_entity_hardware_sprite
+       BL   @draw_entity_hardware_sprite
 * End the sprite list
        LI   R0,>D000
        MOVB R0,*R4
@@ -131,6 +123,23 @@ sprite_attribute_loop
        BL   @VDPREG
 *
        MOV  *R10+,R11
+       RT
+
+*
+*
+* Input:
+*  R0, R1, R2, R3
+*  R4 - VDPWD
+* Output:
+*  R0 - next entry in char-code/color list
+draw_entity_hardware_sprite
+       MOVB R1,*R4
+       MOVB R2,*R4
+       MOVB *R0+,*R4
+       MOVB *R0+,R3
+       AB   *R0+,R3
+       MOVB R3,*R4
+*
        RT
 
 player_colors
