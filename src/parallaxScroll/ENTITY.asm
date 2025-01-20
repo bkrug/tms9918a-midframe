@@ -4,7 +4,7 @@
 
 *
 *
-test_settings DATA 0,>0400,>0C00,pig_char_1
+test_settings DATA 0,>0400,>1200,pig_char_1
 
 *
 * Hardware-sprite-horizontal-offset-from-entity, Sprite-char, Sprit-color

@@ -98,24 +98,8 @@ sprite_attribute_loop
        MOVB *R3+,*R4
        CI   R3,player_colors+4
        JL   sprite_attribute_loop
-* Display entities
-* Let R0 = address within the first item in the entity list
-*          (the y-pos rather than beginning of the item)
-       LI   R0,entity_list+entity_y_pos
-* Let R1 = y-position rounded to a pixel
-       MOV  *R0+,R1
-       SRL  R1,pixel_power
-       SLA  R1,8
-* Let R2 = x-position rounded to a pixel
-       MOV  *R0+,R2
-       S    @x_pos_4,R2
-       SRL  R2,pixel_power
-       SLA  R2,8
-* Let R0 = address in char/color list
-       MOV  *R0,R0
-* Draw each hardware sprite in multi-sprite entity
-       BL   @draw_entity_hardware_sprite
-       BL   @draw_entity_hardware_sprite
+* Display first of the entities
+       BL   @display_entity
 * End the sprite list
        LI   R0,>D000
        MOVB R0,*R4
@@ -127,11 +111,56 @@ sprite_attribute_loop
        RT
 
 *
+* Display one multisprite entity
+*
+display_entity
+       DECT R10
+       MOV  R11,*R10
+* Let R0 = address within the first item in the entity list
+*          (the y-pos rather than beginning of the item)
+       LI   R0,entity_list+entity_y_pos
+* Let R1 = y-position rounded to a pixel
+       MOV  *R0+,R1
+       SRL  R1,pixel_power
+       SLA  R1,8
+* Let R2 = x-position to nearest sub-pixel
+       MOV  *R0+,R2
+       S    @x_pos_4,R2
+* Is entity's x-position on-screen?
+       CI   R2,-32*pixel_size
+       JLT  display_entity_return
+       CI   R2,256*pixel_size
+       JGT  display_entity_return
+* Let R5 = early clock
+* If early clock is turned on, increase x-position
+       CLR  R5
+       MOV  R2,R2
+       JGT  !
+       JEQ  !
+       LI   R5,>F000
+       AI   R2,32*pixel_size
+!
+* Let R2 = x-position rounded to a pixel
+       SRL  R2,pixel_power
+       SLA  R2,8
+* Yes, Let R0 = address in char/color list
+       MOV  *R0,R0
+* Draw each hardware sprite in multi-sprite entity
+       BL   @draw_entity_hardware_sprite
+       BL   @draw_entity_hardware_sprite
+*
+display_entity_return
+*
+       MOV  *R10+,R11
+       RT
+
+*
 * Draw a hardware sprite within the larger multi-sprite entity
 *
 * Input:
 *  R0, R1, R2
 *  R4 - VDPWD
+*  R5 - early clock value
 * Output:
 *  R0 - next entry in char-code/color list
 * Changed:
@@ -145,8 +174,9 @@ draw_entity_hardware_sprite
        MOVB R3,*R4
 * sprite-char
        MOVB *R0+,*R4
-* sprite-color and clock-thing
+* sprite-color and early-clock
        MOVB *R0+,R3
+       AB   R5,R3
        MOVB R3,*R4
 *
        RT
