@@ -135,18 +135,19 @@ sprite_attribute_loop
 * Output:
 *  R0 - next entry in char-code/color list
 * Changed:
-*  R3, R5
+*  R3
 draw_entity_hardware_sprite
+* y-pos
        MOVB R1,*R4
-       MOVB R2,R5
-       MOVB R5,*R4
+* x-pos
+       MOVB R2,R3
+       AB   *R0+,R3
+       MOVB R3,*R4
+* sprite-char
        MOVB *R0+,*R4
+* sprite-color and clock-thing
        MOVB *R0+,R3
        MOVB R3,*R4
-* Skip horizontal offset byte.
-* This byte is for entities where one hardware sprite
-* is horizontally offset from the rest of the entity.
-       INC  R0
 *
        RT
 
