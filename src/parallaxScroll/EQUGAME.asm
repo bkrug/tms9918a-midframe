@@ -1,4 +1,8 @@
 *
+* RAM addresses
+*
+
+*
 * Values representing the scroll position of different portions of screen
 * Measured to the nearest 16th of a pixel.
 * Any non-scrolling portions are omitted.
@@ -59,20 +63,25 @@ player_offset_address    EQU  sprite_frame_delay+6       * Address of eight valu
 *
 entity_list              EQU  >B038
 
+* =========================================================================================
+
+*
+* Constants
+*
 
 *
 * Keys
 *
-right_flag     EQU  >04
-jump_flag      EQU  >02
-sword_flag     EQU  >10
+right_flag               EQU  >04
+jump_flag                EQU  >02
+sword_flag               EQU  >10
 *
 * Player positions are measured to the nearest 16th of a pixel.
 * 16 = 2^4
 *
-pixel_size     EQU  16
-pixel_power    EQU  4
-tile_power     EQU  3
+pixel_size               EQU  16
+pixel_power              EQU  4
+tile_power               EQU  3
 *
 * VDP Addresses
 *

@@ -108,11 +108,12 @@ sprite_attribute_loop
        SLA  R1,8
 * Let R2 = x-position rounded to a pixel
        MOV  *R0+,R2
+       S    @x_pos_4,R2
        SRL  R2,pixel_power
        SLA  R2,8
 * Let R0 = address in char/color list
        MOV  *R0,R0
-*
+* Draw each hardware sprite in multi-sprite entity
        BL   @draw_entity_hardware_sprite
        BL   @draw_entity_hardware_sprite
 * End the sprite list
