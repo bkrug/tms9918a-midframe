@@ -126,19 +126,26 @@ sprite_attribute_loop
        RT
 
 *
+* Draw a hardware sprite within the larger multi-sprite entity
 *
 * Input:
-*  R0, R1, R2, R3
+*  R0, R1, R2
 *  R4 - VDPWD
 * Output:
 *  R0 - next entry in char-code/color list
+* Changed:
+*  R3, R5
 draw_entity_hardware_sprite
        MOVB R1,*R4
-       MOVB R2,*R4
+       MOVB R2,R5
+       MOVB R5,*R4
        MOVB *R0+,*R4
        MOVB *R0+,R3
-       AB   *R0+,R3
        MOVB R3,*R4
+* Skip horizontal offset byte.
+* This byte is for entities where one hardware sprite
+* is horizontally offset from the rest of the entity.
+       INC  R0
 *
        RT
 

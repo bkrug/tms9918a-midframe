@@ -6,6 +6,9 @@
 *
 test_settings DATA 0,>0400,>0C00,pig_char_1
 
+*
+* Sprite-char, Sprit-color, Hardware-sprite-horizontal-offset-from-entity
+*
 pig_char_1    BYTE >44,>0F,0
               BYTE >40,>09,0
               BYTE 0
