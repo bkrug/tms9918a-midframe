@@ -1,4 +1,5 @@
        DEF  ent_init
+       DEF  ent_move
 
        COPY './EQUGAME.asm'
 
@@ -38,5 +39,16 @@ write_loop
        MOV  *R1+,*R0+
        CI   R1,test_settings+entity_length
        JL   write_loop
+*
+       RT
+
+*
+* Move entities
+*
+ent_move
+       LI   R1,entity_list
+       INC  *R1
+       LI   R2,pixel_size/2
+       S    R2,@entity_x_pos(R1)
 *
        RT
