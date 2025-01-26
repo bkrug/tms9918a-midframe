@@ -5,7 +5,7 @@
 
 *
 *
-test_settings DATA 0,>0400,>1200,pig_char_1
+test_settings DATA 0,>0200,>1200,pig_char_1
 
 *
 * Hardware-sprite-horizontal-offset-from-entity, Sprite-char, Sprit-color
@@ -49,7 +49,7 @@ ent_move
 * Pick pig position
        LI   R1,entity_list
        INC  *R1
-       LI   R2,pixel_size/2
+       LI   R2,pixel_size
        S    R2,@entity_x_pos(R1)
 * Pick pig animation frame
        LI   R2,pig_char_list
@@ -58,7 +58,20 @@ ent_move
        SRL  R3,4
        A    R3,R2
        MOV  *R2,@entity_char_and_color(R1)
+* Is pig close enough to player to drop down?
+       MOV  @entity_x_pos(R1),R2
+       S    @x_pos_4,R2
+       JLT  pig_return
+       CI   R2,96*pixel_size
+       JGT  pig_return
+* Yes, has the pig dropped too low?
+       C    @entity_y_pos(R1),@player_y_pos
+       JGT  pig_return
+* No, drop more
+       LI   R2,3*pixel_power/2
+       A    R2,@entity_y_pos(R1)
 *
+pig_return
        RT
 
 pig_char_list
