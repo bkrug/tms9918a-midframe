@@ -49,8 +49,7 @@ ent_move
 * Pick pig position
        LI   R1,entity_list
        INC  *R1
-       LI   R2,pixel_size
-       S    R2,@entity_x_pos(R1)
+       S    @pig_x_speed,@entity_x_pos(R1)
 * Pick pig animation frame
        LI   R2,pig_char_list
        MOV  *R1,R3
@@ -62,17 +61,18 @@ ent_move
        MOV  @entity_x_pos(R1),R2
        S    @x_pos_4,R2
        JLT  pig_return
-       CI   R2,96*pixel_size
+       C    R2,@pig_close_to_player
        JGT  pig_return
 * Yes, has the pig dropped too low?
        C    @entity_y_pos(R1),@player_y_pos
        JGT  pig_return
 * No, drop more
-       LI   R2,3*pixel_power/2
-       A    R2,@entity_y_pos(R1)
+       A    @pig_drop_speed,@entity_y_pos(R1)
 *
 pig_return
        RT
 
-pig_char_list
-       DATA pig_char_1,pig_char_2
+pig_char_list        DATA pig_char_1,pig_char_2
+pig_drop_speed       DATA 3*pixel_power/2
+pig_close_to_player  DATA 96*pixel_size
+pig_x_speed          DATA pixel_size
