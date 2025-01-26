@@ -46,9 +46,20 @@ write_loop
 * Move entities
 *
 ent_move
+* Pick pig position
        LI   R1,entity_list
        INC  *R1
        LI   R2,pixel_size/2
        S    R2,@entity_x_pos(R1)
+* Pick pig animation frame
+       LI   R2,pig_char_list
+       MOV  *R1,R3
+       ANDI R3,>0020
+       SRL  R3,4
+       A    R3,R2
+       MOV  *R2,@entity_char_and_color(R1)
 *
        RT
+
+pig_char_list
+       DATA pig_char_1,pig_char_2

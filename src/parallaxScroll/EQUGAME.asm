@@ -114,7 +114,7 @@ lower_screen_rows        EQU  8
 entity_movement          EQU  0  (word)
 entity_y_pos             EQU  2  (word)
 entity_x_pos             EQU  4  (word)
-entity_char_and_color    EQU  5  (word)
+entity_char_and_color    EQU  6  (word)
 * Size of an entity entry measured as 2^x power
 entity_length            EQU  8
 entity_power             EQU  3
