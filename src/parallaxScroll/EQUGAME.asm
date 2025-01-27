@@ -111,10 +111,11 @@ lower_screen_rows        EQU  8
 *
 * Entities offsets
 *
-entity_movement          EQU  0  (word)
-entity_y_pos             EQU  2  (word)
-entity_x_pos             EQU  4  (word)
-entity_char_and_color    EQU  6  (word)
+entity_type              EQU  0  (byte)
+entity_movement          EQU  2  (word)
+entity_y_pos             EQU  4  (word)
+entity_x_pos             EQU  6  (word)
+entity_char_and_color    EQU  8  (word)
 * Size of an entity entry measured as 2^x power
-entity_length            EQU  8
-entity_power             EQU  3
+entity_length            EQU  16
+entity_power             EQU  4

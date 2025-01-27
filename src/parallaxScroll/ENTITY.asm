@@ -5,7 +5,11 @@
 
 *
 *
-test_settings DATA 0,>0200,>1200,pig_char_1
+test_settings DATA e_type_pig,0,>0200,>1200,pig_char_1
+              DATA 0,0,0
+
+e_type_empty  EQU  0
+e_type_pig    EQU  2
 
 *
 * Hardware-sprite-horizontal-offset-from-entity, Sprite-char, Sprit-color
