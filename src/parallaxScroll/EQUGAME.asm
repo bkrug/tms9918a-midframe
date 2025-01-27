@@ -1,5 +1,62 @@
 *
-* RAM addresses
+* Constants
+*
+
+*
+* Keys
+*
+right_flag               EQU  >04
+jump_flag                EQU  >02
+sword_flag               EQU  >10
+*
+* Player positions are measured to the nearest 16th of a pixel.
+* 16 = 2^4
+*
+pixel_size               EQU  16
+pixel_power              EQU  4
+tile_power               EQU  3
+*
+* VDP Addresses
+*
+color_table_address      EQU  >0080
+sprite_pattern_table_i   EQU  >1000
+sprite_pattern_table_ii  EQU  >1800
+screen_image_table_i     EQU  >2000
+screen_image_table_ii    EQU  >2800
+screen_image_table_iii   EQU  >3000
+screen_image_table_iv    EQU  >3800
+*
+* VDP Reg values
+*
+vdp_reg_2_screen_i       EQU  >0200+(screen_image_table_i/>400)
+vdp_reg_2_screen_ii      EQU  >0200+(screen_image_table_ii/>400)
+vdp_reg_2_screen_iii     EQU  >0200+(screen_image_table_iii/>400)
+vdp_reg_2_screen_iv      EQU  >0200+(screen_image_table_iv/>400)
+vdp_reg_3_color_table    EQU  >0300+(color_table_address/>40)
+vdp_reg_4_text_patterns  EQU  >0401
+vdp_reg_6_sprite_i       EQU  >0600+(sprite_pattern_table_i/>800)
+vdp_reg_6_sprite_ii      EQU  >0600+(sprite_pattern_table_ii/>800)
+*
+* Screen sizes
+*
+upper_screen_rows        EQU  14
+lower_screen_rows        EQU  8
+*
+* Entities offsets
+*
+entity_type              EQU  0  (byte)
+entity_movement          EQU  2  (word)
+entity_y_pos             EQU  4  (word)
+entity_x_pos             EQU  6  (word)
+entity_char_and_color    EQU  8  (word)
+* Size of an entity entry measured as 2^x power
+entity_length            EQU  16
+entity_power             EQU  4
+
+* =========================================================================================
+
+*
+* CPU RAM addresses
 *
 
 *
@@ -62,61 +119,6 @@ player_offset_address    EQU  sprite_frame_delay+6       * Address of eight valu
 * Entities
 *
 entity_list              EQU  >B038
-entity_list_end          EQU  entity_list+(8*16)
+entity_list_end          EQU  entity_list+(8*entity_length)
 
 * =========================================================================================
-
-*
-* Constants
-*
-
-*
-* Keys
-*
-right_flag               EQU  >04
-jump_flag                EQU  >02
-sword_flag               EQU  >10
-*
-* Player positions are measured to the nearest 16th of a pixel.
-* 16 = 2^4
-*
-pixel_size               EQU  16
-pixel_power              EQU  4
-tile_power               EQU  3
-*
-* VDP Addresses
-*
-color_table_address      EQU  >0080
-sprite_pattern_table_i   EQU  >1000
-sprite_pattern_table_ii  EQU  >1800
-screen_image_table_i     EQU  >2000
-screen_image_table_ii    EQU  >2800
-screen_image_table_iii   EQU  >3000
-screen_image_table_iv    EQU  >3800
-*
-* VDP Reg values
-*
-vdp_reg_2_screen_i       EQU  >0200+(screen_image_table_i/>400)
-vdp_reg_2_screen_ii      EQU  >0200+(screen_image_table_ii/>400)
-vdp_reg_2_screen_iii     EQU  >0200+(screen_image_table_iii/>400)
-vdp_reg_2_screen_iv      EQU  >0200+(screen_image_table_iv/>400)
-vdp_reg_3_color_table    EQU  >0300+(color_table_address/>40)
-vdp_reg_4_text_patterns  EQU  >0401
-vdp_reg_6_sprite_i       EQU  >0600+(sprite_pattern_table_i/>800)
-vdp_reg_6_sprite_ii      EQU  >0600+(sprite_pattern_table_ii/>800)
-*
-* Screen sizes
-*
-upper_screen_rows        EQU  14
-lower_screen_rows        EQU  8
-*
-* Entities offsets
-*
-entity_type              EQU  0  (byte)
-entity_movement          EQU  2  (word)
-entity_y_pos             EQU  4  (word)
-entity_x_pos             EQU  6  (word)
-entity_char_and_color    EQU  8  (word)
-* Size of an entity entry measured as 2^x power
-entity_length            EQU  16
-entity_power             EQU  4
