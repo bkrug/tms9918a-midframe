@@ -50,6 +50,15 @@ write_loop
 * Move entities
 *
 ent_move
+       DECT R10
+       MOV  R11,*R10
+*
+       BL   @move_pig
+*
+       MOV  *R10+,R11
+       RT
+
+move_pig
 * Pick pig position
        LI   R1,entity_list
        INC  *R1
