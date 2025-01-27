@@ -62,6 +62,7 @@ player_offset_address    EQU  sprite_frame_delay+6       * Address of eight valu
 * Entities
 *
 entity_list              EQU  >B038
+entity_list_end          EQU  entity_list+(8*16)
 
 * =========================================================================================
 

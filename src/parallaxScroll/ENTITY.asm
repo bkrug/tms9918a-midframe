@@ -5,7 +5,8 @@
 
 *
 *
-test_settings DATA e_type_pig,0,>0200,>1200,pig_char_1
+test_settings BYTE e_type_pig,0
+              DATA 0,>0200,>1200,pig_char_1
               DATA 0,0,0
 
 e_type_empty  EQU  0
@@ -44,6 +45,12 @@ write_loop
        CI   R1,test_settings+entity_length
        JL   write_loop
 *
+*       CLR  R1
+*init_as_empty_loop
+*       MOV  R1,*R0+
+*       CI   R0,entity_list_end
+*       JL   init_as_empty_loop
+*
        RT
 
 *
@@ -52,11 +59,29 @@ write_loop
 ent_move
        DECT R10
        MOV  R11,*R10
-*
-       BL   @move_pig
+* Let R0 = position within entity list
+       LI   R0,entity_list
+* Let R1 = the entity type
+       MOVB *R0,R1
+       JEQ  skip_empty_entry
+* Push R0 to stack
+       DECT R10
+       MOV  R0,*R10
+* Branch link to  the entity's movement algorithm
+       SRL  R1,8
+       AI   R1,type_moves
+       MOV  *R1,R1
+       BL   *R1
+* Pop R0 from stack
+       MOV  *R10+,R0
+* Pick the next entity list entry
+skip_empty_entry
+       AI   R0,entity_length
 *
        MOV  *R10+,R11
        RT
+
+type_moves    DATA 0,move_pig
 
 move_pig
 * Pick pig position
