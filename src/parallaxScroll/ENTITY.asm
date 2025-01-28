@@ -45,11 +45,11 @@ write_loop
        CI   R1,test_settings+entity_length
        JL   write_loop
 *
-*       CLR  R1
-*init_as_empty_loop
-*       MOV  R1,*R0+
-*       CI   R0,entity_list_end
-*       JL   init_as_empty_loop
+       CLR  R1
+init_as_empty_loop
+       MOV  R1,*R0+
+       CI   R0,entity_list_end
+       JL   init_as_empty_loop
 *
        RT
 
@@ -61,6 +61,7 @@ ent_move
        MOV  R11,*R10
 * Let R0 = position within entity list
        LI   R0,entity_list
+ent_move_loop
 * Let R1 = the entity type
        MOVB *R0,R1
        JEQ  skip_empty_entry
@@ -77,6 +78,9 @@ ent_move
 * Pick the next entity list entry
 skip_empty_entry
        AI   R0,entity_length
+*
+       CI   R0,entity_list_end
+       JL   ent_move_loop
 *
        MOV  *R10+,R11
        RT
