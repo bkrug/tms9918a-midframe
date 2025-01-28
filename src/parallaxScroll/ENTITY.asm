@@ -1,13 +1,7 @@
        DEF  ent_init
-       DEF  ent_move
+       DEF  ent_handle
 
        COPY './EQUGAME.asm'
-
-*
-*
-test_settings BYTE e_type_pig,0
-              DATA 0,>0200,>1200,pig_char_1
-              DATA 0,0,0
 
 e_type_empty  EQU  0
 e_type_pig    EQU  2
@@ -39,10 +33,10 @@ rabbit_char_2 BYTE 0,>5C,>0A
 
 ent_init
        LI   R0,entity_list
-       LI   R1,test_settings
+       LI   R1,starting_pig
 write_loop
        MOV  *R1+,*R0+
-       CI   R1,test_settings+entity_length
+       CI   R1,starting_pig+entity_length
        JL   write_loop
 *
        CLR  R1
@@ -54,7 +48,25 @@ init_as_empty_loop
        RT
 
 *
+* Handle entities
+*
+ent_handle
+       DECT R10
+       MOV  R11,*R10
+*
+       BL   @ent_move
+*
+       MOV  *R10+,R11
+       RT
+
+starting_pig  BYTE e_type_pig
+              BYTE 0
+              DATA 0,>0200,>1200,pig_char_1
+              DATA 0,0,0
+
+*
 * Move entities
+* Select each entity in memory and run it's movement algorithm
 *
 ent_move
        DECT R10
@@ -87,6 +99,11 @@ skip_empty_entry
 
 type_moves    DATA 0,move_pig
 
+*
+* Move pig
+*
+* Input:
+*   R0 - Address of current entity
 move_pig
 * Pick pig position
        LI   R1,entity_list

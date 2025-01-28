@@ -27,7 +27,7 @@
        REF  status_print
 *
        REF  ent_init
-       REF  ent_move
+       REF  ent_handle
 
        COPY '.\EQUGAME.asm'
        COPY '..\EQUVAR.asm'
@@ -101,7 +101,7 @@ game_loop
 * Process player input
        BL   @process_input
 *
-       BL   @ent_move
+       BL   @ent_handle
 * Don't end game loop until all timer-interrupts have been triggered
 !      MOV  @all_lines_scanned,R0
        JEQ  -!
