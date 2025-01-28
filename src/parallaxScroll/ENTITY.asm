@@ -105,9 +105,11 @@ type_moves    DATA 0,move_pig
 * Input:
 *   R0 - Address of current entity
 move_pig
-* Pick pig position
-       LI   R1,entity_list
+* Let R1 = address of pig
+       MOV  R0,R1
+* Advance pig status
        INC  *R1
+* Advance pig position
        S    @pig_x_speed,@entity_x_pos(R1)
 * Pick pig animation frame
        LI   R2,pig_char_list
