@@ -118,10 +118,14 @@ move_pig
        SRL  R3,4
        A    R3,R2
        MOV  *R2,@entity_char_and_color(R1)
-* Is pig close enough to player to drop down?
+* Let R2 = distance from left side of screen
+* And from the player, sort-of.
        MOV  @entity_x_pos(R1),R2
        S    @x_pos_4,R2
-       JLT  pig_return
+* Is the pig to the left of the screen?
+       C    R2,@left_of_screen
+       JLT  delete_pig
+* Is pig close enough to player to drop down?
        C    R2,@pig_close_to_player
        JGT  pig_return
 * Yes, has the pig dropped too low?
@@ -133,7 +137,14 @@ move_pig
 pig_return
        RT
 
+* Pig has moved far enough to the left that we can remove it from RAM
+delete_pig
+       CLR  *R0
+       JMP  pig_return
+
 pig_char_list        DATA pig_char_1,pig_char_2
 pig_drop_speed       DATA 3*pixel_power/2
 pig_close_to_player  DATA 96*pixel_size
 pig_x_speed          DATA pixel_size
+
+left_of_screen       DATA -32*pixel_size
