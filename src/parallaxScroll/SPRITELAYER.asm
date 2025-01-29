@@ -197,9 +197,7 @@ draw_entity_hardware_sprite
 * y-pos
        MOVB R1,*R4
 * x-pos
-       MOVB R2,R3
-       AB   *R0+,R3
-       MOVB R3,*R4
+       MOVB R2,*R4
 * sprite-char
        MOVB *R0+,*R4
 * sprite-color and early-clock
