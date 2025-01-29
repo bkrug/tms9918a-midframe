@@ -14,14 +14,15 @@ pig_char_2    BYTE 0,>48,>0F
               BYTE frame_end
 apple_char    BYTE 0,>4C,>08
               BYTE frame_end
-turtle_char_1 BYTE 0,>54,>0F
+turtle_char_1 BYTE 2,>54,>0F
               BYTE 0,>50,>03
               BYTE frame_end
-turtle_char_2 BYTE 1,>54,>0F
+turtle_char_2 BYTE 0,>50,>03
+              BYTE frame_end
+turtle_char_3 BYTE 2,>54,>09
               BYTE 0,>50,>03
               BYTE frame_end
-turtle_char_3 BYTE 2,>54,>0F
-              BYTE 0,>50,>03
+turtle_char_4 BYTE 0,>50,>03
               BYTE frame_end
 rabbit_char_1 BYTE 0,>58,>0A
               BYTE frame_end
@@ -76,10 +77,10 @@ ent_insert
        JMP  ent_insert_return
 found_empty_entry
 * Insert pig data at the found location
-       LI   R1,starting_pig
+       LI   R1,starting_turtle
 write_loop
        MOV  *R1+,*R0+
-       CI   R1,starting_pig+entity_length
+       CI   R1,starting_turtle+entity_length
        JL   write_loop
 * Replace x-position
        MOV  @location_of_next_entity,R2
@@ -139,7 +140,7 @@ skip_empty_entry
        MOV  *R10+,R11
        RT
 
-type_moves    DATA 0,move_pig
+type_moves    DATA 0,move_pig,move_turtle
 
 * Pig has moved far enough to the left that we can remove it from RAM
 delete_entity
@@ -187,3 +188,37 @@ pig_close_to_player  DATA 96*pixel_size
 pig_x_speed          DATA pixel_size
 
 left_of_screen       DATA -32*pixel_size
+
+*
+* Move turtle
+*
+* Input:
+*   R0 - Address of current entity
+move_turtle
+* Let R1 = address of turtle
+       MOV  R0,R1
+* Advance turtle position
+       S    @pig_x_speed,@entity_x_pos(R1)
+* Advance turtle status
+       INC  @entity_status(R1)
+       LI   R2,4*>20
+       C    @entity_status(R1),R2
+       JL   !
+       CLR  @entity_status(R1)
+!
+* Pick turtle animation frame
+       LI   R2,turtle_char_list
+       MOV  @entity_status(R1),R3
+       SRL  R3,5
+       SLA  R3,1
+       A    R3,R2
+       MOV  *R2,@entity_char_and_color(R1)
+*
+       RT
+
+turtle_char_list     DATA turtle_char_1,turtle_char_2,turtle_char_3,turtle_char_4
+
+starting_turtle      BYTE e_type_turtle
+                     BYTE 0
+                     DATA 0,>0600,>1200,turtle_char_1
+                     DATA 0,0,0

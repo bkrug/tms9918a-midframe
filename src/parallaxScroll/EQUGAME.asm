@@ -57,6 +57,7 @@ entity_power             EQU  4
 *
 e_type_empty             EQU  0
 e_type_pig               EQU  2
+e_type_turtle            EQU  4
 *
 frame_end                EQU  -128
 *
