@@ -32,12 +32,13 @@ rabbit_char_2 BYTE 0,>5C,>0A
               BYTE 0
 
 ent_init
+* Initialize entity timers
+       LI   R0,3*int_per_second
+       MOV  R0,@insert_entity_time
+       LI   R0,(256+128)*int_per_second
+       MOV  R0,@between_entity_time
+*
        LI   R0,entity_list
-       LI   R1,starting_pig
-write_loop
-       MOV  *R1+,*R0+
-       CI   R1,starting_pig+entity_length
-       JL   write_loop
 *
        CLR  R1
 init_as_empty_loop
@@ -54,9 +55,31 @@ ent_handle
        DECT R10
        MOV  R11,*R10
 *
+       BL   @ent_insert
        BL   @ent_move
 *
        MOV  *R10+,R11
+       RT
+
+ent_insert
+       DEC  @insert_entity_time
+       JNE  ent_insert_return
+*
+* Insert new entity
+*
+* Find empty entity location
+       LI   R0,entity_list
+* Insert pig data at the found location
+       LI   R1,starting_pig
+write_loop
+       MOV  *R1+,*R0+
+       CI   R1,starting_pig+entity_length
+       JL   write_loop       
+* Decrease insert time for next entity
+       DECT @between_entity_time
+* Prepare for next insert
+       MOV  @between_entity_time,@insert_entity_time
+ent_insert_return
        RT
 
 starting_pig  BYTE e_type_pig

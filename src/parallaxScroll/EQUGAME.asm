@@ -52,6 +52,8 @@ entity_char_and_color    EQU  8  (word)
 * Size of an entity entry measured as 2^x power
 entity_length            EQU  16
 entity_power             EQU  4
+*
+int_per_second           EQU  60
 
 * =========================================================================================
 
@@ -118,7 +120,11 @@ player_offset_address    EQU  sprite_frame_delay+6       * Address of eight valu
 *
 * Entities
 *
-entity_list              EQU  >B038
+insert_entity_time       EQU  >B038
+between_entity_time      EQU  >B03A
+*
+entity_list              EQU  >B040
 entity_list_end          EQU  entity_list+(8*entity_length)
+
 
 * =========================================================================================
