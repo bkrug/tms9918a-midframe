@@ -121,6 +121,14 @@ ent_move_loop
        BL   *R1
 * Pop R0 from stack
        MOV  *R10+,R0
+* Let R2 = distance from left side of screen
+* And from the player, sort-of.
+       MOV  R0,R1
+       MOV  @entity_x_pos(R1),R2
+       S    @x_pos_4,R2
+* Is the pig to the left of the screen?
+       C    R2,@left_of_screen
+       JLT  delete_entity
 * Pick the next entity list entry
 skip_empty_entry
        AI   R0,entity_length
@@ -132,6 +140,11 @@ skip_empty_entry
        RT
 
 type_moves    DATA 0,move_pig
+
+* Pig has moved far enough to the left that we can remove it from RAM
+delete_entity
+       CLR  *R0
+       JMP  skip_empty_entry
 
 *
 * Move pig
@@ -156,9 +169,6 @@ move_pig
 * And from the player, sort-of.
        MOV  @entity_x_pos(R1),R2
        S    @x_pos_4,R2
-* Is the pig to the left of the screen?
-       C    R2,@left_of_screen
-       JLT  delete_pig
 * Is pig close enough to player to drop down?
        C    R2,@pig_close_to_player
        JGT  pig_return
@@ -170,11 +180,6 @@ move_pig
 *
 pig_return
        RT
-
-* Pig has moved far enough to the left that we can remove it from RAM
-delete_pig
-       CLR  *R0
-       JMP  pig_return
 
 pig_char_list        DATA pig_char_1,pig_char_2
 pig_drop_speed       DATA 3*pixel_power/2
