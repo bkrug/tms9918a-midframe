@@ -58,15 +58,23 @@ ent_handle
        MOV  *R10+,R11
        RT
 
+*
+* Insert new entity, if the map has reached the proper location
+*
 ent_insert
        MOV  @location_of_next_entity,R0
        S    @x_pos_4,R0
        JGT  ent_insert_return
-*
-* Insert new entity
-*
 * Find empty entity location
        LI   R0,entity_list
+!      MOVB *R0,*R0
+       JEQ  found_empty_entry
+       AI   R0,entity_length
+       CI   R0,entity_list_end
+       JL   -!
+* All entries in the entity_list are full
+       JMP  ent_insert_return
+found_empty_entry
 * Insert pig data at the found location
        LI   R1,starting_pig
 write_loop
