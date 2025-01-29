@@ -85,17 +85,16 @@ already_initialized
 * All entries in the entity_list are full
        JMP  ent_insert_return
 found_empty_entry
-* Let R1 = index within possible_entites
+* Let R2 = index within possible_entites
 * Select a random number of 0, 2, or 4
        BL   @get_random
        MOV  R7,R2
        CLR  R1
        DIV  @three,R1
        SLA  R2,1
-       MOV  R2,R1
 * Let R1 = source of starting data for the chosen entity
 * Let R2 = end of starting data
-       MOV  @possible_entites(R1),R1
+       MOV  @possible_entites(R2),R1
        MOV  R1,R2
        AI   R2,entity_length
 * Insert entity data at the found location
