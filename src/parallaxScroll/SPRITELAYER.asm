@@ -117,9 +117,13 @@ display_entity
        DECT R10
        MOV  R11,*R10
 * Let R0 = address within the first item in the entity list
-*          (the y-pos rather than beginning of the item)
-       LI   R0,entity_list+entity_y_pos
+       LI   R0,entity_list
+* Is the entity_list entry empty?
+       MOVB *R0,*R0
+       JEQ  display_entity_return
+* No, draw the specified entity
 * Let R1 = y-position rounded to a pixel
+       AI   R0,entity_y_pos
        MOV  *R0+,R1
        SRL  R1,pixel_power
        SLA  R1,8
@@ -146,8 +150,9 @@ display_entity
 * Yes, Let R0 = address in char/color list
        MOV  *R0,R0
 * Draw each hardware sprite in multi-sprite entity
-       BL   @draw_entity_hardware_sprite
-       BL   @draw_entity_hardware_sprite
+!      BL   @draw_entity_hardware_sprite
+       CB   *R0,@end_of_list
+       JNE  -!
 *
 display_entity_return
 *
@@ -181,5 +186,6 @@ draw_entity_hardware_sprite
 *
        RT
 
-player_colors
-       BYTE >0E,>05,>09,>09
+player_colors        BYTE >0E,>05,>09,>09
+end_of_list          BYTE frame_end
+                     EVEN

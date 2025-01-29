@@ -45,13 +45,20 @@ lower_screen_rows        EQU  8
 * Entities offsets
 *
 entity_type              EQU  0  (byte)
-entity_status          EQU  2  (word)
+entity_status            EQU  2  (word)
 entity_y_pos             EQU  4  (word)
 entity_x_pos             EQU  6  (word)
 entity_char_and_color    EQU  8  (word)
 * Size of an entity entry measured as 2^x power
 entity_length            EQU  16
 entity_power             EQU  4
+*
+* Other entity constants
+*
+e_type_empty             EQU  0
+e_type_pig               EQU  2
+*
+frame_end                EQU  -128
 *
 int_per_second           EQU  60
 

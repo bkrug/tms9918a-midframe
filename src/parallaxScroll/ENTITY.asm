@@ -3,33 +3,30 @@
 
        COPY './EQUGAME.asm'
 
-e_type_empty  EQU  0
-e_type_pig    EQU  2
-
 *
 * Hardware-sprite-horizontal-offset-from-entity, Sprite-char, Sprit-color
 *
 pig_char_1    BYTE 0,>44,>0F
               BYTE 0,>40,>09
-              BYTE 0
+              BYTE frame_end
 pig_char_2    BYTE 0,>48,>0F
               BYTE 0,>40,>09
-              BYTE 0
+              BYTE frame_end
 apple_char    BYTE 0,>4C,>08
-              BYTE 0
+              BYTE frame_end
 turtle_char_1 BYTE 0,>54,>0F
               BYTE 0,>50,>03
-              BYTE 0
+              BYTE frame_end
 turtle_char_2 BYTE 1,>54,>0F
               BYTE 0,>50,>03
-              BYTE 0
+              BYTE frame_end
 turtle_char_3 BYTE 2,>54,>0F
               BYTE 0,>50,>03
-              BYTE 0
+              BYTE frame_end
 rabbit_char_1 BYTE 0,>58,>0A
-              BYTE 0
+              BYTE frame_end
 rabbit_char_2 BYTE 0,>5C,>0A
-              BYTE 0
+              BYTE frame_end
 
 ent_init
 * Initialize entity timers
