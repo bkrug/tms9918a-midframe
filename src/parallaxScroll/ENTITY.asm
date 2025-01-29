@@ -105,14 +105,14 @@ ent_move
 ent_move_loop
 * Let R1 = the entity type
        MOVB *R0,R1
+* Is list entry empty?
        JEQ  skip_empty_entry
-* Push R0 to stack
+* No, push R0 to stack
        DECT R10
        MOV  R0,*R10
 * Branch link to  the entity's movement algorithm
        SRL  R1,8
-       AI   R1,type_moves
-       MOV  *R1,R1
+       MOV  @type_moves(R1),R1
        BL   *R1
 * Pop R0 from stack
        MOV  *R10+,R0
@@ -142,7 +142,7 @@ move_pig
        S    @pig_x_speed,@entity_x_pos(R1)
 * Pick pig animation frame
        LI   R2,pig_char_list
-       MOV  *R1,R3
+       MOV  @entity_status(R1),R3
        ANDI R3,>0020
        SRL  R3,4
        A    R3,R2
