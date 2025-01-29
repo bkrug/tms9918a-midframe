@@ -73,10 +73,14 @@ ent_insert
 * All entries in the entity_list are full
        JMP  ent_insert_return
 found_empty_entry
+* Let R1 = index within possible_entites
+       LI   R1,1
 * Let R1 = source of starting data for the chosen entity
 * Let R2 = end of starting data
-       LI   R1,starting_pig
-       LI   R2,starting_pig+entity_length
+       SLA  R1,1
+       MOV  @possible_entites(R1),R1
+       MOV  R1,R2
+       AI   R2,entity_length
 * Insert entity data at the found location
 !      MOV  *R1+,*R0+
        C    R1,R2
