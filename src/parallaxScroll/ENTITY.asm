@@ -33,10 +33,10 @@ rabbit_char_2 BYTE 0,>5C,>0A
 
 ent_init
 * Initialize entity timers
-       LI   R0,3*int_per_second
-       MOV  R0,@insert_entity_time
-       LI   R0,(256+128)*int_per_second
-       MOV  R0,@between_entity_time
+       LI   R0,16*pixel_size
+       MOV  R0,@location_of_next_entity
+       LI   R0,(256+64)*pixel_size
+       MOV  R0,@distance_between_entities
 *
        LI   R0,entity_list
 *
@@ -62,8 +62,9 @@ ent_handle
        RT
 
 ent_insert
-       DEC  @insert_entity_time
-       JNE  ent_insert_return
+       MOV  @location_of_next_entity,R0
+       S    @x_pos_4,R0
+       JGT  ent_insert_return
 *
 * Insert new entity
 *
@@ -74,11 +75,16 @@ ent_insert
 write_loop
        MOV  *R1+,*R0+
        CI   R1,starting_pig+entity_length
-       JL   write_loop       
-* Decrease insert time for next entity
-       DECT @between_entity_time
+       JL   write_loop
+* Replace x-position
+       MOV  @location_of_next_entity,R2
+       AI   R2,256*pixel_size
+       MOV  R2,@(entity_list+entity_x_pos)
+* Decrease distance for next entity
+       LI   R0,2*pixel_size
+       S    R0,@distance_between_entities
 * Prepare for next insert
-       MOV  @between_entity_time,@insert_entity_time
+       A    @distance_between_entities,@location_of_next_entity
 ent_insert_return
        RT
 
@@ -131,7 +137,7 @@ move_pig
 * Let R1 = address of pig
        MOV  R0,R1
 * Advance pig status
-       INC  *R1
+       INC  @entity_status(R1)
 * Advance pig position
        S    @pig_x_speed,@entity_x_pos(R1)
 * Pick pig animation frame

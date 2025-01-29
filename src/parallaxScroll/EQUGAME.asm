@@ -45,7 +45,7 @@ lower_screen_rows        EQU  8
 * Entities offsets
 *
 entity_type              EQU  0  (byte)
-entity_movement          EQU  2  (word)
+entity_status          EQU  2  (word)
 entity_y_pos             EQU  4  (word)
 entity_x_pos             EQU  6  (word)
 entity_char_and_color    EQU  8  (word)
@@ -120,8 +120,8 @@ player_offset_address    EQU  sprite_frame_delay+6       * Address of eight valu
 *
 * Entities
 *
-insert_entity_time       EQU  >B038
-between_entity_time      EQU  >B03A
+location_of_next_entity     EQU  >B038
+distance_between_entities   EQU  location_of_next_entity+2
 *
 entity_list              EQU  >B040
 entity_list_end          EQU  entity_list+(8*entity_length)
