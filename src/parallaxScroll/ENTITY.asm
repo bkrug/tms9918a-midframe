@@ -215,7 +215,7 @@ pig_return
 pig_char_list        DATA pig_char_1,pig_char_2
 pig_drop_speed       DATA 3*pixel_power/2
 pig_close_to_player  DATA 96*pixel_size
-pig_x_speed          DATA pixel_size
+pig_x_speed          DATA 2*pixel_size
 
 left_of_screen       DATA -32*pixel_size
 
@@ -228,7 +228,7 @@ move_turtle
 * Let R1 = address of turtle
        MOV  R0,R1
 * Advance turtle position
-       S    @pig_x_speed,@entity_x_pos(R1)
+       S    @turtle_x_speed,@entity_x_pos(R1)
 * Advance turtle status
        INC  @entity_status(R1)
 * Pick turtle animation frame
@@ -241,6 +241,7 @@ move_turtle
 *
        RT
 
+turtle_x_speed       DATA pixel_size
 turtle_char_list     DATA turtle_char_1,turtle_char_2,turtle_char_3,turtle_char_4
 
 *
