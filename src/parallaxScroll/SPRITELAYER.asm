@@ -98,8 +98,8 @@ sprite_attribute_loop
        MOVB *R3+,*R4
        CI   R3,player_colors+4
        JL   sprite_attribute_loop
-* Display first of the entities
-       BL   @display_entity
+* Display the entities from the entity_list
+       BL   @display_entities
 * End the sprite list
        LI   R0,>D000
        MOVB R0,*R4
@@ -111,17 +111,40 @@ sprite_attribute_loop
        RT
 
 *
-* Display one multisprite entity
+* Display all entities in memory
 *
-display_entity
+display_entities
        DECT R10
        MOV  R11,*R10
 * Let R0 = address within the first item in the entity list
        LI   R0,entity_list
+entities_loop
 * Is the entity_list entry empty?
        MOVB *R0,*R0
-       JEQ  display_entity_return
-* No, draw the specified entity
+       JEQ  skip_entry
+* No, display this entity
+       DECT R10
+       MOV  R0,*R10
+       BL   @display_entity
+       MOV  *R10+,R0
+skip_entry
+* Check next entry
+       AI   R0,entity_length
+       CI   R0,entity_list_end
+       JL   entities_loop
+* Return
+       MOV  *R10+,R11
+       RT
+
+*
+* Display one multisprite entity
+*
+* Input:
+*  R0 - address of one entry in entity_list
+display_entity
+       DECT R10
+       MOV  R11,*R10
+* Draw the specified entity
 * Let R1 = y-position rounded to a pixel
        AI   R0,entity_y_pos
        MOV  *R0+,R1
