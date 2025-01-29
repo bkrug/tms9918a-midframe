@@ -201,16 +201,11 @@ move_turtle
        S    @pig_x_speed,@entity_x_pos(R1)
 * Advance turtle status
        INC  @entity_status(R1)
-       LI   R2,4*>20
-       C    @entity_status(R1),R2
-       JL   !
-       CLR  @entity_status(R1)
-!
 * Pick turtle animation frame
        LI   R2,turtle_char_list
        MOV  @entity_status(R1),R3
-       SRL  R3,5
-       SLA  R3,1
+       ANDI R3,>0060
+       SRL  R3,4
        A    R3,R2
        MOV  *R2,@entity_char_and_color(R1)
 *
