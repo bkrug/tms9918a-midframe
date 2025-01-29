@@ -2,6 +2,7 @@
        DEF  ent_handle
 
        COPY './EQUGAME.asm'
+       COPY '../EQUCPUADR.asm'
 
 *
 * Hardware-sprite-horizontal-offset-from-entity, Sprite-char, Sprit-color
@@ -60,9 +61,20 @@ ent_handle
 * Insert new entity, if the map has reached the proper location
 *
 ent_insert
+       DECT R10
+       MOV  R11,*R10
+* Has the map scrolled enough to add another entity?
        MOV  @location_of_next_entity,R0
        S    @x_pos_4,R0
        JGT  ent_insert_return
+* Yes, is the random seed initialized?
+       MOV  @seed,R0
+       JNE  already_initialized
+* No, initalize it
+       LI   R0,49281
+       MOV  R0,@seed
+       AB   @VINTTM,@(seed+1)
+already_initialized
 * Find empty entity location
        LI   R0,entity_list
 !      MOVB *R0,*R0
@@ -74,10 +86,12 @@ ent_insert
        JMP  ent_insert_return
 found_empty_entry
 * Let R1 = index within possible_entites
-       LI   R1,1
+* select a random even number from 0 to 2
+       BL   @get_random
+       MOV  R7,R1
+       ANDI R1,>0002
 * Let R1 = source of starting data for the chosen entity
 * Let R2 = end of starting data
-       SLA  R1,1
        MOV  @possible_entites(R1),R1
        MOV  R1,R2
        AI   R2,entity_length
@@ -95,6 +109,7 @@ found_empty_entry
 * Prepare for next insert
        A    @distance_between_entities,@location_of_next_entity
 ent_insert_return
+       MOV  *R10+,R11
        RT
 
 possible_entites     DATA starting_pig,starting_turtle
@@ -227,3 +242,20 @@ move_turtle
        RT
 
 turtle_char_list     DATA turtle_char_1,turtle_char_2,turtle_char_3,turtle_char_4
+
+*
+* Private: get_random
+*
+* Output:
+*  R6 = changes
+*  R7 = random value
+RNDMOD DATA 7717
+get_random
+       LI   R6,28645
+       MPY  @seed,R6
+       AI   R7,31417
+       MOV  R7,@seed
+       CLR  R6
+       SWPB R7
+       DIV  @RNDMOD,R6
+       RT
