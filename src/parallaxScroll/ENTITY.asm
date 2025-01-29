@@ -86,10 +86,13 @@ already_initialized
        JMP  ent_insert_return
 found_empty_entry
 * Let R1 = index within possible_entites
-* select a random even number from 0 to 2
+* Select a random number of 0, 2, or 4
        BL   @get_random
-       MOV  R7,R1
-       ANDI R1,>0002
+       MOV  R7,R2
+       CLR  R1
+       DIV  @three,R1
+       SLA  R2,1
+       MOV  R2,R1
 * Let R1 = source of starting data for the chosen entity
 * Let R2 = end of starting data
        MOV  @possible_entites(R1),R1
@@ -112,7 +115,8 @@ ent_insert_return
        MOV  *R10+,R11
        RT
 
-possible_entites     DATA starting_pig,starting_turtle
+three                DATA 3
+possible_entites     DATA starting_pig,starting_turtle,starting_rabbit
 
 starting_pig  BYTE e_type_pig         * entity-type
               BYTE 0                  * unused
@@ -127,6 +131,13 @@ starting_turtle      BYTE e_type_turtle
                      DATA >0600              * entity's initial y-position
                      DATA 0                  * entity's x-position. this will be overwritten at initialization
                      DATA turtle_char_1
+                     DATA 0,0,0
+starting_rabbit      BYTE e_type_rabbit
+                     BYTE 0
+                     DATA 0
+                     DATA >0A00              * entity's initial y-position
+                     DATA 0                  * entity's x-position. this will be overwritten at initialization
+                     DATA rabbit_char_1
                      DATA 0,0,0
 
 *
@@ -170,7 +181,7 @@ skip_empty_entry
        MOV  *R10+,R11
        RT
 
-type_moves    DATA 0,move_pig,move_turtle
+type_moves    DATA 0,move_pig,move_turtle,move_rabbit
 
 * Pig has moved far enough to the left that we can remove it from RAM
 delete_entity
@@ -243,6 +254,31 @@ move_turtle
 
 turtle_x_speed       DATA pixel_size
 turtle_char_list     DATA turtle_char_1,turtle_char_2,turtle_char_3,turtle_char_4
+
+*
+* Move rabbit
+*
+* Input:
+*   R0 - Address of current entity
+move_rabbit
+* Let R1 = address of rabbit
+       MOV  R0,R1
+* Advance turtle position
+       S    @rabbit_x_speed,@entity_x_pos(R1)
+* Advance turtle status
+       INC  @entity_status(R1)
+* Pick turtle animation frame
+       LI   R2,rabbit_char_list
+       MOV  @entity_status(R1),R3
+       ANDI R3,>0020
+       SRL  R3,4
+       A    R3,R2
+       MOV  *R2,@entity_char_and_color(R1)
+*
+       RT
+
+rabbit_x_speed       DATA 3*pixel_size/2
+rabbit_char_list     DATA rabbit_char_1,rabbit_char_2
 
 *
 * Private: get_random
