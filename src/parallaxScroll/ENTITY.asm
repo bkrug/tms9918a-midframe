@@ -73,12 +73,14 @@ ent_insert
 * All entries in the entity_list are full
        JMP  ent_insert_return
 found_empty_entry
-* Insert pig data at the found location
-       LI   R1,starting_turtle
-write_loop
-       MOV  *R1+,*R0+
-       CI   R1,starting_turtle+entity_length
-       JL   write_loop
+* Let R1 = source of starting data for the chosen entity
+* Let R2 = end of starting data
+       LI   R1,starting_pig
+       LI   R2,starting_pig+entity_length
+* Insert entity data at the found location
+!      MOV  *R1+,*R0+
+       C    R1,R2
+       JL   -!
 * Replace x-position
        MOV  @location_of_next_entity,R2
        AI   R2,256*pixel_size
@@ -91,10 +93,22 @@ write_loop
 ent_insert_return
        RT
 
-starting_pig  BYTE e_type_pig
-              BYTE 0
-              DATA 0,>0200,>1200,pig_char_1
-              DATA 0,0,0
+possible_entites     DATA starting_pig,starting_turtle
+
+starting_pig  BYTE e_type_pig         * entity-type
+              BYTE 0                  * unused
+              DATA 0                  * entity-status
+              DATA >0200              * entity's initial y-position
+              DATA 0                  * entity's x-position. this will be overwritten at initialization
+              DATA pig_char_1         * entity's initial animation frame
+              DATA 0,0,0              * unused data
+starting_turtle      BYTE e_type_turtle
+                     BYTE 0
+                     DATA 0
+                     DATA >0600              * entity's initial y-position
+                     DATA 0                  * entity's x-position. this will be overwritten at initialization
+                     DATA turtle_char_1
+                     DATA 0,0,0
 
 *
 * Move entities
@@ -209,8 +223,3 @@ move_turtle
        RT
 
 turtle_char_list     DATA turtle_char_1,turtle_char_2,turtle_char_3,turtle_char_4
-
-starting_turtle      BYTE e_type_turtle
-                     BYTE 0
-                     DATA 0,>0600,>1200,turtle_char_1
-                     DATA 0,0,0
