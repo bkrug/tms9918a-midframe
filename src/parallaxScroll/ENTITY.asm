@@ -35,14 +35,11 @@ ent_init
        MOV  R0,@location_of_next_entity
        LI   R0,(256+64)*pixel_size
        MOV  R0,@distance_between_entities
-*
+* Initialize entity list with entirely empty entries.
        LI   R0,entity_list
-*
-       CLR  R1
-init_as_empty_loop
-       MOV  R1,*R0+
+!      CLR  *R0+
        CI   R0,entity_list_end
-       JL   init_as_empty_loop
+       JL   -!
 *
        RT
 
