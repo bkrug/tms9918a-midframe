@@ -133,8 +133,8 @@ starting_turtle      BYTE e_type_turtle
                      DATA 0,0,0
 starting_rabbit      BYTE e_type_rabbit
                      BYTE 0
-                     DATA 0
-                     DATA >0A00              * entity's initial y-position
+                     DATA -rabbit_jump_speed
+                     DATA rabbit_max_y       * entity's initial y-position
                      DATA 0                  * entity's x-position. this will be overwritten at initialization
                      DATA rabbit_char_1
                      DATA 0,0,0
@@ -260,24 +260,36 @@ turtle_char_list     DATA turtle_char_1,turtle_char_2,turtle_char_3,turtle_char_
 * Input:
 *   R0 - Address of current entity
 move_rabbit
-* Let R1 = address of rabbit
+* Let R1 = address of rabbit entry
        MOV  R0,R1
-* Advance turtle position
+* Advance rabbit x position
        S    @rabbit_x_speed,@entity_x_pos(R1)
-* Advance turtle status
-       INC  @entity_status(R1)
-* Pick turtle animation frame
-       LI   R2,rabbit_char_list
-       MOV  @entity_status(R1),R3
-       ANDI R3,>0020
-       SRL  R3,4
-       A    R3,R2
-       MOV  *R2,@entity_char_and_color(R1)
-*
+* Change rabbit's vertical speed
+       A    @rabbit_deceleration,@entity_status(R1)
+* Change rabbit-s veritcal position
+       A    @entity_status(R1),@entity_y_pos(R1)
+* Did the rabbit drop too low?
+       LI   R2,rabbit_max_y
+       C    @entity_y_pos(R1),R2
+       JLE  rabbit_frame
+* Yes, re-initialize speed & position
+       MOV  R2,@entity_y_pos(R1)
+       LI   R2,rabbit_jump_speed
+       MOV  R2,@entity_status(R1)
+* Pick rabbit animation frame
+rabbit_frame
+       LI   R3,rabbit_char_2
+       MOV  @entity_status(R1),R2
+       JLT  !
+       LI   R3,rabbit_char_1
+!      MOV  R3,@entity_char_and_color(R1)
+* Return
        RT
 
 rabbit_x_speed       DATA 3*pixel_size/2
-rabbit_char_list     DATA rabbit_char_1,rabbit_char_2
+rabbit_deceleration  DATA 3
+rabbit_jump_speed    EQU  -3*pixel_size-8
+rabbit_max_y         EQU  >80*pixel_size
 
 *
 * Private: get_random
