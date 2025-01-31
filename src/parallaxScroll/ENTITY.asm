@@ -200,12 +200,10 @@ move_pig
 * Advance pig position
        S    @pig_x_speed,@entity_x_pos(R1)
 * Pick pig animation frame
-       LI   R2,pig_char_list
-       MOV  @entity_status(R1),R3
-       ANDI R3,>0020
-       SRL  R3,4
-       A    R3,R2
-       MOV  *R2,@entity_char_and_color(R1)
+       MOVB @VINTTM,R3
+       ANDI R3,>2000
+       SRL  R3,8+4
+       MOV  @pig_char_list(R3),@entity_char_and_color(R1)
 * Let R2 = distance from left side of screen
 * And from the player, sort-of.
        MOV  @entity_x_pos(R1),R2
@@ -242,7 +240,6 @@ move_turtle
 * Advance turtle status
        INC  @entity_status(R1)
 * Pick turtle animation frame
-       LI   R2,turtle_char_list
        MOV  @entity_status(R1),R3
        ANDI R3,>0060
        SRL  R3,4
