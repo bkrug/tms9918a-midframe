@@ -23,8 +23,6 @@ turtle_char_2 BYTE >50,>03
 turtle_char_3 BYTE >54,>09
               BYTE >50,>03
               BYTE frame_end
-turtle_char_4 BYTE >50,>03
-              BYTE frame_end
 rabbit_char_1 BYTE >58,>0A
               BYTE frame_end
 rabbit_char_2 BYTE >5C,>0A
@@ -244,7 +242,7 @@ move_turtle
        RT
 
 turtle_x_speed       DATA pixel_size
-turtle_char_list     DATA turtle_char_1,turtle_char_2,turtle_char_3,turtle_char_4
+turtle_char_list     DATA turtle_char_1,turtle_char_2,turtle_char_3,turtle_char_2
 
 *
 * Move rabbit
