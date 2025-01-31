@@ -116,22 +116,46 @@ sprite_attribute_loop
 display_entities
        DECT R10
        MOV  R11,*R10
-* Let R0 = address within the first item in the entity list
+* Let R0 = address of an entry within the entity list
+* Let R1 = direction for travelling with the entry list
+* Let R2 = stopping point
        LI   R0,entity_list
+       LI   R1,entity_length
+       LI   R2,entity_list_end
+* In case more that 4 sprites are at the same horizontal level,
+* use the timer to decide if we want to move forwards or backwards
+* through the entity list.
+* That way extra sprites will flicker instead of being invisible.
+       MOVB @VINTTM,R3
+       ANDI R3,>0200
+       JEQ  !
+* Move backwards through the list
+       LI   R0,entity_list_end-entity_length
+       NEG  R1
+       LI   R2,entity_list-entity_length
+!
 entities_loop
 * Is the entity_list entry empty?
        MOVB *R0,*R0
        JEQ  skip_entry
-* No, display this entity
+* No, push data to stack and display this entity
        DECT R10
        MOV  R0,*R10
+       DECT R10
+       MOV  R1,*R10
+       DECT R10
+       MOV  R2,*R10
+*
        BL   @display_entity
+* Pop data from stack
+       MOV  *R10+,R2
+       MOV  *R10+,R1
        MOV  *R10+,R0
 skip_entry
 * Check next entry
-       AI   R0,entity_length
-       CI   R0,entity_list_end
-       JL   entities_loop
+       A    R1,R0
+       C    R0,R2
+       JNE  entities_loop
 * Return
        MOV  *R10+,R11
        RT
