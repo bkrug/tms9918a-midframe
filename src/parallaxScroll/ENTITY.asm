@@ -92,9 +92,11 @@ found_empty_entry
        SLA  R2,1
 * Let R1 = source of starting data for the chosen entity
 * Let R2 = end of starting data
+* Let R3 = copy of address of entity_list entry
        MOV  @possible_entites(R2),R1
        MOV  R1,R2
        AI   R2,entity_length
+       MOV  R0,R3
 * Insert entity data at the found location
 !      MOV  *R1+,*R0+
        C    R1,R2
@@ -102,9 +104,9 @@ found_empty_entry
 * Replace x-position
        MOV  @location_of_next_entity,R2
        AI   R2,256*pixel_size
-       MOV  R2,@(entity_list+entity_x_pos)
+       MOV  R2,@entity_x_pos(R3)
 * Decrease distance for next entity
-       LI   R0,2*pixel_size
+       LI   R0,8*pixel_size
        S    R0,@distance_between_entities
 * Prepare for next insert
        A    @distance_between_entities,@location_of_next_entity
@@ -115,13 +117,13 @@ ent_insert_return
 three                DATA 3
 possible_entites     DATA starting_pig,starting_turtle,starting_rabbit
 
-starting_pig  BYTE e_type_pig         * entity-type
-              BYTE 0                  * unused
-              DATA 0                  * entity-status
-              DATA >0200              * entity's initial y-position
-              DATA 0                  * entity's x-position. this will be overwritten at initialization
-              DATA pig_char_1         * entity's initial animation frame
-              DATA 0,0,0              * unused data
+starting_pig         BYTE e_type_pig         * entity-type
+                     BYTE 0                  * unused
+                     DATA pig_fall_speed     * entity-status
+                     DATA >0200              * entity's initial y-position
+                     DATA 0                  * entity's x-position. this will be overwritten at initialization
+                     DATA pig_char_1         * entity's initial animation frame
+                     DATA 0,0,0              * unused data
 starting_turtle      BYTE e_type_turtle
                      BYTE 0
                      DATA 0
@@ -204,21 +206,25 @@ move_pig
 * And from the player, sort-of.
        MOV  @entity_x_pos(R1),R2
        S    @x_pos_4,R2
-* Is pig close enough to player to drop down?
+* Is pig close enough to player/screen-edge to drop down?
        C    R2,@pig_close_to_player
        JGT  pig_return
-* Yes, has the pig dropped too low?
-       C    @entity_y_pos(R1),@player_y_pos
-       JGT  pig_return
-* No, drop more
-       A    @pig_drop_speed,@entity_y_pos(R1)
+* Yes, is the pig vertical speed still greater than zero?
+       MOV  @entity_status(R1),R2
+       JLT  pig_return
+* Yes, drop pig
+       A    R2,@entity_y_pos(R1)
+* Decelerate pig
+       S    @pig_deceleration,@entity_status(R1)
 *
 pig_return
        RT
 
+pig_fall_speed       EQU  3*pixel_size
+pig_deceleration     DATA 2
 pig_char_list        DATA pig_char_1,pig_char_2
 pig_drop_speed       DATA 3*pixel_power/2
-pig_close_to_player  DATA 96*pixel_size
+pig_close_to_player  DATA 92*pixel_size
 pig_x_speed          DATA 2*pixel_size
 
 left_of_screen       DATA -32*pixel_size
