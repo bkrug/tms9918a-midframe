@@ -106,14 +106,20 @@ found_empty_entry
        AI   R2,256*pixel_size
        MOV  R2,@entity_x_pos(R3)
 * Decrease distance for next entity
-       LI   R0,8*pixel_size
+       LI   R0,>8*pixel_size
        S    R0,@distance_between_entities
+* Don't let distance decrease too much
+       C    @distance_between_entities,@min_entity_distance
+       JHE  !
+       MOV  @min_entity_distance,@distance_between_entities
+!
 * Prepare for next insert
        A    @distance_between_entities,@location_of_next_entity
 ent_insert_return
        MOV  *R10+,R11
        RT
 
+min_entity_distance  DATA >30*pixel_size
 three                DATA 3
 possible_entites     DATA starting_pig,starting_turtle,starting_rabbit
 
