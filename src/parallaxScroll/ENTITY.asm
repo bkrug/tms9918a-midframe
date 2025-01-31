@@ -246,8 +246,7 @@ move_turtle
        MOV  @entity_status(R1),R3
        ANDI R3,>0060
        SRL  R3,4
-       A    R3,R2
-       MOV  *R2,@entity_char_and_color(R1)
+       MOV  @turtle_char_list(R3),@entity_char_and_color(R1)
 *
        RT
 
@@ -286,10 +285,12 @@ rabbit_frame
 * Return
        RT
 
-rabbit_x_speed       DATA 3*pixel_size/2
-rabbit_deceleration  DATA 3
 rabbit_jump_speed    EQU  -3*pixel_size-8
 rabbit_max_y         EQU  >80*pixel_size
+rabbit_x_speed       DATA 3*pixel_size/2
+rabbit_deceleration  DATA 3
+rabbit_jump_byte     BYTE rabbit_jump_speed
+                     EVEN
 
 *
 * Private: get_random
