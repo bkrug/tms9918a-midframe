@@ -195,8 +195,6 @@ delete_entity
 move_pig
 * Let R1 = address of pig
        MOV  R0,R1
-* Advance pig status
-       INC  @entity_status(R1)
 * Advance pig position
        S    @pig_x_speed,@entity_x_pos(R1)
 * Pick pig animation frame
@@ -237,12 +235,10 @@ move_turtle
        MOV  R0,R1
 * Advance turtle position
        S    @turtle_x_speed,@entity_x_pos(R1)
-* Advance turtle status
-       INC  @entity_status(R1)
 * Pick turtle animation frame
-       MOV  @entity_status(R1),R3
-       ANDI R3,>0060
-       SRL  R3,4
+       MOVB @VINTTM,R3
+       ANDI R3,>6000
+       SRL  R3,8+4
        MOV  @turtle_char_list(R3),@entity_char_and_color(R1)
 *
        RT
