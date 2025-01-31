@@ -223,7 +223,6 @@ pig_return
 pig_fall_speed       EQU  3*pixel_size
 pig_deceleration     DATA 2
 pig_char_list        DATA pig_char_1,pig_char_2
-pig_drop_speed       DATA 3*pixel_power/2
 pig_close_to_player  DATA 92*pixel_size
 pig_x_speed          DATA 2*pixel_size
 
