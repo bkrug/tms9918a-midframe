@@ -118,26 +118,20 @@ three                DATA 3
 possible_entites     DATA starting_pig,starting_turtle,starting_rabbit
 
 starting_pig         BYTE e_type_pig         * entity-type
-                     BYTE 0                  * unused
-                     DATA pig_fall_speed     * entity-status
+                     BYTE pig_fall_speed     * entity-status
                      DATA >0200              * entity's initial y-position
                      DATA 0                  * entity's x-position. this will be overwritten at initialization
                      DATA pig_char_1         * entity's initial animation frame
-                     DATA 0,0,0              * unused data
 starting_turtle      BYTE e_type_turtle
                      BYTE 0
-                     DATA 0
                      DATA >0600              * entity's initial y-position
                      DATA 0                  * entity's x-position. this will be overwritten at initialization
                      DATA turtle_char_1
-                     DATA 0,0,0
 starting_rabbit      BYTE e_type_rabbit
-                     BYTE 0
-                     DATA -rabbit_jump_speed
+                     BYTE -rabbit_jump_speed
                      DATA rabbit_max_y       * entity's initial y-position
                      DATA 0                  * entity's x-position. this will be overwritten at initialization
                      DATA rabbit_char_1
-                     DATA 0,0,0
 
 *
 * Move entities
@@ -210,18 +204,20 @@ move_pig
        C    R2,@pig_close_to_player
        JGT  pig_return
 * Yes, is the pig vertical speed still greater than zero?
-       MOV  @entity_status(R1),R2
+       MOVB @entity_status(R1),R2
        JLT  pig_return
 * Yes, drop pig
+       SRA  R2,8
        A    R2,@entity_y_pos(R1)
 * Decelerate pig
-       S    @pig_deceleration,@entity_status(R1)
+       SB   @pig_deceleration,@entity_status(R1)
 *
 pig_return
        RT
 
 pig_fall_speed       EQU  3*pixel_size
-pig_deceleration     DATA 2
+pig_deceleration     BYTE 2
+                     EVEN
 pig_char_list        DATA pig_char_1,pig_char_2
 pig_close_to_player  DATA 92*pixel_size
 pig_x_speed          DATA 2*pixel_size
@@ -260,21 +256,22 @@ move_rabbit
 * Advance rabbit x position
        S    @rabbit_x_speed,@entity_x_pos(R1)
 * Change rabbit's vertical speed
-       A    @rabbit_deceleration,@entity_status(R1)
-* Change rabbit-s veritcal position
-       A    @entity_status(R1),@entity_y_pos(R1)
+       AB   @rabbit_deceleration,@entity_status(R1)
+* Change rabbit's veritcal position
+       MOVB @entity_status(R1),R2
+       SRA  R2,8
+       A    R2,@entity_y_pos(R1)
 * Did the rabbit drop too low?
        LI   R2,rabbit_max_y
        C    @entity_y_pos(R1),R2
        JLE  rabbit_frame
 * Yes, re-initialize speed & position
        MOV  R2,@entity_y_pos(R1)
-       LI   R2,rabbit_jump_speed
-       MOV  R2,@entity_status(R1)
+       MOVB @rabbit_jump_byte,@entity_status(R1)
 * Pick rabbit animation frame
 rabbit_frame
        LI   R3,rabbit_char_2
-       MOV  @entity_status(R1),R2
+       MOVB @entity_status(R1),R2
        JLT  !
        LI   R3,rabbit_char_1
 !      MOV  R3,@entity_char_and_color(R1)
@@ -284,7 +281,7 @@ rabbit_frame
 rabbit_jump_speed    EQU  -3*pixel_size-8
 rabbit_max_y         EQU  >80*pixel_size
 rabbit_x_speed       DATA 3*pixel_size/2
-rabbit_deceleration  DATA 3
+rabbit_deceleration  BYTE 3
 rabbit_jump_byte     BYTE rabbit_jump_speed
                      EVEN
 
