@@ -28,6 +28,8 @@
 *
        REF  ent_init
        REF  ent_handle
+*
+       REF  col_detect
 
        COPY '.\EQUGAME.asm'
        COPY '..\EQUVAR.asm'
@@ -98,10 +100,10 @@ game_loop
        LIMI 2
 * Load KEYCOD with value
        BL   @BSCAN
-* Process player input
-       BL   @process_input
 *
+       BL   @process_input
        BL   @ent_handle
+       BL   @col_detect
 * Don't end game loop until all timer-interrupts have been triggered
 !      MOV  @all_lines_scanned,R0
        JEQ  -!

@@ -63,6 +63,8 @@ e_type_rabbit            EQU  6
 frame_end                EQU  -128
 *
 int_per_second           EQU  60
+*
+player_from_screen_edge  EQU  >10*pixel_size
 
 * =========================================================================================
 
@@ -135,6 +137,10 @@ seed                        EQU  location_of_next_entity+4
 *
 entity_list              EQU  >B040
 entity_list_end          EQU  entity_list+(8*entity_length)
+*
+* Collision
+*
+player_box               EQU  >B080                      * 8 bytes long
 
 
 * =========================================================================================

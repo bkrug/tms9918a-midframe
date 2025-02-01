@@ -91,7 +91,7 @@ sprite_attribute_loop
        SLA  R0,8-pixel_power
        AB   *R1+,R0
        MOVB R0,*R4
-       LI   R0,>1000
+       LI   R0,player_from_screen_edge/pixel_size*>100
        AB   *R1+,R0
        MOVB R0,*R4
        MOVB *R2+,*R4
