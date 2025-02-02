@@ -4,10 +4,10 @@ Attempt to change some VDP registers strategically mid-frame
 ## Timer-interrupts
 
 Some 8-bit and 16-bit era systems offered raster-interrupts, allowing a program to trigger a small subroutine when a particular row of pixels was about to be drawn.
-The TI-99/4a's video chip only supplies one type of interrupt,
+However, the TI-99/4a's video chip only supplies one type of interrupt,
 an end-of-frame interrupt, usually reffered to as the VDP interrupt.
 
-In 2006 or 2008, Thierry Nouspikel and Jeff Brown told us that it is also possible to configure CRU-timer interrupts so long as you are willing to loose the ability to trigger VDP end-of-frame interrupts.
+In 2006 or 2008, Jeff Brown and Thierry Nouspikel told us that it is also possible to configure CRU-timer interrupts so long as you are willing to loose the ability to trigger VDP end-of-frame interrupts.
 (http://www.unige.ch/medecine/nouspikel/ti99/tms9901.htm)
 I never understood how to use their code until recently.
 The CRU timer ticks more regullarly than the end of a video frame.
@@ -34,13 +34,89 @@ we can set a timer interrupt and use it for exactly what the word "interrupt" su
 An iterration of a game loop can be interrupted at exactly the right time,
 without having to constantly poll to see if the scan beam has reached the disired portion of the screen.
 
-## Scan-line interrupts
+Note that we can have multiple timer interrupts per frame.
+When the first interrupt triggers, a program can set the timer again.
+The time just needs to be less than what remains for the current video frame.
 
-I'm hoping to use the COINC flag to measure the number CRU ticks between the end of a frame and the drawing of a particular scan line.
-If these measurements are made at an application startup,
-then the application won't need to worry about if it is running in a 50hz or 60hz environment.
-In code, we can specify which scan-lines should trigger an interrupt,
-and one of our routines will calculate the corresponding timer-value which actually triggers the interrupt.
+## Tech Demos in this Repository
+
+Assembling the code in this repository will result in two ROM cartridge images.
+They contain the following demos:
+
+1. A program that changes the background color mid-screen, and changes it back at the end of the frame.
+This program doesn't try to time the interrupt to any particular pixel row.
+1. A program that changes the background color on multiple pixel rows.
+This program makes use of additional routines to calculate the correct timer value for a particular pixel row.
+1. A 40-column WYSIWYG text editor.
+The text editor supports regular, bold, italic, and bold-italic text.
+This requires more than 256 unique character patterns.
+This demo switches between four different Pattern Definition tables over the course of a frame.
+Every six tile-rows on screen have a different pattern table,
+So each quarter of the screen has 256 unique patterns, and only 240 tile positions that need to be filled.
+Note that in the "undocumented" text-bitmap mode, the screen is only divided into three regions.
+So in text-bitmap mode, each third of the screen has more than 256 tile positions to fill.
+1. A simple hack-and-slash game with psuedo-parallax scrolling in the background.
+Granted, the TI port of Moon Patrol already had psuedo-parallax scrolling.
+This isn't first TI program to achieve that effect.
+The point of this repo is to demonstrate achieving said effect through timer-interrupts instead of some other means.
+Like many other homebrew games,
+this demo achieves smooth horizontal scrolling by configuring eight different pattern tables to have very similar patterns.
+That is, VDP register 4 becomes a scroll register instead of a pattern table register.
+And the parallax scrolling is achieved by scrolling by different amounts at different places on the screen.
+
+## Flicker
+
+In the two programs that change the background color,
+a user will notice some obvious flicker at the point where the color changes.
+As noted above, the number of CRU ticks per frame is a non-integer.
+There are almost-but-not-quite three ticks per pixel-row.
+So the color always changes in the same 1/3 of a pixel-row, but not on the exact same pixel.
+
+The text-editor and the scrolling-game make attempts to hide that flicker.
+In the text editor, all text patterns have a blank line on the top pixel row,
+and the timer-interrupt triggers in the consistently blank rows.
+The game configures the timer interrupts to tigger at places on the screen where the pixel row is a single solid color.
+
+## Emulators vs. real hardware
+
+The demos in this repo specify particular pixel rows where interrupts should occurr as a number in the range 0 to 191.
+In MAME and Classic 99, the timer triggers _within_ the specified pixel row.
+On real hardware, the timer triggers _following_ the specified pixel row.
+In order to really hide flicker from the widest audience, it is ideal two have two pixel rows that are a solid color.
+
+Not all emulators seem to implement the CRU timer.
+If they don't, these demos will not work.
+
+## Dropped frames
+
+Our program needs to set the first timer at the very beginning of each video frame,
+in order to ensure that interrupt occurrs at a consistent place on the screen for each frame.
+One might assume that this would make a program intolerrant of dropped frames,
+but it doesn't.
+In the same sense that we can set more than one timer interrupt per frame,
+we can also set an interrupt to trigger at the exact end of a frame.
+As previously noted, it is important to syncronize with the real end-of-frame event regularly,
+but the CRU timer is still precise enough that dropping three-or-so frames between syncronizations seems to be tollerable.
+
+The previously mentioned text editor drops three frames every time the user inserts a character.
+This doesn't seem to cause flicker.
+
+## Mapping pixel-rows to the corresponding CRU ticks.
+
+The code in this repo includes two different ways to figure out the correct timer value for a particular pixel-row.
+One method multiplies the desired pixel-row by about 3 and adds some more ticks to account for the time between video frames.
+(See the routine calc_init_timer_loop in PIXELROW.asm)
+The second method places two overlapping sprites on the screen and polls the VDP's COINC flag until it sees that the overlapping sprites have been hit.
+(See the routine coinc_init_timer_loop in PIXELROW.asm)
+
+I wanted to experiment with the coinc approach because I was inspired by a different approach used in some NES games.
+But the calculation approach is probably better.
+The coinc approach has the freedom to be ignorant as to whether the program is running in a 60hz or 50hz environment.
+It could also theoretically work on an emulator that implements the CRU timer in an incorrect, but consistent way.
+But displaying overlapping sprites requires changing the contents of the VDP RAM, which could interfere with other parts of a program.
+And the coinc approach doesn't fix the above-mentioned issue of the difference of one pixel-row between real hardware and the most accurate emulators.
+Given that it is possible to programatically determine if a TI-99 is running in a 50hz or 60hz environment,
+the calculation approach doesn't really have much of a downside.
 
 ## Possible applications
 
