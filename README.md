@@ -3,15 +3,36 @@ Attempt to change some VDP registers strategically mid-frame
 
 ## Timer-interrupts
 
-Years ago Thierry Nouspikel and Jeff Brown told us that it is possible to configure CRU-timer interrupts so long as you are willing to loose the ability to trigger VDP interrupts.
+Some 8-bit and 16-bit era systems offered raster-interrupts, allowing a program to trigger a small subroutine when a particular row of pixels was about to be drawn.
+The TI-99/4a's video chip only supplies one type of interrupt,
+an end-of-frame interrupt, usually reffered to as the VDP interrupt.
+
+In 2006 or 2008, Thierry Nouspikel and Jeff Brown told us that it is also possible to configure CRU-timer interrupts so long as you are willing to loose the ability to trigger VDP end-of-frame interrupts.
 (http://www.unige.ch/medecine/nouspikel/ti99/tms9901.htm)
-I never understood how to use their code until now.
-Loosing VDP interrupts isn't a big problem, because at the end of a game loop,
-I usually need to block the thread until the VDP interrupt occurs anyway.
-Using Jeff Brown's method, I can employ a code loop that keeps checking if a VDP interrupt was just ignored.
-The timer can be set at the beginning of each loop,
-allowing the timer-interrupt to occur at a consistent point in each frame.
-Timer-interrupts trigger while my game loop is still doing work, and they are far more important than VDP-interrupts.
+I never understood how to use their code until recently.
+The CRU timer ticks more regullarly than the end of a video frame.
+In a 60hz environment there are, in fact, about 782 ticks per frame.
+This is precise enough so that we can set a CRU timer to trigger on the exact same pixel row for each frame.
+
+One might initially be concerned about the loss of the VDP end-of-frame interrupts.
+In most games and a few other programs, knowing when a frame completes is actually more important than knowing when a pixel row is reached.
+And since the number of CRU timer ticks per frame is a non-interger,
+it is also important to syncronize the timer with the VDP end-of-frame event on a regular basis.
+But the loss of end-of-frame interrupts isn't really a problem.
+Jeff Brown's same approach of enabling CRU timer interrupts, also involves waiting for an end-of-frame interrupt, so that the TI can be hacked to ignore them.
+
+In game loops that I've programmed, I normally want to block the thread at the end of the loop anyway.
+There is usually something in the timing of the game that makes it important to only run one iterration of the loop per video frame.
+If our program includes a routine that uses Jeff Brown's approach to enable CRU timers,
+then as soon as the program returns from that routine,
+we as programmers can be certain that an end-of-frame event has just recently occurred.
+If we call this hypothetical routine at either the beginning or the end of the game loop,
+then the loop can be syncronized with the video frames, just the same as if we were using the standard VDP interrupts.
+
+This means that at the beginning of each video frame,
+we can set a timer interrupt and use it for exactly what the word "interrupt" suggests.
+An iterration of a game loop can be interrupted at exactly the right time,
+without having to constantly poll to see if the scan beam has reached the disired portion of the screen.
 
 ## Scan-line interrupts
 
