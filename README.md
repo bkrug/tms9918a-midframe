@@ -84,6 +84,10 @@ In MAME and Classic 99, the timer triggers _within_ the specified pixel row.
 On real hardware, the timer triggers _following_ the specified pixel row.
 In order to really hide flicker from the widest audience, it is ideal two have two pixel rows that are a solid color.
 
+The text editor demo seems to get away with only having one row of solid pixels.
+But even in the text editor you should be able to notice a small amount of flicker on real hardware.
+It depends on the particular text being displayed.
+
 Not all emulators seem to implement the CRU timer.
 If they don't, these demos will not work.
 
@@ -122,7 +126,9 @@ the calculation approach doesn't really have much of a downside.
 
 + Psuedo-parallax scrolling. Choose different pattern tables at different scan lines, to create the appearance of scrolling by different amounts.
 + If the picture on screen displays sky and ground, then the background border can match the sky color and ground color at different parts of the screen.
-+ Give a text-mode screen a header section and body section that are of different colors.
++ Give a text-mode screen, a header section and body section that are of different colors.
 + Turn text-mode into a bitmap mode by giving each quarter of the screen its own pattern table, perhaps for WYSIWYG text.
-+ Exceed 32 sprite limitation.
-+ One sprite with more than one color.
++ Exceed 32 sprite limitation (but sadly maintain the 4 sprite per pixel-row limitation).
++ Two font sizes. Display 40 columns and 32 columns of text on different tile rows, by changing video modes mid-screen.
+
+I haven't experimented with those last two ideas, yet. Maybe someone else would like to try.
