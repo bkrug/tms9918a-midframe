@@ -1,4 +1,5 @@
        DEF  status_print
+       DEF  game_over_print
 *
        REF  VDPADR
        REF  write_string
@@ -8,6 +9,10 @@
 
 status_message
        TEXT 'HP:.....   THINGS KILLED:'
+       BYTE 0
+       EVEN
+game_over_message
+       TEXT 'GAME OVER!'
        BYTE 0
 ZERO   BYTE '0'
        EVEN
@@ -66,4 +71,20 @@ conversion_complete
        JMP  conversion_complete
 string_complete
 * return
+       RT
+
+*
+*
+*
+game_over_print
+       DECT R10
+       MOV  R11,*R10
+*
+       LI   R0,screen_image_table_i+(22*32)+1
+       BL   @VDPADR
+*
+       LI   R0,game_over_message
+       BL   @write_string
+*
+       MOV  *R10+,R11
        RT

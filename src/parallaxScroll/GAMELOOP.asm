@@ -25,6 +25,7 @@
        REF  process_input
 *
        REF  status_print
+       REF  game_over_print
 *
        REF  ent_init
        REF  ent_handle
@@ -92,6 +93,13 @@ game_loop
        BLWP @block_vdp_interrupt
 * Tell timer_isr to look at the begging of the table again
        BL   @restart_timer_loop
+* If the player is out of health, skip most of the loop
+       MOV  @player_health_points,R0
+       JGT  !
+       BL   @game_over_routine
+       LIMI 2
+       JMP  end_of_iteration
+!
 * If a re-draw request is incomplete, draw one row of it now
        BL   @draw_single_upper_row
 *
@@ -107,8 +115,9 @@ game_loop
        BL   @ent_handle
        BL   @col_detect
 * Don't end game loop until all timer-interrupts have been triggered
-!      MOV  @all_lines_scanned,R0
-       JEQ  -!
+end_of_iteration
+       MOV  @all_lines_scanned,R0
+       JEQ  end_of_iteration
 * Update VDP register Values
        MOV  @next_upper_screen,@current_upper_screen
        MOV  @next_lower_screen,@current_lower_screen
@@ -193,6 +202,15 @@ config_region_4
        BL   @VDPREG
 *
        LIMI 2
+*
+       MOV  *R10+,R11
+       RT
+
+game_over_routine
+       DECT R10
+       MOV  R11,*R10
+*
+       BL   @game_over_print
 *
        MOV  *R10+,R11
        RT
