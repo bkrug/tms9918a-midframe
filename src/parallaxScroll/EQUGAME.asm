@@ -145,6 +145,10 @@ player_box               EQU  >B080                      * 8 bytes long
 *
 *
 player_health_points    EQU  >B088
+*
+*
+*
+ascii_number            EQU  >B090
 
 
 
