@@ -29,6 +29,7 @@
        REF  ent_init
        REF  ent_handle
 *
+       REF  col_init
        REF  col_detect
 
        COPY '.\EQUGAME.asm'
@@ -68,6 +69,7 @@ parallax_demo
 *
        BL   @player_init
        BL   @ent_init
+       BL   @col_init
 *
        LI   R0,vdp_reg_2_screen_i
        MOV  R0,@current_upper_screen

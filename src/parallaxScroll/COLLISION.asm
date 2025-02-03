@@ -1,8 +1,13 @@
+       DEF  col_init
        DEF  col_detect
 
        COPY '.\EQUGAME.asm'
        COPY '..\EQUVAR.asm'
        COPY '..\EQUCPUADR.asm'
+
+col_init
+       LI   R0,32
+       MOV  R0,@player_health_points
 
 col_detect
        DECT R10
@@ -57,6 +62,7 @@ box_top              EQU  0
 box_left             EQU  2
 box_bottom           EQU  4
 box_right            EQU  6
+enemy_damage         DATA 4
 
 collision_with_player
 * Let R1 = entry within entity_list
@@ -94,6 +100,8 @@ collision_with_player_loop
        JL   skip_entity
 * Remove enemy from entity_list
        SB   *R1,*R1
+* Decrease hero health
+       S    @enemy_damage,@player_health_points
 *
 skip_entity
        AI   R1,entity_length

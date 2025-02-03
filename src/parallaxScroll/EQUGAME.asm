@@ -141,6 +141,11 @@ entity_list_end          EQU  entity_list+(8*entity_length)
 * Collision
 *
 player_box               EQU  >B080                      * 8 bytes long
+*
+*
+*
+player_health_points    EQU  >B088
+
 
 
 * =========================================================================================
