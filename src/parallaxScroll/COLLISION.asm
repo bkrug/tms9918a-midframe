@@ -15,6 +15,7 @@ col_detect
 *
        BL   @calc_player_box
        BL   @collision_with_player
+       BL   @calc_sword_box
 *
        MOV  *R10+,R11
        RT
@@ -42,6 +43,32 @@ calc_player_box
 *
        MOV  R2,*R1
        A    @player_right_offset,*R1+
+*
+       RT
+
+sword_top_offset       DATA 7*pixel_size
+sword_left_offset      DATA 0
+sword_bottom_offset    DATA 16*pixel_size
+sword_right_offset     DATA 6*pixel_size
+
+calc_sword_box
+* Let R1 = memory address within collision box structure
+* Let R2 = x-position of sword within player sprite
+       LI   R1,sword_box
+       LI   R2,sword_from_screen_edge
+       A    @x_pos_4,R2
+* Calculate sword's collision box
+       MOV  @player_y_pos,*R1
+       A    @sword_top_offset,*R1+
+*
+       MOV  R2,*R1
+       A    @sword_left_offset,*R1+
+*
+       MOV  @player_y_pos,*R1
+       A    @sword_bottom_offset,*R1+
+*
+       MOV  R2,*R1
+       A    @sword_right_offset,*R1+
 *
        RT
 
