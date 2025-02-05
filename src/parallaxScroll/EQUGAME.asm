@@ -135,20 +135,21 @@ location_of_next_entity     EQU  >B038
 distance_between_entities   EQU  location_of_next_entity+2
 seed                        EQU  location_of_next_entity+4
 *
-entity_list              EQU  >B040
-entity_list_end          EQU  entity_list+(8*entity_length)
+entity_list             EQU  >B040
+entity_list_end         EQU  entity_list+(8*entity_length)
 *
 * Collision
 *
-player_box               EQU  >B080                      * 8 bytes long
+player_box              EQU  >B080                      * 8 bytes long
+sword_box               EQU  >B088                      * 8 bytes long
 *
 *
 *
-player_health_points    EQU  >B088
+player_health_points    EQU  >B090
 *
 *
 *
-ascii_number            EQU  >B090
+ascii_number            EQU  >B098
 
 
 
