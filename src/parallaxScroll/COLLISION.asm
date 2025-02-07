@@ -13,9 +13,10 @@ col_detect
        DECT R10
        MOV  R11,*R10
 *
+       BL   @calc_sword_box
+       BL   @collision_with_sword
        BL   @calc_player_box
        BL   @collision_with_player
-       BL   @calc_sword_box
 *
        MOV  *R10+,R11
        RT
@@ -25,6 +26,8 @@ player_left_offset      DATA 3*magnified_pixel
 player_bottom_offset    DATA 32*magnified_pixel
 player_right_offset     DATA 10*magnified_pixel
 
+* SUGGESTION: Give the player a different collision box when jumping from standing or walking
+*
 calc_player_box
 * Let R1 = memory address within collision box structure
 * Let R2 = x-position of player sprite
@@ -49,7 +52,7 @@ calc_player_box
 sword_top_offset       DATA 7*magnified_pixel
 sword_left_offset      DATA 10*magnified_pixel
 sword_bottom_offset    DATA 16*magnified_pixel
-sword_right_offset     DATA 6*magnified_pixel
+sword_right_offset     DATA 16*magnified_pixel
 
 calc_sword_box
 * Let R1 = memory address within collision box structure
@@ -91,11 +94,51 @@ box_bottom           EQU  4
 box_right            EQU  6
 enemy_damage         DATA 4
 
+*
+*
+*
 collision_with_player
-* Let R1 = entry within entity_list
-* Let R2 = player_box
-       LI   R1,entity_list
+       DECT R10
+       MOV  R11,*R10
+*
        LI   R2,player_box
+       BL   @collision_with_thing
+       JNE  !
+* Collision detected
+* Decrease hero health
+       S    @enemy_damage,@player_health_points
+* Return
+!      MOV  *R10+,R11
+       RT
+
+*
+*
+*
+collision_with_sword
+       DECT R10
+       MOV  R11,*R10
+*
+       LI   R2,sword_box
+       BL   @collision_with_thing
+       JNE  !
+* Collision detected
+* Increment things killed
+* Return
+!      MOV  *R10+,R11
+       RT
+
+*
+* Input:
+*   R2: address of the collision box for the thing enemies collied with
+* Output:
+*   if EQ status bit set, collision detected
+*
+collision_with_thing
+* If R9 == 0, collision detected.
+* If R9 == -1, no collision.
+       SETO R9
+* Let R1 = entry within entity_list
+       LI   R1,entity_list
 collision_with_player_loop
 * Is entry empty?
        MOVB *R1,R3
@@ -125,14 +168,16 @@ collision_with_player_loop
        A    @box_bottom(R3),R4
        C    R4,*R2
        JL   skip_entity
+* Collision detected
+       CLR  R9
 * Remove enemy from entity_list
        SB   *R1,*R1
-* Decrease hero health
-       S    @enemy_damage,@player_health_points
 *
 skip_entity
        AI   R1,entity_length
        CI   R1,entity_list_end
        JL   collision_with_player_loop
+* Set EQ status bit according to whether or not collision happened
+       MOV  R9,R9
 *
        RT
