@@ -54,15 +54,22 @@ status_print
 * Output:
 *   6 bytes at ascii_number
 convert_to_ascii
-* Let R3 = location of char to convert
+* Let R3 = location of char to convert. Start from string's end.
        LI   R2,10
        LI   R3,ascii_number+5
 * Null-terminate the string
        SB   *R3,*R3
+* Is the original number zero?
+       MOV  R0,R0
+       JNE  conversion_loop
+* Yes, display zero in just the one's player_char_address
+       DEC  R3
+       MOVB @ZERO,*R3
+       JMP  pad_leading_spaces
 * Divide by 10 until the number reaches zero
 conversion_loop
        MOV  R0,R1
-       JEQ  conversion_complete
+       JEQ  pad_leading_spaces
        CLR  R0
        DIV  R2,R0
        SLA  R1,8
@@ -70,13 +77,13 @@ conversion_loop
        DEC  R3
        MOVB R1,*R3
        JMP  conversion_loop
-* Put spaces at the front of the number string
-conversion_complete
+* Pad leading spaces at the front of the number string
+pad_leading_spaces
        CI   R3,ascii_number
        JEQ  string_complete
        DEC  R3
        MOVB @SPACE,*R3
-       JMP  conversion_complete
+       JMP  pad_leading_spaces
 string_complete
 * return
        RT
