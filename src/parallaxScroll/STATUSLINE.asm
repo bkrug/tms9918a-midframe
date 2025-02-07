@@ -26,11 +26,19 @@ status_print
 *
        LI   R0,status_message
        BL   @write_string
-*
+* Display player health
        MOV  @player_health_points,R0
        BL   @convert_to_ascii
 *
        LI   R0,screen_image_table_i+(22*32)+4
+       BL   @VDPADR
+       LI   R0,ascii_number
+       BL   @write_string
+* Display number of enemies killed
+       MOV  @enemies_killed,R0
+       BL   @convert_to_ascii
+*
+       LI   R0,screen_image_table_i+(22*32)+26
        BL   @VDPADR
        LI   R0,ascii_number
        BL   @write_string

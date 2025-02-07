@@ -135,6 +135,7 @@ player_offset_address    EQU  sprite_frame_delay+6       * Address of eight valu
 location_of_next_entity     EQU  >B038
 distance_between_entities   EQU  location_of_next_entity+2
 seed                        EQU  location_of_next_entity+4
+enemies_killed              EQU  location_of_next_entity+6
 *
 entity_list             EQU  >B040
 entity_list_end         EQU  entity_list+(8*entity_length)

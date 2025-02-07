@@ -131,6 +131,7 @@ collision_with_sword
        JNE  !
 * Collision detected
 * Increment things killed
+       INC  @enemies_killed
 * Return
 !      MOV  *R10+,R11
        RT
