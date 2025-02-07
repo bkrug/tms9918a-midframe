@@ -20,10 +20,10 @@ col_detect
        MOV  *R10+,R11
        RT
 
-player_top_offset       DATA 3*pixel_size
-player_left_offset      DATA 0
-player_bottom_offset    DATA 32*pixel_size
-player_right_offset     DATA 7*pixel_size
+player_top_offset       DATA 1*magnified_pixel
+player_left_offset      DATA 3*magnified_pixel
+player_bottom_offset    DATA 32*magnified_pixel
+player_right_offset     DATA 10*magnified_pixel
 
 calc_player_box
 * Let R1 = memory address within collision box structure
@@ -46,16 +46,16 @@ calc_player_box
 *
        RT
 
-sword_top_offset       DATA 7*pixel_size
-sword_left_offset      DATA 0
-sword_bottom_offset    DATA 16*pixel_size
-sword_right_offset     DATA 6*pixel_size
+sword_top_offset       DATA 7*magnified_pixel
+sword_left_offset      DATA 10*magnified_pixel
+sword_bottom_offset    DATA 16*magnified_pixel
+sword_right_offset     DATA 6*magnified_pixel
 
 calc_sword_box
 * Let R1 = memory address within collision box structure
 * Let R2 = x-position of sword within player sprite
        LI   R1,sword_box
-       LI   R2,sword_from_screen_edge
+       LI   R2,player_from_screen_edge
        A    @x_pos_4,R2
 * Calculate sword's collision box
        MOV  @player_y_pos,*R1
@@ -76,14 +76,14 @@ enemy_box_power      EQU  3
 enemy_boxes
               BSS  8
 * pig_box
-              DATA 5*pixel_size,0
-              DATA 16*pixel_size,16*pixel_size
+              DATA 5*magnified_pixel,5*magnified_pixel
+              DATA 16*magnified_pixel,13*magnified_pixel
 * turtle_box
               DATA 0,0
-              DATA 7*pixel_size,15*pixel_size
+              DATA 7*magnified_pixel,15*magnified_pixel
 * rabbit_box
-              DATA 0,0
-              DATA 15*pixel_size,13*pixel_size
+              DATA 4*magnified_pixel,1*magnified_pixel
+              DATA 15*magnified_pixel,13*magnified_pixel
 *
 box_top              EQU  0
 box_left             EQU  2

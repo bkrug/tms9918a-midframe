@@ -15,7 +15,7 @@ sword_flag               EQU  >10
 pixel_size               EQU  16
 pixel_power              EQU  4
 tile_power               EQU  3
-magnified_sprite         EQU  2
+magnified_pixel          EQU  2*pixel_size
 *
 * VDP Addresses
 *
@@ -66,7 +66,6 @@ frame_end                EQU  -128
 int_per_second           EQU  60
 *
 player_from_screen_edge  EQU  >10*pixel_size
-sword_from_screen_edge   EQU  >1A*pixel_size
 
 * =========================================================================================
 
