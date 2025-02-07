@@ -9,13 +9,21 @@ col_init
        LI   R0,32
        MOV  R0,@player_health_points
 
+sword_button_down           BYTE sword_flag,0
+                            EVEN
+
 col_detect
        DECT R10
        MOV  R11,*R10
-*
+* Is sword key being pressed?
+       MOVB @KEYCOD,R0
+       COC  @sword_button_down,R0
+       JNE  !
+* Yes, detect collision with sword
        BL   @calc_sword_box
        BL   @collision_with_sword
-       BL   @calc_player_box
+* Detect collision with player
+!      BL   @calc_player_box
        BL   @collision_with_player
 *
        MOV  *R10+,R11
