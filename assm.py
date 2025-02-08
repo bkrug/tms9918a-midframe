@@ -28,6 +28,17 @@ def link_main_files(linked_file, object_files):
     rpk_link_2 = rpk_link_1.format(source = unlinked_files_string, output = get_work_file(linked_file.replace(".bin", ".rpk")))
     os.system(rpk_link_2)
 
+#Generate music
+music_command = (".\\score\\MusicXmlParser.exe "
+    "--input score\\BunnyJump.musicxml "
+    "--output src\\parallaxScroll\\TUNEBUNY.asm "
+    "--asmLabel BUNY "
+    "--ratio60Hz 5:4 "
+    "--ratio50Hz 1:1 "
+    "--repetitionType RepeatFromBeginning "
+    "--displayRepoWarning false")
+os.system(music_command)
+
 #Assemble Src and Tests
 for subdir, dirs, files in os.walk(".\\Src"):
     for file in files:
@@ -67,7 +78,8 @@ temp_files2 = [
     "STATUSLINE",
     "INPUT",
     "ENTITY",
-    "COLLISION"
+    "COLLISION",
+    "TUNEBUNY"
 ]
 link_main_files("parallaxScrolling.C.bin", temp_files2)
 

@@ -4,3 +4,4 @@
 *.obj
 *.lst
 score/.mscbackup/*
+src/parallaxScroll/TUNE*.asm
