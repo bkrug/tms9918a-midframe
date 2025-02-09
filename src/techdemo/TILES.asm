@@ -52,7 +52,7 @@ tiles
        LI   R0,scan_line_interrupts
        LI   R1,scan_line_interrups_end
        LI   R2,red_color_isr
-       BL   @coinc_init_timer_loop
+       BL   @calc_init_timer_loop
 * Initialize graphics
        BL   @init_graphics
 *

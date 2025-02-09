@@ -8,6 +8,7 @@
        DEF  handle_quit_button
 *
        REF  VDPADR,VDPREG,VDPWRT            Ref from VDP
+       REF  SETHRZ                          Ref from HERTZ
 
 *
 * All of these routines require R10 to be a stack pointer
@@ -36,10 +37,13 @@ sprite_attributes
        BYTE >FF,>00,>00
        EVEN
 
-top_scan_time           DATA 186
-cru_scan_ratio_top      DATA 95
-cru_scan_ratio_bottom   DATA 32
-quit_key_bits           DATA >1100
+top_scan_time_60hz          DATA 186
+cru_scan_ratio_top_60hz     DATA 95
+cru_scan_ratio_bottom_60hz  DATA 32
+top_scan_time_50hz          DATA 243
+cru_scan_ratio_top_50hz     DATA 363
+cru_scan_ratio_bottom_50hz  DATA 100
+quit_key_bits               DATA >1100
 
 * adjustments that need to be made because
 * the act of measuring time takes time
@@ -270,11 +274,41 @@ setup_vdp_for_coinc
 * Output:
 *   R2: number of CRU ticks
 calculate_time_to_reach_pixel_row
-       MPY  @cru_scan_ratio_top,R1
-       DIV  @cru_scan_ratio_bottom,R1
-       A    @top_scan_time,R1
+       DECT R10
+       MOV  R11,*R10
+* 50 hz or 60 hz?
+       DECT R10
+       MOV  R0,*R10
+       DECT R10
+       MOV  R1,*R10
+       DECT R10
+       MOV  R2,*R10
+       DECT R10
+       MOV  R9,*R10
+       BL   @SETHRZ
+       MOV  *R10+,R9
+       MOV  *R10+,R2
+       MOV  *R10+,R1
+       MOV  *R10+,R0
+       MOVB @HERTZ,R3
+       JEQ  calc_60hz
+* 50 hz
+calc_50hz
+       MPY  @cru_scan_ratio_top_50hz,R1
+       DIV  @cru_scan_ratio_bottom_50hz,R1
+       A    @top_scan_time_50hz,R1
        MOV  R1,R2
 *
+       MOV  *R10+,R11
+       RT
+* 60 hz
+calc_60hz
+       MPY  @cru_scan_ratio_top_60hz,R1
+       DIV  @cru_scan_ratio_bottom_60hz,R1
+       A    @top_scan_time_60hz,R1
+       MOV  R1,R2
+*
+       MOV  *R10+,R11
        RT
 
 *

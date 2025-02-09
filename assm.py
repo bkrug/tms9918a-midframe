@@ -60,6 +60,7 @@ temp_files = [
     "MAIN",
     "TILES",
     "FOURPARTTEXT",
+    "HERTZ",
     "FONTS"
 ]
 link_main_files("midFrame.C.bin", temp_files)
