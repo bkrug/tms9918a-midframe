@@ -8,7 +8,10 @@
        REF  GROMCR                          Ref from GROM
        REF  DSPINT,NUMASC                   Ref from DISPLAY
        REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
-       REF  scroll_and_print                "
+       REF  set_vdp_read_address            "
+       REF  read_multiple_vdp_bytes         "
+       REF  write_string                    "
+       REF  mult_spaces                     "
        REF  block_vdp_interrupt             Ref from PIXELROW       
        REF  set_timer                       "
        REF  get_timer_value                 "
@@ -243,3 +246,47 @@ EVERLP SLA  R0,1               Make room for clock bit
        SBZ  0                  Back to normal mode: start timer
        MOV  @OLDR12,R12        Restore caller's R12
        B    *R11
+
+*
+* Scroll screen and print up to 32 characters of text.
+*
+* Input:
+* R0 - address of null-terminating string
+* Output:
+* R0 - changed
+* R1 - changed
+* R2 - changed
+scroll_and_print:
+       DECT R10
+       MOV  R11,*R10
+       DECT R10
+       MOV  R0,*R10
+* Read current screen to scroll
+       LI   R0,>0020
+       BL   @set_vdp_read_address
+       LI   R0,screen_copy
+       LI   R1,23*32
+       BL   @read_multiple_vdp_bytes
+* Write screen one line higher
+       CLR  R0
+       BL   @VDPADR
+       LI   R0,screen_copy
+       LI   R1,23*32
+       BL   @VDPWRT
+* Write one line
+       LI   R0,23*32
+       BL   @VDPADR
+       MOV  *R10,R0
+       BL   @write_string
+* Write enough spaces to overwrite old text
+       S    *R10+,R0
+       NEG  R0
+       AI   R0,32+1
+       BL   @mult_spaces
+*
+       MOV  *R10+,R11
+       RT
+
+* VDP.asm
+screen_copy:
+       EQU  >C000      * >300 bytes

@@ -42,9 +42,6 @@ PREVKY        EQU  >A416      * The previously detected key press.
 * HERTZ.asm
 HERTZ         EQU  >A500    * 50 hz vs. 60 hz
 
-* VDP.asm
-screen_copy:
-       EQU  >C000      * >300 bytes
 
 *
 * Labels for lower bytes of registers
