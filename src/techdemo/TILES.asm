@@ -1,4 +1,5 @@
-       DEF  tiles
+       DEF  clc_tiles
+       DEF  cnc_tiles
 *
        REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
        REF  block_vdp_interrupt             Ref from PIXELROW
@@ -44,17 +45,25 @@ scan_line_interrupts
 scan_line_interrups_end
        DATA 23*8+0,yellow_color_isr
 
-tiles  
+clc_tiles
        LWPI WS
        LI   R10,STACK
-       LIMI 0
+       LI   R9,calc_init_timer_loop
+       JMP  tiles
+
+cnc_tiles  
+       LWPI WS
+       LI   R10,STACK
+       LI   R9,coinc_init_timer_loop
+tiles  LIMI 0
 * Specify the location of the table of timer ISRs
        LI   R0,scan_line_interrupts
        LI   R1,scan_line_interrups_end
        LI   R2,red_color_isr
-       BL   @calc_init_timer_loop
+       BL   *R9
 * Initialize graphics
        BL   @init_graphics
+       BL   @display_CRU_times
 *
 game_loop
 * Disable interrupts
@@ -165,3 +174,4 @@ while_bottom_tile
 *
        MOV  *R10+,R11
        RT
+
