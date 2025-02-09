@@ -37,6 +37,8 @@
 *
        REF  PLYINT,PLYMSC
        REF  BUNY
+*
+       REF  SETHRZ
 
        COPY '.\EQUGAME.asm'
        COPY '..\EQUVAR.asm'
@@ -62,6 +64,8 @@ parallax_demo
 !      CLR  *R0+
        MOV  R0,R0
        JNE  -!
+* 50hz or 60hz?
+       BL   @SETHRZ
 * Specify the location of the table of timer ISRs
        LI   R0,scan_line_interrupts
        LI   R1,scan_line_interrups_end
