@@ -37,12 +37,14 @@ sprite_attributes
        BYTE >FF,>00,>00
        EVEN
 
-top_scan_time_60hz          DATA 201
+top_scan_time_60hz          DATA 198
 cru_scan_ratio_top_60hz     DATA 304
 cru_scan_ratio_bottom_60hz  DATA 100
-top_scan_time_50hz          DATA 243
+*
+top_scan_time_50hz          DATA 240
 cru_scan_ratio_top_50hz     DATA 363
 cru_scan_ratio_bottom_50hz  DATA 100
+*
 quit_key_bits               DATA >1100
 
 * adjustments that need to be made because
