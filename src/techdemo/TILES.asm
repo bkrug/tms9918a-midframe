@@ -2,6 +2,7 @@
        DEF  cnc_tiles
 *
        REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
+       REF  write_string                    "
        REF  block_vdp_interrupt             Ref from PIXELROW
        REF  calc_init_timer_loop            "
        REF  coinc_init_timer_loop           "
@@ -9,6 +10,7 @@
        REF  set_timer                       "
        REF  get_timer_value                 "
        REF  timer_isr                       "
+       REF  GROMCR                          Ref from GROM.asm
 
 *
 * Addresses
@@ -27,6 +29,7 @@ char_pattern
        DATA >F000,>0000,>C000,>0001
 end_of_char_patterns
 color  BYTE >10
+ZERO   TEXT '0'
        EVEN
 
 * For the default demonstration, we will only Configure
@@ -61,8 +64,11 @@ tiles  LIMI 0
        LI   R1,scan_line_interrups_end
        LI   R2,red_color_isr
        BL   *R9
+* Disable interrupts, again
+       LIMI 0
 * Initialize graphics
        BL   @init_graphics
+       BL   @GROMCR
        BL   @display_CRU_times
 *
 game_loop
@@ -154,7 +160,10 @@ init_graphics
 * Write color code
        LI   R0,>380
        BL   @VDPADR
-       MOVB @COLOR,@VDPWD
+       LI   R0,32
+!      MOVB @COLOR,@VDPWD
+       DEC  R0
+       JNE  -!
 * Write all tiles except bottom row
        CLR  R0
        BL   @VDPADR
@@ -175,3 +184,68 @@ while_bottom_tile
        MOV  *R10+,R11
        RT
 
+*
+*
+*
+display_CRU_times
+       DECT R10
+       MOV  R11,*R10
+*
+       LI   R4,timer_interrupts
+       LI   R5,25
+!      MOV  *R4,R0
+       BL   @convert_to_ascii
+       MOV  R5,R0
+       BL   @VDPADR
+       LI   R0,ascii_number_string
+       BL   @write_string
+       AI   R5,32
+       C    *R4+,*R4+
+       CI   R4,limit_timer_interrupts+8
+       JL   -!
+*
+       MOV  *R10+,R11
+       RT
+
+
+*
+* Unsigned Word to ASCII
+* ----------------------
+* Input:
+*   R0: Word to convert
+* Output:
+*   6 bytes at ascii_number_string
+convert_to_ascii
+* Let R3 = location of char to convert. Start from string's end.
+       LI   R2,10
+       LI   R3,ascii_number_string+5
+* Null-terminate the string
+       SB   *R3,*R3
+* Is the original number zero?
+       MOV  R0,R0
+       JNE  conversion_loop
+* Yes, display zero in just the one's player_char_address
+       DEC  R3
+       MOVB @ZERO,*R3
+       JMP  pad_leading_spaces
+* Divide by 10 until the number reaches zero
+conversion_loop
+       MOV  R0,R1
+       JEQ  pad_leading_spaces
+       CLR  R0
+       DIV  R2,R0
+       SLA  R1,8
+       AB   @ZERO,R1
+       DEC  R3
+       MOVB R1,*R3
+       JMP  conversion_loop
+* Pad leading spaces at the front of the number string
+pad_leading_spaces
+       CI   R3,ascii_number_string
+       JEQ  string_complete
+       DEC  R3
+       MOVB @SPACE,*R3
+       JMP  pad_leading_spaces
+string_complete
+* return
+       RT

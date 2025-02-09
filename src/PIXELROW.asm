@@ -199,7 +199,7 @@ assign_timer_table_addresses
 * Add an entry to the timer-ISR-table
 * that will only get triggered if the game loop drops a frame.
        MOV  R2,*R7+
-       LI   R8,restart_loop_after_dropping_fame
+       LI   R8,restart_loop_after_dropping_frame
        MOV  R8,*R7+
 * Add another entry with no ISR,
 * but with a timer value identical to the first entry in the table.
@@ -475,7 +475,7 @@ continue_restarting
 * But don't restart the timer from here.
 * It was already restarted by timer_isr.
 *
-restart_loop_after_dropping_fame
+restart_loop_after_dropping_frame
        DECT R10
        MOV  R11,*R10
 * Reset timer

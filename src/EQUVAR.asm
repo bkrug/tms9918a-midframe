@@ -42,6 +42,8 @@ PREVKY        EQU  >A416      * The previously detected key press.
 * HERTZ.asm
 HERTZ         EQU  >A500    * 50 hz vs. 60 hz
 
+ascii_number_string   EQU  >A600     * six characters
+
 
 *
 * Labels for lower bytes of registers
