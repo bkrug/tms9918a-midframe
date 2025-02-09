@@ -1,4 +1,4 @@
-       DEF  BSCAN
+       DEF  button_scan
 *
 * A routine for scanning only a limited set of
 * keys for use in a game.
@@ -36,7 +36,7 @@ SCEND
 * Public Method:
 * Only scan keys that could serve as button presses for our game.
 *
-BSCAN
+button_scan
        DECT R10
        MOV  R11,*R10
 * Let R1 = button flags
@@ -55,7 +55,7 @@ BSCAN
        SRL  R3,3
 * Let R2 = position in SCNCOL
        LI   R2,SCNCOL
-BSCAN1
+button_scan1
 * Select column to scan
        LI   R12,>0024
        LDCR *R2+,3
@@ -69,11 +69,11 @@ BSCAN1
        SOCB R4,R3
 * End of list?
        CI   R2,SCEND
-       JL   BSCAN1
+       JL   button_scan1
 *
        MOVB R3,@KEYCOD
 * Was anything pressed?
-*       JEQ  BSCAN8
+*       JEQ  button_scan8
 * Yes, reset screen Saver
 *       LI   R1,-15*MINUTE
 *       MOV  R1,@VSAVER
@@ -81,6 +81,6 @@ BSCAN1
 *       LI   R0,VDP1DF
 *       BL   @VDPREG
 *
-BSCAN8
+button_scan8
        MOV  *R10+,R11
        RT

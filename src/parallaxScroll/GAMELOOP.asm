@@ -21,7 +21,7 @@
        REF  init_sprite_layer
        REF  display_sprites
 *
-       REF  BSCAN
+       REF  button_scan
 *
        REF  player_init
        REF  process_input
@@ -29,8 +29,8 @@
        REF  status_print
        REF  game_over_print
 *
-       REF  ent_init
-       REF  ent_handle
+       REF  enm_init
+       REF  enm_handle
 *
        REF  col_init
        REF  col_detect
@@ -74,7 +74,7 @@ parallax_demo
        BL   @init_sprite_layer
 *
        BL   @player_init
-       BL   @ent_init
+       BL   @enm_init
        BL   @col_init
 * Initialize song
        LI   R0,BUNY
@@ -121,10 +121,10 @@ game_loop
 * Enable interrupts
        LIMI 2
 * Load KEYCOD with value
-       BL   @BSCAN
+       BL   @button_scan
 *
        BL   @process_input
-       BL   @ent_handle
+       BL   @enm_handle
        BL   @col_detect
        BL   @PLYMSC
 * Don't end game loop until all timer-interrupts have been triggered
