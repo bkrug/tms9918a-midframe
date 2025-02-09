@@ -222,13 +222,8 @@ ENVELP
        AI   R3,SNDTIM
        MOV  R1,R4
        AI   R4,SNDVOL
-* Let R5 = address of current envelope
-       MOV  @CURENV,R5
-       SLA  R5,1
-       AI   R5,ENVLST
-       MOV  *R5,R5
 * Call envelope to set the cur volume in *R4
-       BL   *R5
+       BL   @ENV1
 * Set new volume
        AB   @SETVOL,R0
        AB   *R4,R0
@@ -255,8 +250,6 @@ REPTMS MOV  @2(R2),*R1
        MOV  *R1,R2
        JMP  PLY3
 
-ENVLST DATA ENV0,ENV1
-
 *
 * For each envelope routine the following parameters are already set
 *
@@ -266,21 +259,6 @@ ENVLST DATA ENV0,ENV1
 * R3 = address of remaining time
 * R4 = address of current volume
 *
-
-*
-* Envelope 0
-* Flat max volume. No paus between notes.
-*
-ENV0
-* Is this a rest?
-       CB   *R2,@RESTVL
-       JNE  ENV0A
-* Yes, turn off sound
-       MOVB @NOVOL,*R4
-       RT
-* No, turn volume to top
-ENV0A  MOVB @MIDVOL,*R4
-       RT
 
 *
 * Envelope 1

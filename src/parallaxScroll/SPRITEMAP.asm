@@ -141,23 +141,19 @@ SPR34  DATA >0000,>0001,>0100,>1000    ; Color 15
        DATA >0000,>0000,>0000,>0006    ; 
        DATA >0000,>FFFE,>F8E0,>0000    ; 
        DATA >0000,>0000,>0000,>0030    ; 
-SPR35  DATA >070E,>043A,>7FFF,>FFFF    ; Color 8
-       DATA >7F7F,>3F3F,>1F0D,>0000    ; 
-       DATA >8000,>00E0,>F0F8,>F8F8    ; 
-       DATA >F0F0,>E0E0,>C080,>0000    ; 
-SPR36  DATA >6070,>F0F3,>3F1F,>1F01    ; Color 3
+SPR35  DATA >6070,>F0F3,>3F1F,>1F01    ; Color 3
        DATA >0000,>0000,>0000,>0000    ; 
        DATA >0000,>00F0,>FCFE,>FEE0    ; 
        DATA >0000,>0000,>0000,>0000    ; 
-SPR37  DATA >0040,>0000,>0009,>0000    ; Color 15
+SPR36  DATA >0040,>0000,>0009,>0000    ; Color 15
        DATA >0000,>0000,>0000,>0000    ; 
        DATA >0000,>0000,>0024,>0000    ; 
        DATA >0000,>0000,>0000,>0000    ; 
-SPR38  DATA >060C,>0C0C,>3858,>78F9    ; Color 10
+SPR37  DATA >060C,>0C0C,>3858,>78F9    ; Color 10
        DATA >7B1F,>1F1F,>1F30,>6000    ; 
        DATA >0000,>0000,>0000,>00CC    ; 
        DATA >FCF0,>F8F8,>F830,>6000    ; 
-SPR39  DATA >0307,>0C38,>5878,>F97B    ; Color 10
+SPR38  DATA >0307,>0C38,>5878,>F97B    ; Color 10
        DATA >1F1F,>1F1F,>1818,>3000    ; 
        DATA >8000,>0000,>0000,>CCFC    ; 
        DATA >F0F8,>F8F8,>1818,>3000    ; 

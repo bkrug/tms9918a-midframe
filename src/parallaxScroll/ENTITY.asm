@@ -13,19 +13,17 @@ pig_char_1    BYTE >44,>0F
 pig_char_2    BYTE >48,>0F
               BYTE >40,>09
               BYTE frame_end
-apple_char    BYTE >4C,>08
+turtle_char_1 BYTE >50,>0F
+              BYTE >4C,>03
               BYTE frame_end
-turtle_char_1 BYTE >54,>0F
-              BYTE >50,>03
+turtle_char_2 BYTE >4C,>03
               BYTE frame_end
-turtle_char_2 BYTE >50,>03
+turtle_char_3 BYTE >50,>09
+              BYTE >4C,>03
               BYTE frame_end
-turtle_char_3 BYTE >54,>09
-              BYTE >50,>03
+rabbit_char_1 BYTE >54,>0A
               BYTE frame_end
-rabbit_char_1 BYTE >58,>0A
-              BYTE frame_end
-rabbit_char_2 BYTE >5C,>0A
+rabbit_char_2 BYTE >58,>0A
               BYTE frame_end
 
 ent_init
