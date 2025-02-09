@@ -151,8 +151,16 @@ player_health_points    EQU  >B090
 *
 *
 *
-ascii_number            EQU  >B098
-
+ascii_number            EQU  >B098                     * 6 bytes long
+*
+* Music variables
+*
+SND1AD                  EQU  >B0A0
+SND2AD                  EQU  SND1AD+>10
+SND3AD                  EQU  SND1AD+>20
+SONGHD                  EQU  >B0D0
+NOTERT                  EQU  SONGHD+>2
+CURENV                  EQU  SONGHD+>4
 
 
 * =========================================================================================

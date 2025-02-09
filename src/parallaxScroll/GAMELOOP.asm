@@ -1,3 +1,5 @@
+* TODO: Rename this file to MAINGAME.asm
+
        DEF  parallax_demo
 *
        REF  VDPADR,VDPREG
@@ -32,6 +34,9 @@
 *
        REF  col_init
        REF  col_detect
+*
+       REF  PLYINT,PLYMSC
+       REF  BUNY
 
        COPY '.\EQUGAME.asm'
        COPY '..\EQUVAR.asm'
@@ -71,6 +76,13 @@ parallax_demo
        BL   @player_init
        BL   @ent_init
        BL   @col_init
+* Initialize song
+       LI   R0,BUNY
+       MOV  R0,@SONGHD
+       BL   @PLYINT
+* Set default envelope
+       CLR  @CURENV
+       INC  @CURENV
 *
        LI   R0,vdp_reg_2_screen_i
        MOV  R0,@current_upper_screen
@@ -114,6 +126,7 @@ game_loop
        BL   @process_input
        BL   @ent_handle
        BL   @col_detect
+       BL   @PLYMSC
 * Don't end game loop until all timer-interrupts have been triggered
 end_of_iteration
        MOV  @all_lines_scanned,R0

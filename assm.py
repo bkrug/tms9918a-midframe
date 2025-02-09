@@ -79,7 +79,10 @@ temp_files2 = [
     "INPUT",
     "ENTITY",
     "COLLISION",
-    "TUNEBUNY"
+    "TUNEBUNY",
+    "HERTZ",
+    "MUSIC",
+    "TONETABLE"
 ]
 link_main_files("parallaxScrolling.C.bin", temp_files2)
 
