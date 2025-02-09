@@ -11,6 +11,7 @@
        REF  color_groups
 *
        REF  coinc_init_timer_loop
+       REF  calc_init_timer_loop
        REF  block_vdp_interrupt
        REF  restart_timer_loop
 *
@@ -70,7 +71,7 @@ parallax_demo
        LI   R0,scan_line_interrupts
        LI   R1,scan_line_interrups_end
        LI   R2,config_region_1
-       BL   @coinc_init_timer_loop
+       BL   @calc_init_timer_loop
 * Write tiles and colors to VDP RAM.
 * Draw first screen image table.
        BL   @init_tile_layer
@@ -228,6 +229,7 @@ game_over_routine
        MOV  R11,*R10
 *
        BL   @game_over_print
+       BL   @PLYMSC
 *
        MOV  *R10+,R11
        RT
