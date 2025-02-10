@@ -1,4 +1,5 @@
-       REF  parallax_demo
+       REF  clc_parallax_demo
+       REF  cnc_parallax_demo
 
 ********@*****@*********************@**************************
 *--------------------------------------------------------------
@@ -11,9 +12,14 @@
        DATA  PROG2
        BYTE  0,0,0,0,0,0,0,0
 *
-PROG2  DATA  0
-       DATA  parallax_demo
+PROG2  DATA  PROG1
+       DATA  cnc_parallax_demo
        BYTE  P2MSGE-P2MSG
-P2MSG  TEXT  'PARALLAX SCROLLING'
+P2MSG  TEXT  'PARALLAX DEMO COINC'
 P2MSGE
+PROG1  DATA  0
+       DATA  clc_parallax_demo
+       BYTE  P1MSGE-P1MSG
+P1MSG  TEXT  'PARALLAX DEMO CALC'
+P1MSGE
        EVEN

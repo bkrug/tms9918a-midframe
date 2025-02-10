@@ -1,6 +1,5 @@
-* TODO: Rename this file to MAINGAME.asm
-
-       DEF  parallax_demo
+       DEF  clc_parallax_demo
+       DEF  cnc_parallax_demo
 *
        REF  VDPADR,VDPREG
 *
@@ -55,7 +54,21 @@ scan_line_interrupts
        DATA (upper_screen_rows+lower_screen_rows)*8-1,config_region_5
 scan_line_interrups_end
 
-
+clc_parallax_demo
+       JMP  parallax_demo
+       LWPI WS
+       LI   R10,STACK
+       DECT R10
+       LI   R4,calc_init_timer_loop
+       MOV  R4,*R10
+       JMP  parallax_demo
+cnc_parallax_demo
+       JMP  parallax_demo
+       LWPI WS
+       LI   R10,STACK
+       DECT R10
+       LI   R4,coinc_init_timer_loop
+       MOV  R4,*R10
 parallax_demo
        LWPI WS
        LI   R10,STACK

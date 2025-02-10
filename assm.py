@@ -68,13 +68,13 @@ link_main_files("midFrame.C.bin", temp_files)
 
 print("Linking 2nd Demo Cartridge")
 temp_files2 = [
-    "GAMECART",
+    "CARTGAME",
     "PIXELROW",
     "VDP",
     "BUTTON",
     "BACKGROUND",
     "SPRITE",
-    "GAMELOOP",
+    "MAINGAMELOOP",
     "TILELAYER",
     "SPRITELAYER",
     "STATUSLINE",
