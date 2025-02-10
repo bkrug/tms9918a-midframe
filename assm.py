@@ -26,7 +26,7 @@ def link_main_files(linked_file, object_files):
     os.system(link_command_2)
     rpk_link_1 = "xas99.py -c -a \">6000\" -l {source} -o {output}"
     rpk_link_2 = rpk_link_1.format(source = unlinked_files_string, output = get_work_file(linked_file.replace(".bin", ".rpk")))
-    #os.system(rpk_link_2)
+    os.system(rpk_link_2)
 
 #Generate music
 music_command = (".\\score\\MusicXmlParser.exe "
@@ -89,7 +89,7 @@ temp_files2 = [
 link_main_files("parallaxScrolling.C.bin", temp_files2)
 
 #Clean up
-#for file in glob.glob(WORK_FOLDER + "*.lst"):
-#    os.remove(file)
+for file in glob.glob(WORK_FOLDER + "*.lst"):
+    os.remove(file)
 for file in glob.glob(WORK_FOLDER + "*.obj"):
     os.remove(file)
