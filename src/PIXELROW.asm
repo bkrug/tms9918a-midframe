@@ -34,12 +34,12 @@
 * The sprite code is >00.
 * The color is transparent.
 sprite_attributes
-       BYTE >FF,>00,>00
+       BYTE >80,>00,>00
        EVEN
 
-top_scan_time_60hz          DATA 197
-cru_scan_ratio_top_60hz     DATA 298
-cru_scan_ratio_bottom_60hz  DATA 100
+top_scan_time_60hz          DATA 198
+cru_scan_ratio_top_60hz     DATA 2985
+cru_scan_ratio_bottom_60hz  DATA 1000
 *
 top_scan_time_50hz          DATA 240
 cru_scan_ratio_top_50hz     DATA 363
