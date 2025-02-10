@@ -81,8 +81,8 @@ The game configures the timer interrupts to trigger at places on the screen wher
 
 The demos in this repo specify particular pixel rows where interrupts should occur as a number in the range 0 to 191.
 In MAME and Classic 99, the timer triggers _within_ the specified pixel row.
-On real hardware, the timer triggers _following_ the specified pixel row.
-In order to really hide flicker from the widest audience, it is ideal two have two pixel rows that are a solid color.
+On real hardware, the timer triggers can trigger 1 to 2 pixel rows early.
+In order to really hide flicker from the widest audience, it is ideal two have three pixel rows that are a solid color.
 
 The text editor demo seems to get away with only having one row of solid pixels.
 But even in the text editor you should be able to notice a small amount of flicker on real hardware.
@@ -113,12 +113,13 @@ One method multiplies the desired pixel-row by about 3 and adds some more ticks 
 The second method places two overlapping sprites on the screen and polls the VDP's COINC flag until it sees that the overlapping sprites have been hit.
 (See the routine coinc_init_timer_loop in PIXELROW.asm)
 
-I wanted to experiment with the coinc approach because I was inspired by a different approach used in some NES games.
+I wanted to experiment with the coinc approach because I was inspired by the sprite 0 approach used in some NES games.
 But the calculation approach is probably better.
 The coinc approach has the freedom to be ignorant as to whether the program is running in a 60hz or 50hz environment.
 It could also theoretically work on an emulator that implements the CRU timer in an incorrect, but consistent way.
 But displaying overlapping sprites requires changing the contents of the VDP RAM, which could interfere with other parts of a program.
 And the coinc approach doesn't fix the above-mentioned issue of the difference of one pixel-row between real hardware and the most accurate emulators.
+And the coinc approach is substantially more code.
 Given that it is possible to programmatically determine if a TI-99 is running in a 50hz or 60hz environment,
 the calculation approach doesn't really have much of a downside.
 
@@ -132,3 +133,17 @@ the calculation approach doesn't really have much of a downside.
 + Display 40 columns and 32 columns of text on different tile rows, by changing video modes mid-screen.
 
 I haven't experimented with those last two ideas, yet. Maybe someone else would like to try.
+
+## Copying code to another project
+
+* PIXELROW.asm
+* HERTZ.asm
+* VDP.asm
+* EQUVAR.asm
+* EQUCPUADR.asm
+
+If you don't wish to use coinc_init_timer_loop, then don't copy VDP.asm and delete these methods from PIXELROW.asm:
+*    coinc_init_timer_loop
+*    measure_time_to_reach_pixel_row
+*    write_test_sprites
+*    measure_length_of_frame
