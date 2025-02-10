@@ -55,12 +55,13 @@ scan_line_interrupts
 scan_line_interrups_end
 
 clc_parallax_demo
+       LWPI WS
        LI   R4,calc_init_timer_loop
        JMP  parallax_demo
 cnc_parallax_demo
+       LWPI WS
        LI   R4,coinc_init_timer_loop
 parallax_demo
-       LWPI WS
        LI   R10,STACK-2
        MOV  R4,*R10
        LIMI 0
@@ -75,7 +76,8 @@ parallax_demo
        LI   R0,scan_line_interrupts
        LI   R1,scan_line_interrups_end
        LI   R2,config_region_1
-       BL   @calc_init_timer_loop
+       MOV  *R10+,R3
+       BL   *R3
 * Write tiles and colors to VDP RAM.
 * Draw first screen image table.
        BL   @init_tile_layer
