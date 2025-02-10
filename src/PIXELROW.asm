@@ -37,7 +37,7 @@ sprite_attributes
        BYTE >80,>00,>00
        EVEN
 
-top_scan_time_60hz          DATA 198
+top_scan_time_60hz          DATA 199
 cru_scan_ratio_top_60hz     DATA 2985
 cru_scan_ratio_bottom_60hz  DATA 1000
 *
