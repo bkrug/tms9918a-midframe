@@ -42,8 +42,8 @@ cru_scan_ratio_top_60hz     DATA 2985
 cru_scan_ratio_bottom_60hz  DATA 1000
 *
 top_scan_time_50hz          DATA 240
-cru_scan_ratio_top_50hz     DATA 363
-cru_scan_ratio_bottom_50hz  DATA 100
+cru_scan_ratio_top_50hz     DATA 3630
+cru_scan_ratio_bottom_50hz  DATA 1000
 *
 quit_key_bits               DATA >1100
 
