@@ -50,8 +50,8 @@ pattern_offset     EQU  8*tile_code_offset
 scan_line_interrupts
        DATA 5*8+4,config_region_2
        DATA 8*8+4,config_region_3
-       DATA upper_screen_rows*8+0,config_region_4
-       DATA (upper_screen_rows+lower_screen_rows)*8-1,config_region_5
+       DATA upper_screen_rows*8+1,config_region_4
+       DATA (upper_screen_rows+lower_screen_rows)*8-2,config_region_5
 scan_line_interrups_end
 
 clc_parallax_demo
