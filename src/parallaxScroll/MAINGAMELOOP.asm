@@ -55,23 +55,14 @@ scan_line_interrupts
 scan_line_interrups_end
 
 clc_parallax_demo
-       JMP  parallax_demo
-       LWPI WS
-       LI   R10,STACK
-       DECT R10
        LI   R4,calc_init_timer_loop
-       MOV  R4,*R10
        JMP  parallax_demo
 cnc_parallax_demo
-       JMP  parallax_demo
-       LWPI WS
-       LI   R10,STACK
-       DECT R10
        LI   R4,coinc_init_timer_loop
-       MOV  R4,*R10
 parallax_demo
        LWPI WS
-       LI   R10,STACK
+       LI   R10,STACK-2
+       MOV  R4,*R10
        LIMI 0
 * Set all addresses in upper memory expansion to zero
        LI   R0,>A000
