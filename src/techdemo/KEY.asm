@@ -4,8 +4,8 @@
 *
        REF  SCAN
 
-       COPY 'EQUVAR.asm'
-       COPY 'EQUCPUADR.asm'
+       COPY '../EQUVAR.asm'
+       COPY '../EQUCPUADR.asm'
 
 * The delay before initial repeat
 WAIT1  DATA >18
