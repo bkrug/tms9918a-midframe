@@ -6,6 +6,7 @@
 
        COPY '../EQUVAR.asm'
        COPY '../EQUCPUADR.asm'
+       COPY 'EQUDEMO.asm'
 
 * The delay before initial repeat
 WAIT1  DATA >18
