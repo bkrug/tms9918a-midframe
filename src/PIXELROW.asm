@@ -1,6 +1,7 @@
        DEF  block_vdp_interrupt             *BLWP
        DEF  unblock_vdp_interrupt           *BLWP
-       DEF  calc_init_timer_loop            *This and other routines are BL
+* All other routines are BL:
+       DEF  calc_init_timer_loop
        DEF  coinc_init_timer_loop
        DEF  restart_timer_loop
        DEF  set_timer
@@ -12,14 +13,6 @@
 
 *
 * All of these routines require R10 to be a stack pointer
-*
-* TODO:
-* the COINC operation is making assumptions about:
-*    the location of the sprite pattern table
-*    the location of the sprite attribute list
-*    the correct sprite-code to use
-*    8x8 vs 16x16 sprites
-* Make this not rely on assumptions in the future.
 *
 
 *
@@ -85,6 +78,7 @@ SYNC   TB   2                 * Check for VDP interrupt.
        RTWP
 
 *
+* BLWP:
 * Unblock VDP interrupts
 *
 unblock_vdp_interrupt
