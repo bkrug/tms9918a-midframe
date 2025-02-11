@@ -136,14 +136,9 @@ I haven't experimented with those last two ideas, yet. Maybe someone else would 
 
 ## Copying code to another project
 
-* PIXELROW.asm
-* HERTZ.asm
-* VDP.asm
-* EQUVAR.asm
-* EQUCPUADR.asm
+If you wish to use coinc_init_timer_loop then you will need to copy all of the files that are in src, but not a subfolder of src
 
-If you don't wish to use coinc_init_timer_loop, then don't copy VDP.asm and delete these methods from PIXELROW.asm:
-*    coinc_init_timer_loop
-*    measure_time_to_reach_pixel_row
-*    write_test_sprites
-*    measure_length_of_frame
+If you don't wish to use coinc_init_timer_loop, then you only need these files:
+* PIXELROW.asm
+* EQUCPUADR.asm
+* EQUVAR.asm
