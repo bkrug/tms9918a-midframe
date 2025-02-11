@@ -56,6 +56,7 @@ temp_files = [
     "CART",
     "VDP",
     "PIXELROW",
+    "PIXELROWCOINC",
     "KEY",
     "MAIN",
     "TILES",
@@ -69,6 +70,7 @@ print("Linking 2nd Demo Cartridge")
 temp_files2 = [
     "CARTGAME",
     "PIXELROW",
+    "PIXELROWCOINC",
     "VDP",
     "BUTTON",
     "BACKGROUND",
