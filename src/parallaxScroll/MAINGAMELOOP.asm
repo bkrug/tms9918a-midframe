@@ -154,37 +154,26 @@ end_of_iteration
        JMP  game_loop
 
 *
-config_region_5
-       DECT R10
-       MOV  R11,*R10
-*
-       LIMI 0
-* Set screen image table
-       LI   R0,vdp_reg_2_screen_i
-       BL   @VDPREG
-* Select Pattern table that contains ASCII patterns
-       LI   R0,vdp_reg_4_text_patterns
-       BL   @VDPREG
-*
-       LIMI 2
-*
-       MOV  *R10+,R11
-       RT
-
+* Set pattern table (scroll amount) and screen image table
+* for the top of the screen including the mountains.
 *
 config_region_1
        DECT R10
        MOV  R11,*R10
-* Set screen image table
-       MOV  @current_upper_screen,R0
-       BL   @VDPREG
 * Set Pattern table
        MOV  @current_pattern_1,R0
+       BL   @VDPREG
+* Set screen image table
+       MOV  @current_upper_screen,R0
        BL   @VDPREG
 *
        MOV  *R10+,R11
        RT
 
+*
+* Set pattern table (scroll amount)
+* for the trees
+*
 config_region_2
        DECT R10
        MOV  R11,*R10
@@ -199,6 +188,10 @@ config_region_2
        MOV  *R10+,R11
        RT
 
+*
+* Set pattern table (scroll amount)
+* for the houses and street lamps
+*
 config_region_3
        DECT R10
        MOV  R11,*R10
@@ -213,16 +206,41 @@ config_region_3
        MOV  *R10+,R11
        RT
 
+*
+* Set pattern table (scroll amount) and screen image table
+* for brick wall and sidewalk.
+*
 config_region_4
        DECT R10
        MOV  R11,*R10
 *
        LIMI 0
+* Set Pattern table
+       MOV  @current_pattern_4,R0
+       BL   @VDPREG
 * Set screen image table
        MOV  @current_lower_screen,R0
        BL   @VDPREG
-* Set Pattern table
-       MOV  @current_pattern_4,R0
+*
+       LIMI 2
+*
+       MOV  *R10+,R11
+       RT
+
+*
+* Set pattern and screen image table
+* for status bar at bottom of screen
+*
+config_region_5
+       DECT R10
+       MOV  R11,*R10
+*
+       LIMI 0
+* Set screen image table
+       LI   R0,vdp_reg_2_screen_i
+       BL   @VDPREG
+* Select Pattern table that contains ASCII patterns
+       LI   R0,vdp_reg_4_text_patterns
        BL   @VDPREG
 *
        LIMI 2
