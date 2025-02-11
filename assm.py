@@ -60,7 +60,6 @@ temp_files = [
     "MAIN",
     "TILES",
     "FOURPARTTEXT",
-    "HERTZ",
     "GROM",
     "FONTS"
 ]
@@ -82,7 +81,6 @@ temp_files2 = [
     "ENEMY",
     "COLLISION",
     "TUNEBUNY",
-    "HERTZ",
     "MUSIC",
     "TONETABLE"
 ]
