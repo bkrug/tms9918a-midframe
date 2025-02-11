@@ -24,7 +24,6 @@ frame_isr                 EQU  >A046
 all_lines_scanned         EQU  >A048
 HERTZ                     EQU  >A04A    * 50 hz vs. 60 hz
 
-
 *
 * Labels for lower bytes of registers
 *
