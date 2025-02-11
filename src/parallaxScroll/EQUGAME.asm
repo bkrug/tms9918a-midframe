@@ -160,7 +160,6 @@ SND2AD                  EQU  SND1AD+>10
 SND3AD                  EQU  SND1AD+>20
 SONGHD                  EQU  >B0D0
 NOTERT                  EQU  SONGHD+>2
-CURENV                  EQU  SONGHD+>4
 
 
 * =========================================================================================

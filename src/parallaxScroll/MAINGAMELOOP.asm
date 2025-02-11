@@ -91,9 +91,6 @@ parallax_demo
        LI   R0,BUNY
        MOV  R0,@SONGHD
        BL   @PLYINT
-* Set default envelope
-       CLR  @CURENV
-       INC  @CURENV
 *
        LI   R0,vdp_reg_2_screen_i
        MOV  R0,@current_upper_screen
