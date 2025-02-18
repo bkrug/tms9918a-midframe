@@ -3,15 +3,6 @@
 *
 * Tone Table
 *
-* Noises -8 to -1
-       DATA >700
-       DATA >600
-       DATA >500
-       DATA >400
-       DATA >300
-       DATA >200
-       DATA >100
-       DATA >000
 * Octive 0 - A Natural
 TTBL   DATA >93F
        DATA >03C

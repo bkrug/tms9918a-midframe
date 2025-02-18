@@ -1,4 +1,5 @@
        DEF  PLYINT,PLYMSC
+       DEF  gen3_init
 *
        REF  TTBL                              Ref from TONETABLE
 
@@ -61,9 +62,26 @@ INT1   MOV  R2,@NOTERT
        MOV  *R3+,R1
        BL   @STRTPL
 *
+       MOV  *R10+,R11
+       RT
+
+*
+* Public Method:
+* Initialize sound generator 3
+* to notifly player of some sort of hit.
+*
+* Let R0 = address of sound header
+*
+gen3_init
+       DECT R10
+       MOV  R11,*R10
+*
+       MOV  R0,R3
+       AI   R3,2*2
+* Start Music
        LI   R0,TGN3
        MOV  @HDRRPT(R3),R2
-       MOV  *R3+,R1
+       MOV  *R3,R1
        BL   @STRTPL
 *
        MOV  *R10+,R11

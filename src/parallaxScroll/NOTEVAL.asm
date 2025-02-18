@@ -38,14 +38,6 @@ N1DOT  EQU  N1+N2
 *
 * Note Codes
 *
-NOIZ8  EQU  -8
-NOIZ7  EQU  -7
-NOIZ6  EQU  -6
-NOIZ5  EQU  -5
-NOIZ4  EQU  -4
-NOIZ3  EQU  -3
-NOIZ2  EQU  -2
-NOIZ1  EQU  -1
 A0     EQU  >00
 As0    EQU  >01
 Bb0    EQU  >01

@@ -1,5 +1,8 @@
        DEF  col_init
        DEF  col_detect
+*
+       REF  gen3_init
+       REF  harm_sound
 
        COPY '.\EQUGAME.asm'
        COPY '..\EQUVAR.asm'
@@ -115,6 +118,9 @@ collision_with_player
 * Collision detected
 * Decrease hero health
        S    @enemy_damage,@player_health_points
+* Make collision noise
+       LI   R0,harm_sound
+       BL   @gen3_init       
 * Return
 !      MOV  *R10+,R11
        RT
