@@ -77,6 +77,8 @@ In the text editor, all text patterns have a blank line on the top pixel row,
 and the timer-interrupt triggers in the consistently blank rows.
 The game configures the timer interrupts to trigger at places on the screen where the pixel row is a single solid color.
 
+In the text-editor, you'll still see a fair amount of flicker though when you type things.
+
 ## Emulators vs. real hardware
 
 The demos in this repo specify particular pixel rows where interrupts should occur as a number in the range 0 to 191.
@@ -103,7 +105,7 @@ As previously noted, it is important to synchronize with the real end-of-frame e
 but the CRU timer is still precise enough that dropping three-or-so frames between synchronizations seems to be tolerable.
 
 The previously mentioned text editor drops three frames every time the user inserts a character.
-This doesn't seem to cause flicker.
+This does unfortunately seem to cause flicker.
 
 ## Mapping pixel-rows to the corresponding CRU ticks.
 
@@ -142,3 +144,28 @@ If you don't wish to use coinc_init_timer_loop, then you only need these files:
 * PIXELROW.asm
 * EQUCPUADR.asm
 * EQUVAR.asm
+
+## How to use the demo text editor
+
+```
+Insert mode is always on.
+(FCTN+1) Delete a character
+All arrow keys are enabled.
+(CTRL+B) Enables/Disables bold text
+(CTRL+I) Enables/Disables italic text
+```
+
+If you move the cursor using arrow keys, the bold/italic settings will change to match whatever character your cursor lands on.
+You can change them again using CTRL+B/I, but there is no indication of the change until you start typing.
+Sorry, I wanted to keep the copde simple.
+
+## How to play the demo-game
+
+```
+(D) Moves the player right
+(SPACE) Causes the player to jump
+(FCTN) extends the player's sword
+```
+
+If you hit a turtle, pig, or rabbit you take damage.
+If any of the animals touches your sword, you destroy them without taking damage.
