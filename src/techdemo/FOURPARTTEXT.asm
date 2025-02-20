@@ -24,9 +24,9 @@ SCRN8                 EQU  >2000
 char_draw_per_frame   EQU  20
 cursor_code           EQU  6*40
 
-pixel_row_interrupts        DATA 6*8-1,pattern1_isr
-                            DATA 12*8-1,pattern2_isr
-                            DATA 18*8-1,pattern3_isr
+pixel_row_interrupts        DATA 6*8,pattern1_isr
+                            DATA 12*8,pattern2_isr
+                            DATA 18*8,pattern3_isr
 pixel_row_interrupts_end
 forty                       DATA 40
 * Tells us if the cursor should flash or not
@@ -45,7 +45,7 @@ quarter_text
        LI   R0,pixel_row_interrupts
        LI   R1,pixel_row_interrupts_end
        LI   R2,pattern0_isr
-       BL   @coinc_init_timer_loop
+       BL   @calc_init_timer_loop
 *
        BL   @init_vdp_ram
        BL   @init_screen_image_table
@@ -220,13 +220,15 @@ found_font_key
        RT
 
 initial_text
-       TEXT 'Quarter Text Mode. '
+       TEXT '========== Quarter Text Mode ========== '
+       TEXT 'CTRL+B to turn bold on/off ............ '
+       TEXT 'CTRL+I to turn italic on/off .......... '
+       TEXT 'If you move the cursor, the bold & italic '
+       TEXT 'settings will change to match the character '
+       TEXT 'under the cursor. '
        TEXT 'This is a toy text editor that can '
        TEXT 'display normal, bold, italic, or '
        TEXT 'bold italic text. '
-       TEXT 'Use CTRL+B to enable or disable '
-       TEXT 'bold text. Use CTRL+I to enable or disable '
-       TEXT 'italic text. '
        TEXT 'This display is in 40-column text mode. '
        TEXT 'In order to make this possible, '
        TEXT 'the screen is divided to into four quarters. '
@@ -245,13 +247,15 @@ initial_text_end
 * Space implies basic text.
 * "m" implies both bold and italic.
 initial_fonts
-       TEXT 'bbbbbbbbbbbbbbbbbb '
+       TEXT '           bbbbbbbbbbbbbbbbb            '
+       TEXT '               bbbb                     '
+       TEXT '               iiiiii                   '
+       TEXT '                            mmmmmmmmmmmmm '
+       TEXT '                                            '
+       TEXT '                  '
        TEXT '          iii                      '
        TEXT '                bbbbb iiiiiii    '
        TEXT 'mmmmmmmmmmm       '
-       TEXT '    bbbbbb    iiiiii    iiiiiii '
-       TEXT '               mmmmmm    bbbbbb    bbbbbbb '
-       TEXT 'iiiiii       '
        TEXT '                                        '
        TEXT '                                '
        TEXT '                              iiiiiiiiiiiiii '
