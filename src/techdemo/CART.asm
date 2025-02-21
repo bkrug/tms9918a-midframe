@@ -1,7 +1,8 @@
        REF  BEGIN
        REF  clc_tiles
        REF  cnc_tiles
-       REF  quarter_text
+       REF  cnc_quarter_text
+       REF  clc_quarter_text       
 
 ********@*****@*********************@**************************
 *--------------------------------------------------------------
@@ -11,13 +12,19 @@
 * it is important to include '-a ">6000"' in the xas99.py
 * command when linking files into a cartridge.
        BYTE  >AA,1,1,0,0,0
-       DATA  PROG5
+       DATA  PROG6
        BYTE  0,0,0,0,0,0,0,0
 *
+PROG6  DATA  PROG5
+       DATA  cnc_quarter_text
+       BYTE  P6MSGE-P6MSG
+P6MSG  TEXT  'TEXT EDITOR COINC'
+P6MSGE
+*
 PROG5  DATA  PROG4
-       DATA  quarter_text
+       DATA  clc_quarter_text
        BYTE  P5MSGE-P5MSG
-P5MSG  TEXT  'FOUR PART TEXT MODE'
+P5MSG  TEXT  'TEXT EDITOR CALC'
 P5MSGE
 *
 PROG4  DATA  PROG3

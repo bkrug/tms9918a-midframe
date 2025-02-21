@@ -1,4 +1,5 @@
-       DEF  quarter_text
+       DEF  cnc_quarter_text
+       DEF  clc_quarter_text
 *
        REF  VDPREG,VDPADR,VDPWRT            Ref from VDP
        REF  font_addresses                  Ref from FONTS
@@ -37,9 +38,16 @@ bits_indicating_cursor      DATA >2000
 cursor_char                 DATA >6060,>6060,>6060,>6000
 cursor_char_end
 
-quarter_text
+cnc_quarter_text
        LWPI WS
-       LI   R10,STACK
+       LI   R0,coinc_init_timer_loop
+       JMP  quarter_text
+clc_quarter_text
+       LWPI WS
+       LI   R0,calc_init_timer_loop
+quarter_text
+       LI   R10,STACK-2
+       MOV  R0,*R10
        LIMI 0
 * Specify the location of the table of timer ISRs
        LI   R0,pixel_row_interrupts
