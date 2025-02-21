@@ -36,7 +36,7 @@ quit_key_bits               DATA >1100
 
 * adjustments that need to be made because
 * the act of measuring time takes time
-ticks_calling_timer     EQU  2
+ticks_extra_frame       EQU  5
 ticks_initializing_loop EQU  14
 ticks_after_interrupt   EQU  12
 
@@ -219,7 +219,7 @@ while_second_frame_continues
        NEG  R2
        AI   R2,>3FFF
 * Account for the ticks that were missed branching to/from the timer routines
-       AI   R2,ticks_calling_timer
+       AI   R2,ticks_extra_frame
 *
        LIMI 0
 *
