@@ -280,11 +280,108 @@ The routines in this repo keep track of which pixel-row interrupt routine needs 
 This routine tells tells the rest of the code that the first entry in your Pixel-Row Interrupt block
 is the next interrupt that should be triggered.
 
-This routine is meant to be called directly after "block_vdp_interrupt".
+It is recommended that your program call this routine directly after "block_vdp_interrupt".
 
 ### set_timer
 
+```
+BL
+set_timer
+Input:
+   R1 - value to place in CRU timer (only least significant 14-bits are used)
+```
+
+Places a value in the timer that will auto-decrement.
+
+Calling set_timer followed by get_timer_value could literally measure time.
+
+If you have called "block_vdp_interrupt" but not called "restart_timer_loop",
+then when the timer value reaches zero,
+the TI-99's User-defined Interrupt will be triggered.
+This is the interrupt whose address is stored at address >83C4,
+the same interrupt normally triggered by the VDP interrupt.
+
+If you have called "restart_timer_loop",
+then it is not recommended that you call set_timer.
+
 ### get_timer_value
+
+```
+BL
+get_timer_value
+Input:
+   none
+Output:
+   R2 - (only least significant 14-bits) the value read from the CRU timer
+   CPU's status register holds the timer value compared to 0
+```
 
 ### SETHRZ
 
+```
+BL
+SETHRZ
+Input:
+   none
+Output:
+   byte at @HERTZ = 0 implies 60hz; -1 implies 50hz
+```
+
+Measures the time between video frames,
+and sets the value of memory address HERTZ
+to specify whether the program is running on a 50hz or 60hz TI-99/4a.
+
+### @all_lines_scanned
+
+@all_lines_scanned is a 16-bit memory address that indicates if all of the pixel-row interrupts for this frame have been reached or not.
+If the address contains zero, then at least one interrupt has yet to trigger.
+If the address contains non-zero, then the last interrupt already triggered, and you can start another iteration of your game loop.
+
+### timer_isr (private routine)
+
+The timer_isr is not specified in a DEF statement, and not directly available to your program.
+However, this is the routine that gets called whenever the CRU timer reaches zero.
+It is responsible for running the routines specified by your programs Pixel-Row Interrupt block,
+and for resetting the CRU timer so that the next ISR can be triggered.
+
+### Sample code
+
+```
+       LIMI 0
+* Specify the location of the Pixel-Row Interrupt block
+* and the end_of_frame_routine
+       LI   R0,pixel_row_interrupts
+       LI   R1,pixel_row_interrupts_end
+       LI   R2,end_of_frame_routine
+       BL   @calc_init_timer_loop
+....
+* More initialization specific to your program
+....
+*
+game_loop
+* Disable interrupts
+       LIMI 0
+* Block thread until then end of a frame
+* Fool TI-99/4a into thinking that CRU timer interrupts are VDP interrupts.
+       BLWP @block_vdp_interrupt
+* Tell timer_isr to look at the begging of the table again
+       BL   @restart_timer_loop
+....
+* Write data to the VDP RAM that is relevant to your program
+....
+* Enable interrupts
+       LIMI 2
+....
+* Execute more code that doesn't change VDP RAM contents.
+....
+* If this iterration of your game loop was extremely fast,
+* then the program might not have executed all pixel-row interrupts for this frame yet.
+* While @all_lines_scanned is equal to zero,
+* that means there are more interrupts to trigger,
+* so wait here.
+while_waiting_for_interrupt
+       MOV  @all_lines_scanned,R0
+       JEQ  while_waiting_for_interrupt
+*
+       JMP  game_loop
+```
