@@ -2,11 +2,9 @@
        DEF  unblock_vdp_interrupt           *BLWP
 * All other routines are BL:
        DEF  calc_init_timer_loop
-       DEF  coinc_init_timer_loop
        DEF  restart_timer_loop
        DEF  set_timer
        DEF  get_timer_value
-       DEF  handle_quit_button
        DEF  SETHRZ
 * These routines are only made public so that PIXELROWCOINC can use them
        DEF  generic_timer_init

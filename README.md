@@ -169,3 +169,122 @@ Sorry, I wanted to keep the copde simple.
 
 If you hit a turtle, pig, or rabbit you take damage.
 If any of the animals touches your sword, you destroy them without taking damage.
+
+## Shared methods and data blocks
+
+IMPORTANT: All of the routines in this repo assume that a stack pointer is stored in R10.
+The stack grows downwards in memory.
+
+NOTE: All of these functions are written for a program that has a game loop.
+The game loop is expected to run one iteration for each video frame,
+but does have tollerance for some dropped frames.
+
+### Pixel-Row Interrupt block
+
+```
+pixel_row_interrupts        DATA 6*8,pattern1_isr
+                            DATA 12*8,pattern2_isr
+                            DATA 18*8,pattern3_isr
+pixel_row_interrupts_end
+```
+
+This is a data structure made up of several 4-byte long entries.
+There can be up to 14 entires in the data block.
+
+In each entry, the first 2-byte word is the pixel row upon which we expect to see the interrupt triggered.
+It may be any number from 0 to 191.
+The second 2-byte word is the address of the interrupt routine that is to be called when that occurrs.
+
+Your program may also have an end-of-frame routine that would normally be triggered by the standard VDP interrupt.
+But do not reference that routine in this block.
+See calc_init_timer_loop or coinc_init_timer_loop, instead.
+
+### calc_init_timer_loop
+
+```
+BL
+calc_init_timer_loop
+Input:
+   R0 - address of Pixel-Row Interrupt block
+   R1 - address of the end of the Pixel-Row Interrupt block
+   R2 - address of the end-of-frame interrupt routine
+      - set to 0, if there is no end-of-frame routine
+```
+
+Scans the Pixel-Row Interrupt block and calculates the correct CRU timer value at which to trigger each routine.
+Call this function once when initializing your program, and before entering a game loop.
+
+### coinc_init_timer_loop
+
+```
+BL
+coinc_init_timer_loop
+Input:
+   R0 - address of Pixel-Row Interrupt block
+   R1 - address of the end of the Pixel-Row Interrupt block
+   R2 - address of the end-of-frame interrupt routine
+      - set to 0, if there is no end-of-frame routine
+```
+
+This is an alternative to calc_init_timer_loop.
+calc_init_timer_loop is the recommended method.
+
+This routine scans the Pixel-Row Interrupt block and determines the correct CRU timer value at which to trigger each routine.
+Call this function once when initializing your program, and before entering a game loop.
+
+This routine expects to be in the default graphics mode when called.
+Your program is not required to remain in graphics mode,
+but call this routine before changing the video mode.
+
+This routine alters the contents of your VDP RAM.
+Call it before calling anything that would intialize the VDP RAM that your program will use.
+
+### block_vdp_interrupt
+
+```
+BLWP
+block_vdp_interrupt
+Input: none
+```
+
+This routine disables interrupts triggered by the VDP, and enables CRU timer interrupts.
+Also blocks the CPU until the VDP's end-of-frame event is detected.
+
+Call this routine using BLWP.
+(Most other routines in this repo require BL.)
+
+You are encouraged to call this routine once at the very beginning or very end of a game loop.
+
+### unblock_vdp_interrupt
+
+```
+BLWP
+block_vdp_interrupt
+Input: none
+```
+
+Re-enables interrupts triggered by the VDP, and disabled CRU timer interrupts.
+
+Call this routine using BLWP.
+(Most other routines in this repo require BL.)
+
+### restart_timer_loop
+
+```
+BL
+restart_timer_loop
+Input: none
+```
+
+The routines in this repo keep track of which pixel-row interrupt routine needs to be called next.
+This routine tells tells the rest of the code that the first entry in your Pixel-Row Interrupt block
+is the next interrupt that should be triggered.
+
+This routine is meant to be called directly after "block_vdp_interrupt".
+
+### set_timer
+
+### get_timer_value
+
+### SETHRZ
+
