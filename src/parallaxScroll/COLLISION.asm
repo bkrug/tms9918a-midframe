@@ -34,8 +34,8 @@ col_detect
 
 player_top_offset       DATA 1*magnified_pixel
 player_left_offset      DATA 3*magnified_pixel
-player_bottom_offset    DATA 32*magnified_pixel
-player_right_offset     DATA 10*magnified_pixel
+player_bottom_offset    DATA 32*magnified_pixel-1
+player_right_offset     DATA 10*magnified_pixel-1
 
 * SUGGESTION: Give the player a different collision box when jumping from standing or walking
 *
@@ -60,10 +60,10 @@ calc_player_box
 *
        RT
 
-sword_top_offset       DATA 7*magnified_pixel
+sword_top_offset       DATA 11*magnified_pixel
 sword_left_offset      DATA 10*magnified_pixel
-sword_bottom_offset    DATA 16*magnified_pixel
-sword_right_offset     DATA 16*magnified_pixel
+sword_bottom_offset    DATA 16*magnified_pixel-1
+sword_right_offset     DATA 16*magnified_pixel-1
 
 calc_sword_box
 * Let R1 = memory address within collision box structure
@@ -91,13 +91,13 @@ enemy_boxes
               BSS  8
 * pig_box
               DATA 5*magnified_pixel,5*magnified_pixel
-              DATA 16*magnified_pixel,13*magnified_pixel
+              DATA 16*magnified_pixel-1,13*magnified_pixel-1
 * turtle_box
               DATA 0,0
-              DATA 7*magnified_pixel,15*magnified_pixel
+              DATA 7*magnified_pixel-1,15*magnified_pixel-1
 * rabbit_box
               DATA 4*magnified_pixel,1*magnified_pixel
-              DATA 15*magnified_pixel,13*magnified_pixel
+              DATA 15*magnified_pixel-1,13*magnified_pixel-1
 *
 box_top              EQU  0
 box_left             EQU  2
