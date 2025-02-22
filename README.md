@@ -346,6 +346,10 @@ and for resetting the CRU timer so that the next ISR can be triggered.
 
 ### Sample code
 
+This is the structure of a game loop that uses the above mentioned routines.
+If you wanted to use coinc_init_timer_loop,
+then replace the below use of calc_init_timer_loop.
+
 ```
        LIMI 0
 * Specify the location of the Pixel-Row Interrupt block
@@ -364,24 +368,30 @@ game_loop
 * Block thread until then end of a frame
 * Fool TI-99/4a into thinking that CRU timer interrupts are VDP interrupts.
        BLWP @block_vdp_interrupt
-* Tell timer_isr to look at the begging of the table again
+* Tell timer_isr to look at the begining of the interrupt table again
        BL   @restart_timer_loop
 ....
-* Write data to the VDP RAM that is relevant to your program
+* Execute code that Writes data to the VDP RAM.
+* This must finish executing before your first pixel-row interrupt,
+* because your interrupt probably changes a VDP write-only register.
 ....
 * Enable interrupts
        LIMI 2
 ....
 * Execute more code that doesn't change VDP RAM contents.
 ....
-* If this iterration of your game loop was extremely fast,
+* If this iteration of your game loop completed extremely quickly,
 * then the program might not have executed all pixel-row interrupts for this frame yet.
 * While @all_lines_scanned is equal to zero,
-* that means there are more interrupts to trigger,
+* there are more interrupts to trigger,
 * so wait here.
 while_waiting_for_interrupt
        MOV  @all_lines_scanned,R0
        JEQ  while_waiting_for_interrupt
 *
+* All pixel-row interrupts have now triggered.
+* The next iterration will call block_vdp_interrupt,
+* which will also temporarily disable CRU timer interrupts,
+* and wait until the current video frame has completed.
        JMP  game_loop
 ```
