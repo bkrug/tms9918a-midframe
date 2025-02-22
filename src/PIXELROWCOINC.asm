@@ -6,7 +6,7 @@
        REF  restart_timer_loop
        REF  set_timer
        REF  get_timer_value
-       REF  SETHRZ
+       REF  calc_hertz
        REF  generic_timer_init
        REF  measure_length_of_frame
 *

@@ -316,11 +316,11 @@ Output:
    CPU's status register holds the timer value compared to 0
 ```
 
-### SETHRZ
+### calc_hertz
 
 ```
 BL
-SETHRZ
+calc_hertz
 Input:
    none
 Output:
@@ -333,7 +333,7 @@ to specify whether the program is running on a 50hz or 60hz TI-99/4a.
 
 ### @all_lines_scanned
 
-@all_lines_scanned is a 16-bit memory address that indicates if all of the pixel-row interrupts for this frame have been reached or not.
+@all_lines_scanned is a memory address that indicates if all of the pixel-row interrupts for this frame have been reached or not.
 If the address contains zero, then at least one interrupt has yet to trigger.
 If the address contains non-zero, then the last interrupt already triggered, and you can start another iteration of your game loop.
 

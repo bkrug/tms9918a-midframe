@@ -5,7 +5,7 @@
        DEF  restart_timer_loop
        DEF  set_timer
        DEF  get_timer_value
-       DEF  SETHRZ
+       DEF  calc_hertz
 * These routines are only made public so that PIXELROWCOINC can use them
        DEF  generic_timer_init
        DEF  measure_length_of_frame
@@ -245,7 +245,7 @@ calculate_time_to_reach_pixel_row
        MOV  R2,*R10
        DECT R10
        MOV  R9,*R10
-       BL   @SETHRZ
+       BL   @calc_hertz
        MOV  *R10+,R9
        MOV  *R10+,R2
        MOV  *R10+,R1
@@ -432,7 +432,7 @@ restart_ti99
 *    0 = 60hz
 *    -1 = 50hz
 *
-SETHRZ
+calc_hertz
        DECT R10
        MOV  R11,*R10
 *
