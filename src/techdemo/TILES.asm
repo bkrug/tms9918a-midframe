@@ -19,10 +19,6 @@
        COPY '..\EQUVAR.asm'
        COPY 'EQUDEMO.asm'       
 
-* TODO: PIXELROW.asm needs a sprite to be defined,
-* and it neeeds to know which sprite to use.
-* But we have the sprite pattern defined here.
-* That might be bad.
 char_pattern
 * Patterns used to demonstrate degree of accuracy in the results
        DATA >F000,>0000,>C000,>0000
