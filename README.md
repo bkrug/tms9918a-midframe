@@ -77,18 +77,15 @@ In the text editor, all text patterns have a blank line on the top pixel row,
 and the timer-interrupt triggers in the consistently blank rows.
 The game configures the timer interrupts to trigger at places on the screen where the pixel row is a single solid color.
 
-In the text-editor, you'll still see a fair amount of flicker though when you type things.
-
 ## Emulators vs. real hardware
 
 The demos in this repo specify particular pixel rows where interrupts should occur as a number in the range 0 to 191.
-In MAME and Classic 99, the timer triggers _within_ the specified pixel row.
-On real hardware, the timer triggers can trigger 1 to 2 pixel rows early.
-In order to really hide flicker from the widest audience, it is ideal two have three pixel rows that are a solid color.
+On real hardware, the timer triggers _within_ the specified pixel row.
+In MAME and Classic 99, the timer triggers can trigger 1 pixel row early.
+In order to really hide flicker from the widest audience, it is ideal to have two pixel rows that are a solid color.
 
-The text editor demo seems to get away with only having one row of solid pixels.
-But even in the text editor you should be able to notice a small amount of flicker on real hardware.
-It depends on the particular text being displayed.
+The text editor demo tries to get away with only having one row of solid pixels.
+When text is mostly lower case, then two pixel-rows are made up of mostly a single color.
 
 Not all emulators seem to implement the CRU timer.
 If they don't, these demos will not work.
@@ -105,7 +102,7 @@ As previously noted, it is important to synchronize with the real end-of-frame e
 but the CRU timer is still precise enough that dropping three-or-so frames between synchronizations seems to be tolerable.
 
 The previously mentioned text editor drops three frames every time the user inserts a character.
-This does unfortunately seem to cause flicker.
+As far as I can tell any "flicker" has more to do with the text editor taking time to respond to key strokes rather than the dropped frames.
 
 ## Mapping pixel-rows to the corresponding CRU ticks.
 
