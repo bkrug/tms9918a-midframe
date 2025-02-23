@@ -175,6 +175,8 @@ If any of the animals touches your sword, you destroy them without taking damage
 IMPORTANT: All of the routines in this repo assume that a stack pointer is stored in R10.
 The stack grows downwards in memory.
 
+IMPORTANT: The interrupts you define use a different workspace from the main program, but they use the same stack.
+
 NOTE: All of these functions are written for a program that has a game loop.
 The game loop is expected to run one iteration for each video frame,
 but does have tollerance for some dropped frames.

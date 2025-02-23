@@ -582,8 +582,7 @@ not_screen_end
 move_down
        DECT R10
        MOV  *R10,R11
-* Let R2 = highest address within line_breaks
-* where line break within paragraph > doc_cursor_position
+* Let R2 = ddress within line_breaks pointing to start of the next line
 * Let R3 = index of character within document
        BL   @get_line_break_address
 * Is R2 pointing to the last line break (and thus last line on screen?)
@@ -598,6 +597,11 @@ screen_col
 * Let R1 = index of the end of the line + column index
        MOV  *R2,R1
        A    R4,R1
+*
+       mov  R1,@>C000
+       MOV  R2,@>C002
+       MOV  R3,@>C004
+       MOV  R4,@>C006
 * Is R1 right of the next line's end?
        C    R1,@2(R2)
        JL   found_new_position
@@ -620,8 +624,7 @@ move_down_return
 move_up
        DECT R10
        MOV  *R10,R11
-* Let R2 = highest address within line_breaks
-* where line break within paragraph > doc_cursor_position
+* Let R2 = ddress within line_breaks pointing to start of the next line
 * Let R3 = index of character within document
        BL   @get_line_break_address
 * Is R2 pointing to the last line break (and thus last line on screen?)
@@ -853,8 +856,7 @@ have_tile_code
 get_screen_position
        DECT R10
        MOV  R11,*R10
-* Let R2 = highest address within line_breaks
-* where line break within paragraph > doc_cursor_position
+* Let R2 = ddress within line_breaks pointing to start of the next line
 * Let R3 = index of character within document
        BL   @get_line_break_address
 * Let R0 = screen row
@@ -883,7 +885,7 @@ screen_position_error
 * Input:
 *   @doc_cursor_position
 * Output:
-*   R2 - address within line_breaks
+*   R2 - address within line_breaks pointing to start of the next line
 *   R3 - index of character within document
 get_line_break_address
 * Let R3 = index within document
@@ -891,14 +893,13 @@ get_line_break_address
        AI   R3,-document_text
 * Let R2 = highest address within line_breaks
 * where line break within paragraph > doc_cursor_position
-       LI   R2,line_breaks+48
+       LI   R2,line_breaks
 calc_screen_row
-       DECT R2
-       CI   R2,line_breaks
+       CI   R2,line_breaks+48
        JEQ  calc_done
-       C    *R2,R3
-       JH   calc_screen_row
-       INCT R2
+       C    *R2+,R3
+       JLE  calc_screen_row
+       DECT R2
 calc_done
 *
        RT
