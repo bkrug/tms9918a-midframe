@@ -19,7 +19,7 @@ In most games and a few other programs, knowing when a frame completes is actual
 And since the number of CRU timer ticks per frame is a non-integer,
 it is also important to synchronize the timer with the VDP end-of-frame event on a regular basis.
 But the loss of end-of-frame interrupts isn't really a problem.
-Jeff Brown's same approach of enabling CRU timer interrupts, also involves polling for an end-of-frame interrupt, so that the TI can be hacked to ignore them.
+Jeff Brown's same approach of enabling CRU timer interrupts, also involves polling for an end-of-frame event, so that the TI can be hacked to ignore them.
 
 In game loops that I've programmed, I normally want to block the thread at the end of the loop anyway.
 There is usually something in the timing of the game that makes it important to only run one iteration of the loop per video frame.
