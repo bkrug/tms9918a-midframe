@@ -7,6 +7,7 @@ import os, glob
 from itertools import chain
 
 #Functions
+VERSION = "1.0.1"
 WORK_FOLDER = "./bin/"
 os.makedirs(WORK_FOLDER, exist_ok=True)
 
@@ -25,7 +26,7 @@ def link_main_files(linked_file, object_files):
     link_command_2 = link_command_1.format(source = unlinked_files_string, output = get_work_file(linked_file))
     os.system(link_command_2)
     rpk_link_1 = "xas99.py -c -a \">6000\" -l {source} -o {output}"
-    rpk_link_2 = rpk_link_1.format(source = unlinked_files_string, output = get_work_file(linked_file.replace(".bin", ".rpk")))
+    rpk_link_2 = rpk_link_1.format(source = unlinked_files_string, output = get_work_file(linked_file.replace(".C.bin", ".rpk")))
     os.system(rpk_link_2)
 
 #Generate music
@@ -64,7 +65,7 @@ temp_files = [
     "GROM",
     "FONTS"
 ]
-link_main_files("midFrame.C.bin", temp_files)
+link_main_files("midFrame." + VERSION + ".C.bin", temp_files)
 
 print("Linking 2nd Demo Cartridge")
 temp_files2 = [
@@ -88,7 +89,7 @@ temp_files2 = [
     "DESTROYSOUND",
     "HARMSOUND"
 ]
-link_main_files("parallaxScrolling.C.bin", temp_files2)
+link_main_files("parallaxScrolling." + VERSION + ".C.bin", temp_files2)
 
 #Clean up
 for file in glob.glob(WORK_FOLDER + "*.lst"):

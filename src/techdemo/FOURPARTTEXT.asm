@@ -40,20 +40,19 @@ cursor_char_end
 
 cnc_quarter_text
        LWPI WS
-       LI   R0,coinc_init_timer_loop
+       LI   R9,coinc_init_timer_loop
        JMP  quarter_text
 clc_quarter_text
        LWPI WS
-       LI   R0,calc_init_timer_loop
+       LI   R9,calc_init_timer_loop
 quarter_text
-       LI   R10,STACK-2
-       MOV  R0,*R10
+       LI   R10,STACK
        LIMI 0
 * Specify the location of the table of timer ISRs
        LI   R0,pixel_row_interrupts
        LI   R1,pixel_row_interrupts_end
        LI   R2,pattern0_isr
-       BL   @calc_init_timer_loop
+       BL   *R9
 *
        BL   @init_vdp_ram
        BL   @init_screen_image_table
