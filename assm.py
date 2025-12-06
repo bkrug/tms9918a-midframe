@@ -8,11 +8,11 @@ from itertools import chain
 
 #Functions
 VERSION = "1.0.1"
-WORK_FOLDER = "./bin/"
+WORK_FOLDER = "bin"
 os.makedirs(WORK_FOLDER, exist_ok=True)
 
 def get_work_file(filename):
-    return WORK_FOLDER + filename
+    return os.path.join(WORK_FOLDER, filename)
 
 def get_unlinked_string(object_files):
     unlinked_files = []
@@ -30,7 +30,8 @@ def link_main_files(linked_file, object_files):
     os.system(rpk_link_2)
 
 #Generate music
-music_command = (".\\score\\MusicXmlParser.exe "
+musicXmlLocation = os.path.join("score", "MusicXmlParser.exe")
+music_command = musicXmlLocation + (" "
     "--input score\\BunnyJump.musicxml "
     "--output src\\parallaxScroll\\TUNEBUNY.asm "
     "--asmLabel BUNY "
@@ -41,10 +42,10 @@ music_command = (".\\score\\MusicXmlParser.exe "
 os.system(music_command)
 
 #Assemble Src and Tests
-for subdir, dirs, files in os.walk(".\\Src"):
+for subdir, dirs, files in os.walk(os.path.join("Src")):
     for file in files:
         if file.startswith('EQU') == False and file.endswith('MAP.asm') == False:
-            filepath = subdir + os.sep + file
+            filepath = os.path.join("Src", subdir, file)
             print("Assembling " + filepath)
             list_file = get_work_file(file.replace(".asm", ".lst"))
             obj_file = get_work_file(file.replace(".asm", ".obj"))
@@ -92,7 +93,7 @@ temp_files2 = [
 link_main_files("parallaxScrolling." + VERSION + ".C.bin", temp_files2)
 
 #Clean up
-for file in glob.glob(WORK_FOLDER + "*.lst"):
+for file in glob.glob(os.path.join(WORK_FOLDER, "*.lst")):
     os.remove(file)
-for file in glob.glob(WORK_FOLDER + "*.obj"):
+for file in glob.glob(os.path.join(WORK_FOLDER, "*.obj")):
     os.remove(file)
