@@ -107,14 +107,13 @@ As far as I can tell any "flicker" has more to do with the text editor taking ti
 ## Mapping pixel-rows to the corresponding CRU ticks.
 
 The code in this repo includes two different ways to figure out the correct timer value for a particular pixel-row.
-One method multiplies the desired pixel-row by about 3 and adds some more ticks to account for the time between video frames.
+One method (the calc approach) multiplies the desired pixel-row by about 3 and adds some more ticks to account for the time between video frames.
 (See the routine calc_init_timer_loop in PIXELROW.asm)
-The second method places two overlapping sprites on the screen and polls the VDP's COINC flag until it sees that the overlapping sprites have been hit.
+The second method (the coinc approach) places two overlapping sprites on the screen and polls the VDP's COINC flag until it sees that the overlapping sprites have been hit.
 (See the routine coinc_init_timer_loop in PIXELROW.asm)
 
-I wanted to experiment with the coinc approach because I was inspired by the sprite 0 approach used in some NES games.
-But the calculation approach is probably better.
-The coinc approach has the freedom to be ignorant as to whether the program is running in a 60hz or 50hz environment.
+The coinc approach was inspired by the sprite 0 approach used in some NES games.
+It has the freedom to be ignorant as to whether the program is running in a 60hz or 50hz environment.
 It also seems to be more consistent in various emulators.
 The downside is that displaying overlapping sprites requires changing the contents of the VDP RAM, which could interfere with other parts of a program.
 That downside is mitigated if you only need to run the initialization logic at startup.
