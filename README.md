@@ -107,20 +107,19 @@ As far as I can tell any "flicker" has more to do with the text editor taking ti
 ## Mapping pixel-rows to the corresponding CRU ticks.
 
 The code in this repo includes two different ways to figure out the correct timer value for a particular pixel-row.
-One method multiplies the desired pixel-row by about 3 and adds some more ticks to account for the time between video frames.
+One method (the calc approach) multiplies the desired pixel-row by about 3 and adds some more ticks to account for the time between video frames.
 (See the routine calc_init_timer_loop in PIXELROW.asm)
-The second method places two overlapping sprites on the screen and polls the VDP's COINC flag until it sees that the overlapping sprites have been hit.
+The second method (the coinc approach) places two overlapping sprites on the screen and polls the VDP's COINC flag until it sees that the overlapping sprites have been hit.
 (See the routine coinc_init_timer_loop in PIXELROW.asm)
 
-I wanted to experiment with the coinc approach because I was inspired by the sprite 0 approach used in some NES games.
-But the calculation approach is probably better.
-The coinc approach has the freedom to be ignorant as to whether the program is running in a 60hz or 50hz environment.
-It could also theoretically work on an emulator that implements the CRU timer in an incorrect, but consistent way.
-But displaying overlapping sprites requires changing the contents of the VDP RAM, which could interfere with other parts of a program.
-And the coinc approach doesn't fix the above-mentioned issue of the difference of one pixel-row between real hardware and the most accurate emulators.
-And the coinc approach is substantially more code.
-Given that it is possible to programmatically determine if a TI-99 is running in a 50hz or 60hz environment,
-the calculation approach doesn't really have much of a downside.
+The coinc approach was inspired by the sprite 0 approach used in some NES games.
+It has the freedom to be ignorant as to whether the program is running in a 60hz or 50hz environment.
+It also seems to be more consistent in various emulators.
+The downside is that displaying overlapping sprites requires changing the contents of the VDP RAM, which could interfere with other parts of a program.
+That downside is mitigated if you only need to run the initialization logic at startup.
+The coinc approach also requires substantially more code.
+Note that the coinc approach doesn't fix the above-mentioned issue of the difference of one pixel-row between real hardware and the most accurate emulators.
+I used to recommend using the calculation approach, but I now recommend the coinc approach, if you can tolerate the downsides.
 
 ## Possible applications
 
